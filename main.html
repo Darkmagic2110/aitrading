@@ -15,7 +15,6 @@ margin:0;
 font-family:'Outfit',sans-serif;
 background:radial-gradient(circle at top,#1a0b2e,#000);
 color:#fff;
-height:100vh;
 overflow:hidden;
 }
 
@@ -27,23 +26,18 @@ display:flex;
 flex-direction:column;
 }
 
-/* TOP BAR */
+/* TOP */
 .topbar{
 display:flex;
 justify-content:space-between;
 align-items:center;
 }
 
-h1{
-font-size:18px;
-margin:0;
-}
+h1{font-size:18px;margin:0}
 
-/* MENU BUTTON */
 .menuBtn{
 font-size:26px;
 cursor:pointer;
-user-select:none;
 }
 
 /* SELECT */
@@ -80,24 +74,24 @@ align-items:center;
 font-size:30px;
 font-weight:800;
 border:4px solid #444;
-text-align:center;
 transition:.3s;
+text-align:center;
 }
 
 .buy{color:#00ff84;border-color:#00ff84}
 .sell{color:#ff3355;border-color:#ff3355}
 .wait{color:#ffcc00}
 
-/* PANEL */
+/* BOX */
 .panel{
-background:rgba(255,255,255,.04);
+background:rgba(255,255,255,.03);
 padding:12px;
 border-radius:14px;
 font-size:13px;
 margin-top:10px;
 }
 
-/* SIDE MENU */
+/* MENU */
 .overlay{
 position:fixed;
 top:0;left:0;
@@ -118,16 +112,18 @@ transition:.3s;
 border-left:1px solid rgba(255,255,255,.1);
 }
 
-.menu h3{
-margin-top:0;
-}
-
 .menuItem{
 padding:12px;
 margin-top:10px;
 background:rgba(255,255,255,.05);
 border-radius:10px;
 cursor:pointer;
+}
+
+.time{
+font-size:12px;
+opacity:.7;
+margin-top:6px;
 }
 
 </style>
@@ -138,12 +134,12 @@ cursor:pointer;
 <div class="overlay" id="overlay" onclick="closeMenu()"></div>
 
 <div class="menu" id="menu">
-<h3>⚙ MENU</h3>
+<h3>MENU</h3>
 
-<div class="menuItem">💰 Purchase Coins</div>
-<div class="menuItem">🎁 Referral Code</div>
-<div class="menuItem">❓ Help</div>
-<div class="menuItem">📞 Customer Support</div>
+<div class="menuItem" onclick="go('deposit.html')">💰 Purchase Coins</div>
+<div class="menuItem" onclick="go('referral.html')">🎁 Referral Code</div>
+<div class="menuItem" onclick="go('help.html')">❓ Help</div>
+<div class="menuItem" onclick="go('customer.html')">📞 Customer Support</div>
 
 </div>
 
@@ -153,6 +149,8 @@ cursor:pointer;
 <h1>⚡ DARK MAGIC AI</h1>
 <div class="menuBtn" onclick="openMenu()">☰</div>
 </div>
+
+<div class="time">🕒 <span id="clock"></span></div>
 
 <select id="pair">
 <option value="frxEURUSD">EUR/USD</option>
@@ -165,22 +163,20 @@ cursor:pointer;
 
 <div id="circle" class="circle wait">
 <div>WAIT</div>
-<div style="font-size:13px" id="cd">--</div>
+<div id="cd" style="font-size:13px">--</div>
 </div>
 
 <div class="panel">
 Price: <span id="price">--</span><br>
-Signal: <span id="sig">WAIT</span>
+Signal: <span id="sig">WAIT</span><br>
+Trend: <span id="trend">--</span>
 </div>
 
 </div>
 
 <script>
 
-let ws;
-let prices=[];
-let trade=null;
-let timer;
+let ws,prices=[],trade=null,timer;
 
 /* MENU */
 function openMenu(){
@@ -191,6 +187,16 @@ function closeMenu(){
 document.getElementById("menu").style.right="-70%";
 document.getElementById("overlay").style.display="none";
 }
+function go(p){
+closeMenu();
+window.location.href=p;
+}
+
+/* CLOCK */
+setInterval(()=>{
+let d=new Date();
+document.getElementById("clock").innerText=d.toLocaleTimeString();
+},1000);
 
 /* EMA */
 function EMA(data,p=20){
@@ -201,13 +207,13 @@ e=data[i]*k+e*(1-k);
 return e;
 }
 
-/* VOLATILITY */
+/* VOL */
 function volatility(data){
-let sum=0;
+let s=0;
 for(let i=1;i<data.length;i++){
-sum+=Math.abs(data[i]-data[i-1]);
+s+=Math.abs(data[i]-data[i-1]);
 }
-return sum/data.length;
+return s/data.length;
 }
 
 /* START */
@@ -233,34 +239,24 @@ if(prices.length>120)prices.shift();
 
 document.getElementById("price").innerText=price.toFixed(5);
 
-if(prices.length>30 && !trade){
-generateSignal(price);
-}
-
-};
-
-}
-
-/* SMART SIGNAL ENGINE */
-function generateSignal(price){
+if(prices.length<30)return;
 
 let ema=EMA(prices.slice(-30),15);
 let vol=volatility(prices.slice(-20));
-
-let momentum=prices[prices.length-1]-prices[prices.length-8];
+let momentum=prices.at(-1)-prices.at(-10);
 
 let score=0;
 
-/* TREND */
 if(price>ema)score+=2;
 else score-=2;
 
-/* MOMENTUM */
 if(momentum>0)score+=1;
 else score-=1;
 
-/* VOLATILITY FILTER */
-if(vol<0.0003)return; // ignore weak/noisy market
+document.getElementById("trend").innerText=momentum>0?"UPTREND":"DOWNTREND";
+
+/* filter weak market */
+if(vol<0.00025)return;
 
 let signal="WAIT";
 
@@ -272,30 +268,34 @@ if(signal==="WAIT")return;
 trade={
 signal,
 entry:price,
-end:Date.now()+30000
+end:Date.now()+chooseTime()
 };
 
 document.getElementById("sig").innerText=signal;
 updateCircle(signal);
-
 startCountdown();
 
+};
+
+}
+
+/* TIMEFRAME (stable not changing randomly) */
+function chooseTime(){
+return 30000; // 30s fixed (you can change to 60000, 120000 etc)
 }
 
 /* UI */
 function updateCircle(sig){
-
 let c=document.getElementById("circle");
 c.className="circle wait";
-
 if(sig==="BUY")c.className="circle buy";
 if(sig==="SELL")c.className="circle sell";
-
-c.innerHTML=`<div>${sig}</div><div id="cd">30s TRADE</div>`;
+c.innerHTML=`<div>${sig}</div><div id="cd">30s</div>`;
 }
 
 /* COUNTDOWN */
 function startCountdown(){
+clearInterval(timer);
 
 timer=setInterval(()=>{
 
@@ -306,6 +306,7 @@ document.getElementById("cd").innerText=left+"s";
 if(left<=0){
 clearInterval(timer);
 trade=null;
+document.getElementById("cd").innerText="DONE";
 }
 
 },1000);
@@ -313,6 +314,5 @@ trade=null;
 }
 
 </script>
-
 </body>
 </html>
