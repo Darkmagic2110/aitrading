@@ -17,57 +17,57 @@ background:radial-gradient(circle at top,#1a0b2e,#000);
 color:#fff;
 height:100vh;
 overflow:hidden;
+}
+
+/* APP */
+.app{
+height:100vh;
+padding:16px;
 display:flex;
-justify-content:center;
+flex-direction:column;
+}
+
+/* TOP BAR */
+.topbar{
+display:flex;
+justify-content:space-between;
 align-items:center;
 }
 
-/* FULL SCREEN APP */
-.app{
-width:100%;
-height:100vh;
-padding:18px;
-display:flex;
-flex-direction:column;
-justify-content:space-between;
-}
-
-/* HEADER */
 h1{
-text-align:center;
-font-size:22px;
-font-weight:800;
+font-size:18px;
 margin:0;
 }
 
-/* SELECT */
-select{
-width:100%;
-padding:14px;
-border-radius:14px;
-border:none;
-background:rgba(255,255,255,.06);
-color:#fff;
-margin-top:10px;
-outline:none;
+/* MENU BUTTON */
+.menuBtn{
+font-size:26px;
+cursor:pointer;
+user-select:none;
 }
 
-/* BUTTON */
-button{
+/* SELECT */
+select,button{
 width:100%;
 padding:14px;
-border:none;
+margin-top:10px;
 border-radius:14px;
-margin-top:12px;
-font-weight:700;
+border:none;
+font-family:'Outfit',sans-serif;
+}
+
+select{
+background:rgba(255,255,255,.05);
+color:#fff;
+}
+
+button{
 background:linear-gradient(135deg,#ff006a,#7b61ff);
 color:#fff;
-cursor:pointer;
-transition:.2s;
+font-weight:700;
 }
-button:active{transform:scale(.98)}
 
-/* MAIN CIRCLE */
+/* CIRCLE */
 .circle{
 width:220px;
 height:220px;
@@ -77,45 +77,57 @@ display:flex;
 flex-direction:column;
 justify-content:center;
 align-items:center;
-font-size:32px;
+font-size:30px;
 font-weight:800;
 border:4px solid #444;
-transition:.3s;
 text-align:center;
+transition:.3s;
 }
 
-.buy{color:#00ff84;border-color:#00ff84;box-shadow:0 0 30px #00ff84}
-.sell{color:#ff3355;border-color:#ff3355;box-shadow:0 0 30px #ff3355}
+.buy{color:#00ff84;border-color:#00ff84}
+.sell{color:#ff3355;border-color:#ff3355}
 .wait{color:#ffcc00}
 
-/* PANELS */
+/* PANEL */
 .panel{
 background:rgba(255,255,255,.04);
-border:1px solid rgba(255,255,255,.08);
 padding:12px;
 border-radius:14px;
-margin-top:10px;
 font-size:13px;
-}
-
-/* STATS */
-.stats{
-display:grid;
-grid-template-columns:1fr 1fr 1fr;
-gap:10px;
 margin-top:10px;
-text-align:center;
 }
 
-.stats div{
-background:rgba(255,255,255,.04);
-padding:10px;
-border-radius:12px;
+/* SIDE MENU */
+.overlay{
+position:fixed;
+top:0;left:0;
+width:100%;height:100%;
+background:rgba(0,0,0,.5);
+display:none;
 }
 
-.small{
-opacity:.8;
-font-size:12px;
+.menu{
+position:fixed;
+right:-70%;
+top:0;
+width:70%;
+height:100%;
+background:#0f0f0f;
+padding:16px;
+transition:.3s;
+border-left:1px solid rgba(255,255,255,.1);
+}
+
+.menu h3{
+margin-top:0;
+}
+
+.menuItem{
+padding:12px;
+margin-top:10px;
+background:rgba(255,255,255,.05);
+border-radius:10px;
+cursor:pointer;
 }
 
 </style>
@@ -123,35 +135,42 @@ font-size:12px;
 
 <body>
 
+<div class="overlay" id="overlay" onclick="closeMenu()"></div>
+
+<div class="menu" id="menu">
+<h3>⚙ MENU</h3>
+
+<div class="menuItem">💰 Purchase Coins</div>
+<div class="menuItem">🎁 Referral Code</div>
+<div class="menuItem">❓ Help</div>
+<div class="menuItem">📞 Customer Support</div>
+
+</div>
+
 <div class="app">
 
-<h1>⚡ DARK MAGIC AI PRO</h1>
+<div class="topbar">
+<h1>⚡ DARK MAGIC AI</h1>
+<div class="menuBtn" onclick="openMenu()">☰</div>
+</div>
 
-<select id="tf">
-<option value="30">30 Sec</option>
-<option value="60">1 Min</option>
-<option value="90">1:30 Min</option>
-<option value="120">2 Min</option>
-<option value="150">2:30 Min</option>
-<option value="180">3 Min</option>
+<select id="pair">
+<option value="frxEURUSD">EUR/USD</option>
+<option value="frxGBPUSD">GBP/USD</option>
+<option value="frxUSDJPY">USD/JPY</option>
+<option value="frxAUDUSD">AUD/USD</option>
 </select>
 
-<button onclick="start()">▶ START BOT</button>
+<button onclick="start()">START BOT</button>
 
 <div id="circle" class="circle wait">
 <div>WAIT</div>
-<div class="small" id="cd">--</div>
+<div style="font-size:13px" id="cd">--</div>
 </div>
 
 <div class="panel">
 Price: <span id="price">--</span><br>
 Signal: <span id="sig">WAIT</span>
-</div>
-
-<div class="stats">
-<div>Signals<br><b id="total">0</b></div>
-<div>Wins<br><b id="wins">0</b></div>
-<div>Loss<br><b id="loss">0</b></div>
 </div>
 
 </div>
@@ -161,8 +180,35 @@ Signal: <span id="sig">WAIT</span>
 let ws;
 let prices=[];
 let trade=null;
+let timer;
 
-let total=0,wins=0,loss=0;
+/* MENU */
+function openMenu(){
+document.getElementById("menu").style.right="0";
+document.getElementById("overlay").style.display="block";
+}
+function closeMenu(){
+document.getElementById("menu").style.right="-70%";
+document.getElementById("overlay").style.display="none";
+}
+
+/* EMA */
+function EMA(data,p=20){
+let k=2/(p+1),e=data[0];
+for(let i=1;i<data.length;i++){
+e=data[i]*k+e*(1-k);
+}
+return e;
+}
+
+/* VOLATILITY */
+function volatility(data){
+let sum=0;
+for(let i=1;i<data.length;i++){
+sum+=Math.abs(data[i]-data[i-1]);
+}
+return sum/data.length;
+}
 
 /* START */
 function start(){
@@ -183,87 +229,86 @@ if(!d.tick)return;
 
 let price=parseFloat(d.tick.quote);
 prices.push(price);
-if(prices.length>100)prices.shift();
+if(prices.length>120)prices.shift();
 
 document.getElementById("price").innerText=price.toFixed(5);
 
-/* ONLY ONE TRADE AT A TIME */
-if(!trade && prices.length>20){
-createTrade(price);
+if(prices.length>30 && !trade){
+generateSignal(price);
 }
 
 };
 
 }
 
-/* CREATE TRADE */
-function createTrade(price){
+/* SMART SIGNAL ENGINE */
+function generateSignal(price){
 
-let tf=parseInt(document.getElementById("tf").value);
+let ema=EMA(prices.slice(-30),15);
+let vol=volatility(prices.slice(-20));
 
-let signal=Math.random()>0.5?"BUY":"SELL"; // stable placeholder logic
+let momentum=prices[prices.length-1]-prices[prices.length-8];
+
+let score=0;
+
+/* TREND */
+if(price>ema)score+=2;
+else score-=2;
+
+/* MOMENTUM */
+if(momentum>0)score+=1;
+else score-=1;
+
+/* VOLATILITY FILTER */
+if(vol<0.0003)return; // ignore weak/noisy market
+
+let signal="WAIT";
+
+if(score>=2)signal="BUY";
+else if(score<=-2)signal="SELL";
+
+if(signal==="WAIT")return;
 
 trade={
 signal,
 entry:price,
-end:Date.now()+tf*1000
+end:Date.now()+30000
 };
 
 document.getElementById("sig").innerText=signal;
-document.getElementById("total").innerText=++total;
-
 updateCircle(signal);
+
 startCountdown();
+
 }
 
 /* UI */
 function updateCircle(sig){
+
 let c=document.getElementById("circle");
 c.className="circle wait";
 
 if(sig==="BUY")c.className="circle buy";
 if(sig==="SELL")c.className="circle sell";
 
-c.innerHTML=`<div>${sig}</div><div class="small" id="cd">ACTIVE</div>`;
+c.innerHTML=`<div>${sig}</div><div id="cd">30s TRADE</div>`;
 }
 
 /* COUNTDOWN */
 function startCountdown(){
 
-let t=setInterval(()=>{
-
-if(!trade)return;
+timer=setInterval(()=>{
 
 let left=Math.floor((trade.end-Date.now())/1000);
+
 document.getElementById("cd").innerText=left+"s";
 
 if(left<=0){
-clearInterval(t);
-evaluate();
+clearInterval(timer);
 trade=null;
 }
 
 },1000);
-
-}
-
-/* EVALUATION */
-function evaluate(){
-
-let price=prices[prices.length-1];
-
-let win=false;
-
-if(trade.signal==="BUY" && price>=trade.entry)win=true;
-if(trade.signal==="SELL" && price<=trade.entry)win=true;
-
-if(win){
-wins++;
-document.getElementById("wins").innerText=wins;
-}else{
-loss++;
-document.getElementById("loss").innerText=loss;
-}
 
 }
 
