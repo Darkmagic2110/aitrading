@@ -2,240 +2,328 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>OTC Signal Bot Countdown</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DARK MAGIC AI - OTC PRO</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 
 <style>
+
 body{
-    background:#0b1220;
-    color:white;
-    font-family:Arial;
-    text-align:center;
+margin:0;
+font-family:'Outfit',sans-serif;
+background:radial-gradient(circle at top,#1a0f2e,#000);
+color:#fff;
+padding:18px;
 }
 
-.card{
-    width:360px;
-    margin:20px auto;
-    background:#111827;
-    padding:20px;
-    border-radius:12px;
+.container{
+max-width:460px;
+margin:auto;
+background:rgba(20,20,20,.85);
+border-radius:24px;
+padding:20px;
+border:1px solid rgba(255,255,255,.08);
+backdrop-filter:blur(10px);
 }
 
-#sig{
-    font-size:40px;
-    font-weight:bold;
+h1{
+text-align:center;
+font-size:26px;
+font-weight:800;
+background:linear-gradient(90deg,#fff,#aaa);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
 }
 
-#countdown{
-    font-size:30px;
-    color:#38bdf8;
+.sub{
+text-align:center;
+font-size:13px;
+color:#aaa;
+margin-top:8px;
+}
+
+select,button{
+width:100%;
+margin-top:12px;
+padding:14px;
+border-radius:16px;
+border:none;
+font-family:'Outfit',sans-serif;
+}
+
+select{
+background:rgba(255,255,255,.05);
+color:#fff;
+border:1px solid rgba(255,255,255,.1);
 }
 
 button{
-    padding:10px 15px;
-    margin:5px;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-}
-
-.mode{
-    background:#38bdf8;
-}
-
-.start{
-    background:#22c55e;
+background:linear-gradient(135deg,#ff006a,#7b61ff);
+color:#fff;
+font-weight:700;
+cursor:pointer;
+font-size:15px;
 }
 
 .circle{
-    margin-top:10px;
-    font-size:14px;
-    color:#9ca3af;
+width:220px;
+height:220px;
+margin:20px auto;
+border-radius:50%;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+font-size:38px;
+font-weight:800;
+border:4px solid #444;
+text-align:center;
+transition:.4s;
 }
+
+.buy{
+color:#00ff84;
+border-color:#00ff84;
+box-shadow:0 0 50px #00ff84;
+}
+
+.sell{
+color:#ff3355;
+border-color:#ff3355;
+box-shadow:0 0 50px #ff3355;
+}
+
+.hold{
+color:#ffcc00;
+border-color:#ffcc00;
+box-shadow:0 0 35px #ffcc00;
+}
+
+.box,.signalBox,.history{
+margin-top:14px;
+background:rgba(255,255,255,.03);
+padding:14px;
+border-radius:16px;
+border:1px solid rgba(255,255,255,.06);
+font-size:13px;
+}
+
 </style>
 </head>
 
 <body>
 
-<h1>OTC Signal Bot (Countdown Mode)</h1>
+<div class="container">
 
-<div class="card">
+<h1>⚡ DARK MAGIC AI</h1>
+<p class="sub">OTC Signal Engine + Countdown System</p>
 
-    <div id="sig">WAIT</div>
-    <div id="countdown">0s</div>
+<select id="pair">
+<option value="frxEURUSD">EUR/USD</option>
+<option value="frxGBPUSD">GBP/USD</option>
+<option value="frxUSDJPY">USD/JPY</option>
+</select>
 
-    <button class="mode" onclick="setMode(5)">5 SEC</button>
-    <button class="mode" onclick="setMode(10)">10 SEC</button>
-    <br>
+<select id="mode">
+<option value="5">5 SEC MODE</option>
+<option value="10">10 SEC MODE</option>
+</select>
 
-    <button class="start" onclick="startSignal()">START SIGNAL</button>
+<button onclick="start()">▶ START BOT</button>
 
-    <div class="circle" id="circle">Status: IDLE</div>
+<div id="circle" class="circle hold">
+<div>WAIT</div>
+<div style="font-size:14px">EXP: --</div>
+</div>
+
+<div class="box">
+<p>💰 Price: <span id="price">--</span></p>
+<p>📊 RSI: <span id="rsi">--</span></p>
+<p>📈 EMA FAST: <span id="emaFast">--</span></p>
+<p>📉 EMA SLOW: <span id="emaSlow">--</span></p>
+</div>
+
+<div class="signalBox">
+<p>📡 Signal: <span id="sig">WAIT</span></p>
+<p>⏳ Countdown: <span id="countdown">--</span></p>
+<p>🎯 Result: <span id="result">--</span></p>
+</div>
 
 </div>
 
 <script>
 
-// ======================
-// SETTINGS
-// ======================
-let mode = 5;
-let lock = false;
-let lastSignal = "WAIT";
+let ws;
+let prices=[];
+let lock=false;
+let lastSignal="WAIT";
 
-let prices = [];
-
-// simulate EUR/USD price
-function generatePrice(){
-    let last = prices.length ? prices[prices.length-1] : 1.1000;
-    let change = (Math.random()-0.5)*0.001;
-    let newPrice = last + change;
-    prices.push(newPrice);
-    if(prices.length>200) prices.shift();
+/* ======================
+   RSI
+====================== */
+function RSI(data){
+let g=0,l=0;
+for(let i=data.length-14;i<data.length;i++){
+let d=data[i]-data[i-1];
+if(d>0)g+=d;else l+=Math.abs(d);
+}
+let rs=g/(l||1);
+return 100-(100/(1+rs));
 }
 
-// preload
-for(let i=0;i<50;i++) generatePrice();
-
-// ======================
-// INDICATORS
-// ======================
-function ema(period,data){
-    let k=2/(period+1);
-    let e=data[0];
-    for(let i=1;i<data.length;i++){
-        e=data[i]*k+e*(1-k);
-    }
-    return e;
+/* ======================
+   EMA
+====================== */
+function EMA(data,p){
+let k=2/(p+1);
+let e=data[0];
+for(let i=1;i<data.length;i++){
+e=data[i]*k+e*(1-k);
+}
+return e;
 }
 
-function rsi(data){
-    let gain=0,loss=0;
-    for(let i=data.length-15;i<data.length;i++){
-        let diff=data[i]-data[i-1];
-        if(diff>0)gain+=diff;
-        else loss-=diff;
-    }
-    let rs=gain/(loss||1);
-    return 100-(100/(1+rs));
+/* ======================
+   SIGNAL ENGINE
+====================== */
+function signalEngine(){
+
+let emaFast=EMA(prices,8);
+let emaSlow=EMA(prices,21);
+let rsi=RSI(prices);
+
+let signal="WAIT";
+
+if(emaFast>emaSlow && rsi>55) signal="BUY";
+else if(emaFast<emaSlow && rsi<45) signal="SELL";
+
+return {signal,emaFast,emaSlow,rsi};
 }
 
-// ======================
-// SIGNAL ENGINE
-// ======================
-function analyze(){
+/* ======================
+   START BOT
+====================== */
+function start(){
 
-    let ema9=ema(9,prices);
-    let ema21=ema(21,prices);
-    let r=rsi(prices);
+prices=[];
+if(ws)ws.close();
 
-    let score=0;
+ws=new WebSocket("wss://ws.derivws.com/websockets/v3?app_id=1089");
 
-    if(ema9>ema21)score+=3;
-    else score-=3;
+ws.onopen=()=>{
 
-    if(r>55)score+=2;
-    else if(r<45)score-=2;
+ws.send(JSON.stringify({
+ticks:document.getElementById("pair").value,
+subscribe:1
+}));
 
-    let signal="WAIT";
+};
 
-    if(score>=4)signal="BUY";
-    if(score<=-4)signal="SELL";
+ws.onmessage=(msg)=>{
 
-    return signal;
+let data=JSON.parse(msg.data);
+if(!data.tick)return;
+
+let price=parseFloat(data.tick.quote);
+prices.push(price);
+if(prices.length>200)prices.shift();
+
+document.getElementById("price").innerText=price.toFixed(5);
+
+if(prices.length<20)return;
+
+let result=signalEngine();
+
+document.getElementById("rsi").innerText=result.rsi.toFixed(2);
+document.getElementById("emaFast").innerText=result.emaFast.toFixed(5);
+document.getElementById("emaSlow").innerText=result.emaSlow.toFixed(5);
+
+if(lock)return;
+
+if(result.signal!==lastSignal && result.signal!=="WAIT"){
+
+lastSignal=result.signal;
+lock=true;
+
+document.getElementById("sig").innerText=result.signal;
+
+let trade={
+signal:result.signal,
+entry:price,
+end:Date.now()+(parseInt(document.getElementById("mode").value)*1000)
+};
+
+updateCircle(result.signal);
+startCountdown(trade);
+
 }
 
-// ======================
-// TRADE OBJECT
-// ======================
-function createTrade(){
-    return{
-        start:Date.now(),
-        end:Date.now()+(mode*1000),
-        signal:analyze()
-    };
+};
+
 }
 
-// ======================
-// COUNTDOWN SYSTEM
-// ======================
+/* ======================
+   CIRCLE UI
+====================== */
+function updateCircle(sig){
+
+let c=document.getElementById("circle");
+c.className="circle hold";
+
+if(sig==="BUY")c.className="circle buy";
+if(sig==="SELL")c.className="circle sell";
+
+c.innerHTML=`<div>${sig}</div><div style="font-size:14px">ACTIVE</div>`;
+}
+
+/* ======================
+   COUNTDOWN (YOUR STYLE)
+====================== */
 function startCountdown(trade){
 
 let timer=setInterval(()=>{
 
-    let left=Math.floor((trade.end-Date.now())/1000);
+let left=Math.floor((trade.end-Date.now())/1000);
 
-    if(left<=0){
+if(left<=0){
 
-        clearInterval(timer);
+clearInterval(timer);
 
-        document.getElementById("countdown").innerText="0s";
+document.getElementById("countdown").innerText="0s";
 
-        evaluateTrade(trade);
+evaluate(trade);
 
-        lastSignal="WAIT";
-        lock=false;
+lock=false;
+lastSignal="WAIT";
 
-        document.getElementById("sig").innerText="SEARCHING...";
-        updateCircle("WAIT");
+document.getElementById("sig").innerText="SEARCHING...";
 
-        return;
-    }
+updateCircle("WAIT");
 
-    document.getElementById("countdown").innerText=left+"s";
+return;
+}
+
+document.getElementById("countdown").innerText=left+"s";
 
 },1000);
 
 }
 
-// ======================
-// EVALUATE TRADE
-// ======================
-function evaluateTrade(trade){
+/* ======================
+   EVALUATE
+====================== */
+function evaluate(trade){
 
-    generatePrice();
+let current=prices[prices.length-1];
 
-    let newSignal=analyze();
+let win=false;
 
-    if(newSignal===trade.signal){
-        document.getElementById("sig").innerText=trade.signal+" WIN";
-        updateCircle("WIN");
-    }else{
-        document.getElementById("sig").innerText=trade.signal+" LOSS";
-        updateCircle("LOSS");
-    }
-}
+if(trade.signal==="BUY" && current>trade.entry)win=true;
+if(trade.signal==="SELL" && current<trade.entry)win=true;
 
-// ======================
-// UI HELPERS
-// ======================
-function updateCircle(status){
-    document.getElementById("circle").innerText="Status: "+status;
-}
+document.getElementById("result").innerText=win?"WIN ✅":"LOSS ❌";
 
-// ======================
-// MODE
-// ======================
-function setMode(m){
-    mode=m;
-    document.getElementById("circle").innerText="Status: MODE "+m+"s";
-}
-
-// ======================
-// START SIGNAL
-// ======================
-function startSignal(){
-
-    if(lock)return;
-
-    lock=true;
-
-    generatePrice();
-
-    let trade=createTrade();
-
-    document.getElementById("sig").innerText="TRADE: "+trade.signal;
-
-    startCountdown(trade);
 }
 
 </script>
