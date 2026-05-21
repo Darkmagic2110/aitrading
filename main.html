@@ -16,21 +16,21 @@ box-sizing:border-box;
 
 body{
 font-family:'Outfit',sans-serif;
-background:radial-gradient(circle at top,#1d1038,#050505);
+background:radial-gradient(circle at top,#1b1033,#050505);
 color:#fff;
 padding:15px;
 overflow-y:auto;
 }
 
 .container{
-max-width:470px;
+max-width:480px;
 margin:auto;
 background:rgba(18,18,18,.92);
-border:1px solid rgba(255,255,255,.08);
 border-radius:28px;
 padding:18px;
-backdrop-filter:blur(14px);
-box-shadow:0 0 30px rgba(123,97,255,.15);
+border:1px solid rgba(255,255,255,.08);
+backdrop-filter:blur(12px);
+box-shadow:0 0 30px rgba(123,97,255,.18);
 }
 
 h1{
@@ -50,33 +50,29 @@ margin-top:6px;
 margin-bottom:18px;
 }
 
-select{
+select,button{
 width:100%;
 padding:15px;
 border:none;
 outline:none;
-border-radius:16px;
+border-radius:18px;
+font-family:'Outfit',sans-serif;
+}
+
+select{
 background:rgba(255,255,255,.05);
 color:#fff;
-font-size:14px;
-font-family:'Outfit',sans-serif;
 border:1px solid rgba(255,255,255,.08);
+margin-bottom:12px;
 }
 
 button{
-width:100%;
-margin-top:14px;
-padding:15px;
-border:none;
-border-radius:18px;
-font-size:15px;
-font-weight:700;
-font-family:'Outfit',sans-serif;
-cursor:pointer;
 background:linear-gradient(135deg,#ff006a,#7b61ff);
 color:#fff;
-transition:.2s;
-box-shadow:0 0 25px rgba(123,97,255,.4);
+font-size:15px;
+font-weight:700;
+cursor:pointer;
+box-shadow:0 0 25px rgba(123,97,255,.35);
 }
 
 button:active{
@@ -84,19 +80,19 @@ transform:scale(.98);
 }
 
 .circle{
-width:210px;
-height:210px;
-margin:22px auto;
+width:220px;
+height:220px;
+margin:20px auto;
 border-radius:50%;
 display:flex;
 flex-direction:column;
 justify-content:center;
 align-items:center;
+text-align:center;
 font-size:34px;
 font-weight:800;
 border:5px solid #444;
 transition:.3s;
-text-align:center;
 }
 
 .buy{
@@ -114,35 +110,35 @@ box-shadow:0 0 35px #ff3355;
 .hold{
 color:#ffcc00;
 border-color:#ffcc00;
-box-shadow:0 0 25px #ffcc00;
+box-shadow:0 0 30px #ffcc00;
 }
 
-.box,.signalBox{
+.box,.signalBox,.trendBox{
 margin-top:14px;
 background:rgba(255,255,255,.04);
-border:1px solid rgba(255,255,255,.06);
 padding:15px;
 border-radius:18px;
+border:1px solid rgba(255,255,255,.06);
 font-size:14px;
 }
 
-.box p,.signalBox p{
+.box p,.signalBox p,.trendBox p{
 margin-top:8px;
 }
 
 .stats{
-margin-top:14px;
 display:grid;
 grid-template-columns:1fr 1fr 1fr;
 gap:10px;
+margin-top:14px;
 }
 
 .card{
 background:rgba(255,255,255,.04);
-border:1px solid rgba(255,255,255,.06);
-padding:15px;
+padding:14px;
 border-radius:18px;
 text-align:center;
+border:1px solid rgba(255,255,255,.06);
 }
 
 .card h2{
@@ -156,6 +152,16 @@ color:#00ff99;
 
 .loss{
 color:#ff3355;
+}
+
+.up{
+color:#00ff99;
+font-weight:700;
+}
+
+.down{
+color:#ff3355;
+font-weight:700;
 }
 </style>
 </head>
@@ -172,28 +178,35 @@ color:#ff3355;
 <option value="frxGBPUSD">GBP/USD</option>
 <option value="frxUSDJPY">USD/JPY</option>
 <option value="frxAUDUSD">AUD/USD</option>
+<option value="frxEURJPY">EUR/JPY</option>
+<option value="frxUSDCAD">USD/CAD</option>
 </select>
 
 <button onclick="start()">▶ START BOT</button>
 
 <div id="circle" class="circle hold">
 <div>WAIT</div>
-<div style="font-size:14px;margin-top:8px;">1 MIN</div>
+<div style="font-size:14px;margin-top:8px;">--</div>
+</div>
+
+<div class="trendBox">
+<p>📈 Market Trend: <span id="trend">WAITING...</span></p>
+<p>⏱ Recommended Interval: <span id="interval">--</span></p>
 </div>
 
 <div class="box">
 <p>💰 Price: <span id="price">--</span></p>
 <p>📊 RSI: <span id="rsi">--</span></p>
+<p>⚡ Momentum: <span id="mom">--</span></p>
 <p>📈 EMA FAST: <span id="fema">--</span></p>
 <p>📉 EMA SLOW: <span id="sema">--</span></p>
-<p>⚡ Momentum: <span id="mom">--</span></p>
 </div>
 
 <div class="signalBox">
 <p>📡 Signal: <span id="sig">WAIT</span></p>
+<p>💵 Entry Price: <span id="entry">--</span></p>
 <p>⏳ Countdown: <span id="countdown">--</span></p>
 <p>🎯 Result: <span id="result">--</span></p>
-<p>💵 Entry Price: <span id="entry">--</span></p>
 </div>
 
 <div class="stats">
@@ -219,7 +232,6 @@ Loss
 
 let ws;
 let prices=[];
-let lastSignal="WAIT";
 let lock=false;
 
 let total=0;
@@ -274,7 +286,33 @@ return data[data.length-1]-data[data.length-5];
 
 }
 
-function updateCircle(signal){
+function getDuration(score,volatility){
+
+if(Math.abs(score)>=5 && volatility>0.00025){
+return {text:"30 SEC",sec:30};
+}
+
+if(Math.abs(score)>=4){
+return {text:"1 MIN",sec:60};
+}
+
+if(Math.abs(score)>=3){
+return {text:"1 MIN 30 SEC",sec:90};
+}
+
+if(Math.abs(score)>=2){
+return {text:"2 MIN",sec:120};
+}
+
+if(Math.abs(score)>=1){
+return {text:"3 MIN",sec:180};
+}
+
+return {text:"5 MIN",sec:300};
+
+}
+
+function updateCircle(signal,time){
 
 let c=document.getElementById("circle");
 
@@ -290,7 +328,7 @@ c.className="circle sell";
 
 c.innerHTML=`
 <div>${signal}</div>
-<div style="font-size:14px;margin-top:8px;">1 MIN</div>
+<div style="font-size:14px;margin-top:8px;">${time}</div>
 `;
 
 }
@@ -324,7 +362,7 @@ if(isNaN(price))return;
 
 prices.push(price);
 
-if(prices.length>120){
+if(prices.length>150){
 prices.shift();
 }
 
@@ -333,19 +371,14 @@ document.getElementById("price").innerText=price;
 if(prices.length<30)return;
 
 let rsi=RSI(prices);
-
 let fastEMA=EMA(prices,10);
-
 let slowEMA=EMA(prices,25);
-
 let mom=Momentum(prices);
 
 document.getElementById("rsi").innerText=rsi.toFixed(2);
 document.getElementById("fema").innerText=fastEMA.toFixed(5);
 document.getElementById("sema").innerText=slowEMA.toFixed(5);
 document.getElementById("mom").innerText=mom.toFixed(5);
-
-let volatility=Math.abs(prices[prices.length-1]-prices[prices.length-5]);
 
 let score=0;
 
@@ -364,18 +397,20 @@ score-=1;
 }
 
 if(mom>0){
-score+=1;
+score+=2;
 }else{
-score-=1;
+score-=2;
 }
+
+let volatility=Math.abs(prices[prices.length-1]-prices[prices.length-5]);
 
 let signal="WAIT";
 
-if(score>=3 && fastEMA>slowEMA && rsi<55){
+if(score>=3 && fastEMA>slowEMA && mom>0){
 signal="BUY";
 }
 
-if(score<=-3 && fastEMA<slowEMA && rsi>45){
+if(score<=-3 && fastEMA<slowEMA && mom<0){
 signal="SELL";
 }
 
@@ -383,7 +418,21 @@ if(volatility<0.00002){
 signal="WAIT";
 }
 
-updateCircle(signal);
+let trend="SIDEWAYS";
+
+if(fastEMA>slowEMA){
+trend="UPTREND 📈";
+document.getElementById("trend").innerHTML="<span class='up'>UPTREND 📈</span>";
+}else{
+trend="DOWNTREND 📉";
+document.getElementById("trend").innerHTML="<span class='down'>DOWNTREND 📉</span>";
+}
+
+let duration=getDuration(score,volatility);
+
+document.getElementById("interval").innerText=duration.text;
+
+updateCircle(signal,duration.text);
 
 if(lock)return;
 
@@ -395,7 +444,7 @@ setTimeout(()=>{
 lock=false;
 },5000);
 
-createTrade(signal,price);
+createTrade(signal,price,duration.sec,duration.text);
 
 }
 
@@ -403,15 +452,13 @@ createTrade(signal,price);
 
 }
 
-function createTrade(signal,entry){
+function createTrade(signal,entry,duration,timeText){
 
 total++;
 
 document.getElementById("total").innerText=total;
 document.getElementById("sig").innerText=signal;
 document.getElementById("entry").innerText=entry;
-
-let duration=60;
 
 let end=Date.now()+(duration*1000);
 
