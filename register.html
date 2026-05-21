@@ -3,88 +3,258 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DARK MAGIC TRADING BOT - Register</title>
+
+<title>DARK MAGIC AI BOT - Register</title>
+
+<!-- GOOGLE FONT -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-body{
+
+*{
     margin:0;
-    font-family:Arial;
-    background: radial-gradient(circle at top,#0a0a0a,#000);
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Outfit',sans-serif;
+    background:
+    radial-gradient(circle at top,#1a0f2e 0%,#0a0a0a 45%,#000 100%);
+    min-height:100vh;
     display:flex;
     justify-content:center;
     align-items:center;
-    height:100vh;
+    overflow:hidden;
     color:white;
-}
-
-.container{
-    width:92%;
-    max-width:420px;
-    background:rgba(20,20,20,0.95);
     padding:20px;
-    border-radius:18px;
-    border:1px solid #333;
-    box-shadow:0 0 30px rgba(255,0,80,0.2);
-    text-align:center;
 }
 
+/* BACKGROUND GLOW */
+body::before{
+    content:"";
+    position:absolute;
+    width:350px;
+    height:350px;
+    background:#ff006a;
+    filter:blur(140px);
+    opacity:0.18;
+    top:-100px;
+    right:-100px;
+}
+
+body::after{
+    content:"";
+    position:absolute;
+    width:300px;
+    height:300px;
+    background:#7b61ff;
+    filter:blur(130px);
+    opacity:0.16;
+    bottom:-100px;
+    left:-100px;
+}
+
+/* CARD */
+.container{
+    position:relative;
+    width:100%;
+    max-width:430px;
+    padding:28px;
+    border-radius:28px;
+    background:rgba(18,18,18,0.78);
+    backdrop-filter:blur(18px);
+    border:1px solid rgba(255,255,255,0.08);
+    box-shadow:
+    0 0 40px rgba(255,0,106,0.12),
+    0 0 100px rgba(123,97,255,0.08);
+    z-index:2;
+}
+
+/* LOGO */
+.logo{
+    width:75px;
+    height:75px;
+    margin:auto;
+    border-radius:22px;
+    background:linear-gradient(135deg,#ff006a,#7b61ff);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:34px;
+    box-shadow:0 0 30px rgba(255,0,106,0.35);
+}
+
+/* TITLE */
 h2{
-    color:#ff2e63;
-    text-shadow:0 0 10px #ff2e63;
+    text-align:center;
+    margin-top:18px;
+    font-size:28px;
+    font-weight:700;
+    background:linear-gradient(90deg,#ffffff,#cfcfcf);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
 }
 
-input{
-    width:100%;
-    padding:12px;
+.subtitle{
+    text-align:center;
+    margin-top:12px;
+    color:#b8b8b8;
+    line-height:1.6;
+    font-size:14px;
+}
+
+/* FEATURE BOX */
+.feature-box{
+    margin-top:22px;
+    padding:14px;
+    border-radius:18px;
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.06);
+}
+
+.feature{
+    display:flex;
+    align-items:center;
+    gap:10px;
     margin-top:10px;
-    border-radius:10px;
-    border:none;
-    outline:none;
-    background:#111;
-    color:white;
-    border:1px solid #333;
-}
-
-button{
-    width:100%;
-    padding:12px;
-    margin-top:15px;
-    border:none;
-    border-radius:12px;
-    cursor:pointer;
-    font-weight:bold;
-    background:linear-gradient(90deg,#ff0057,#ffb300);
-    color:black;
-}
-
-label{
+    color:#ddd;
     font-size:13px;
 }
 
-a{
+/* INPUT BOX */
+.input-box{
+    position:relative;
+    margin-top:18px;
+}
+
+.input-box input{
+    width:100%;
+    padding:18px 16px;
+    border-radius:18px;
+    border:1px solid rgba(255,255,255,0.08);
+    background:rgba(255,255,255,0.03);
+    outline:none;
+    color:white;
+    font-size:14px;
+    transition:0.3s;
+}
+
+.input-box input:focus{
+    border-color:#ff006a;
+    box-shadow:0 0 20px rgba(255,0,106,0.18);
+    background:rgba(255,255,255,0.05);
+}
+
+/* FLOAT LABEL */
+.input-box label{
+    position:absolute;
+    top:17px;
+    left:16px;
+    color:#8e8e8e;
+    font-size:13px;
+    pointer-events:none;
+    transition:0.25s;
+    background:#151515;
+    padding:0 6px;
+}
+
+.input-box input:focus + label,
+.input-box input:not(:placeholder-shown) + label{
+    top:-8px;
+    font-size:11px;
+    color:#ff4d94;
+}
+
+/* CHECKBOX */
+.checkbox{
+    margin-top:16px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:13px;
+    color:#bbb;
+}
+
+.checkbox input{
+    accent-color:#ff006a;
+    width:16px;
+    height:16px;
+}
+
+/* BUTTON */
+button{
+    width:100%;
+    margin-top:22px;
+    padding:16px;
+    border:none;
+    border-radius:18px;
+    cursor:pointer;
+    font-size:15px;
+    font-weight:700;
+    color:white;
+    background:linear-gradient(135deg,#ff006a,#7b61ff);
+    transition:0.25s;
+    box-shadow:
+    0 0 25px rgba(255,0,106,0.28),
+    0 0 40px rgba(123,97,255,0.18);
+}
+
+button:hover{
+    transform:translateY(-2px) scale(1.01);
+}
+
+button:active{
+    transform:scale(0.98);
+}
+
+/* LOGIN LINK */
+.login-link{
+    margin-top:18px;
+    text-align:center;
+    color:#aaa;
+    font-size:13px;
+}
+
+.login-link span{
     color:#00e5ff;
     cursor:pointer;
-    display:block;
-    margin-top:10px;
+    font-weight:600;
 }
 
 /* TOAST */
 .toast{
     position:fixed;
-    bottom:20px;
+    bottom:25px;
     left:50%;
     transform:translateX(-50%);
-    background:#111;
-    padding:12px 18px;
-    border-radius:10px;
-    border:1px solid #333;
+    background:#141414;
+    padding:14px 20px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,0.08);
+    color:white;
     opacity:0;
-    transition:0.5s;
+    transition:0.4s;
+    z-index:999;
 }
 
 .toast.show{
     opacity:1;
 }
+
+/* MOBILE */
+@media(max-width:480px){
+
+    .container{
+        padding:24px 20px;
+    }
+
+    h2{
+        font-size:24px;
+    }
+
+}
+
 </style>
 </head>
 
@@ -92,21 +262,78 @@ a{
 
 <div class="container">
 
-<h2>⚡ DARK MAGIC TRADING BOT</h2>
+<div class="logo">⚡</div>
 
-<input type="email" id="email" placeholder="Email">
+<h2>DARK MAGIC AI BOT</h2>
 
-<input type="password" id="password" placeholder="Password">
+<p class="subtitle">
+Welcome to DARK MAGIC AI Trading Bot 🚀<br>
+Experience next-generation AI-powered market analysis with smart trend detection, real-time signals 📊 and high-precision prediction technology designed for modern traders.
+</p>
 
-<input type="password" id="confirm" placeholder="Confirm Password">
+<div class="feature-box">
 
-<label>
-<input type="checkbox" onclick="togglePass()"> Show Password
-</label>
+<div class="feature">
+<span>🧠</span>
+<span>AI-powered smart market analysis</span>
+</div>
 
-<button onclick="register()">REGISTER</button>
+<div class="feature">
+<span>⚡</span>
+<span>Fast signal generation & live trend tracking</span>
+</div>
 
-<a onclick="goLogin()">Already have an account? Login</a>
+<div class="feature">
+<span>📈</span>
+<span>Advanced candle confirmation system</span>
+</div>
+
+<div class="feature">
+<span>🔒</span>
+<span>Secure cloud-based account protection</span>
+</div>
+
+</div>
+
+<!-- EMAIL -->
+<div class="input-box">
+<input type="email" id="email" placeholder=" ">
+<label>Email Address</label>
+</div>
+
+<!-- PASSWORD -->
+<div class="input-box">
+<input type="password" id="password" placeholder=" ">
+<label>Password</label>
+</div>
+
+<!-- CONFIRM -->
+<div class="input-box">
+<input type="password" id="confirm" placeholder=" ">
+<label>Confirm Password</label>
+</div>
+
+<!-- REFERRAL -->
+<div class="input-box">
+<input type="text" id="referral" placeholder=" ">
+<label>Referral Code (Optional)</label>
+</div>
+
+<!-- CHECKBOX -->
+<div class="checkbox">
+<input type="checkbox" onclick="togglePass()">
+<span>Show Password</span>
+</div>
+
+<!-- BUTTON -->
+<button onclick="register()">
+CREATE ACCOUNT
+</button>
+
+<div class="login-link">
+Already have an account?
+<span onclick="goLogin()">Login</span>
+</div>
 
 </div>
 
@@ -114,18 +341,19 @@ a{
 
 <!-- FIREBASE -->
 <script type="module">
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-/* ---------------- FIREBASE CONFIG (FIXED) ---------------- */
+/* FIREBASE CONFIG */
 const firebaseConfig = {
     apiKey: "AIzaSyDvFDByPPo9zgwKLdPaREz1OVMQCXmPfrs",
     authDomain: "bets-d795d.firebaseapp.com",
     databaseURL: "https://bets-d795d-default-rtdb.firebaseio.com",
     projectId: "bets-d795d",
     storageBucket: "bets-d795d.appspot.com",
-    messagingSenderId: "PASTE_SENDER_ID",
+    messagingSenderId: "384386108287",
     appId: "1:384386108287:android:d238a5ec8068d9bb9be84a"
 };
 
@@ -133,15 +361,16 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-/* ---------------- REGISTER ---------------- */
+/* REGISTER */
 window.register = async function(){
 
     let email = document.getElementById("email").value;
     let password = document.getElementById("password").value;
     let confirm = document.getElementById("confirm").value;
+    let referral = document.getElementById("referral").value;
 
     if(!email || !password || !confirm){
-        showToast("Please fill all fields");
+        showToast("Please complete all required fields");
         return;
     }
 
@@ -152,22 +381,26 @@ window.register = async function(){
 
     try{
 
-        let userCred = await createUserWithEmailAndPassword(auth, email, password);
+        let userCred = await createUserWithEmailAndPassword(auth,email,password);
+
         let user = userCred.user;
 
-        /* ---------------- SAVE TO LOCAL STORAGE ---------------- */
-        localStorage.setItem("userEmail", email);
-        localStorage.setItem("userUID", user.uid);
+        /* LOCAL STORAGE */
+        localStorage.setItem("dm_email", email);
+        localStorage.setItem("dm_password", password);
 
-        /* ---------------- SAVE TO FIREBASE DB ---------------- */
-        await set(ref(db, "users/" + user.uid), {
+        /* FIREBASE SAVE */
+        await set(ref(db,"users/" + user.uid),{
+
             email: email,
             uid: user.uid,
+            referral: referral || "",
             createdAt: Date.now(),
-            lastLogin: Date.now()
+            plan: "free"
+
         });
 
-        showToast("Account registered successfully");
+        showToast("Account created successfully 🚀");
 
         setTimeout(()=>{
             window.location.href = "index.html";
@@ -179,42 +412,50 @@ window.register = async function(){
             showToast("Email already exists");
         }
         else if(error.code === "auth/invalid-email"){
-            showToast("Invalid email");
+            showToast("Invalid email address");
         }
         else if(error.code === "auth/weak-password"){
-            showToast("Weak password");
+            showToast("Password should be at least 6 characters");
         }
         else{
-            showToast("Registration failed");
+            showToast(error.code);
         }
 
     }
+
 };
 
-/* ---------------- PASSWORD TOGGLE ---------------- */
+/* SHOW PASSWORD */
 window.togglePass = function(){
+
     let p = document.getElementById("password");
     let c = document.getElementById("confirm");
 
     let type = p.type === "password" ? "text" : "password";
+
     p.type = type;
     c.type = type;
+
 };
 
-/* ---------------- LOGIN REDIRECT ---------------- */
+/* LOGIN */
 window.goLogin = function(){
     window.location.href = "index.html";
 };
 
-/* ---------------- TOAST ---------------- */
+/* TOAST */
 window.showToast = function(msg){
+
     let toast = document.getElementById("toast");
+
     toast.innerText = msg;
+
     toast.classList.add("show");
 
     setTimeout(()=>{
         toast.classList.remove("show");
     },3000);
+
 };
 
 </script>
