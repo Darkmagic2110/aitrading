@@ -3,120 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>DARK MAGIC AI</title>
+<title>DARK MAGIC CANDLE AI</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 
 <style>
-body{
-margin:0;
-font-family:'Outfit',sans-serif;
-background:radial-gradient(circle at top,#1a0f2e,#000);
-color:#fff;
-padding:18px;
-overflow-y:auto;
-}
-
-.container{
-max-width:460px;
-margin:auto;
-background:rgba(20,20,20,.85);
-border-radius:24px;
-padding:20px;
-border:1px solid rgba(255,255,255,.08);
-backdrop-filter:blur(10px);
-}
-
-h1{
-text-align:center;
-font-size:26px;
-font-weight:800;
-background:linear-gradient(90deg,#fff,#aaa);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
-
-.sub{
-text-align:center;
-font-size:13px;
-color:#aaa;
-margin-top:8px;
-}
-
-select,button{
-width:100%;
-margin-top:12px;
-padding:14px;
-border-radius:16px;
-border:none;
-outline:none;
-font-family:'Outfit',sans-serif;
-}
-
-select{
-background:rgba(255,255,255,.05);
-color:#fff;
-border:1px solid rgba(255,255,255,.1);
-}
-
-button{
-background:linear-gradient(135deg,#ff006a,#7b61ff);
-color:#fff;
-font-weight:700;
-cursor:pointer;
-}
-
-button:active{transform:scale(.98)}
-
-.circle{
-width:200px;
-height:200px;
-margin:18px auto;
-border-radius:50%;
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-font-size:32px;
-font-weight:800;
-border:4px solid #444;
-text-align:center;
-transition:.3s;
-}
-
+body{margin:0;font-family:'Outfit',sans-serif;background:radial-gradient(circle at top,#1a0f2e,#000);color:#fff;padding:16px;overflow-y:auto}
+.container{max-width:460px;margin:auto;background:rgba(20,20,20,.85);border-radius:24px;padding:18px;border:1px solid rgba(255,255,255,.08)}
+h1{text-align:center;font-size:24px;background:linear-gradient(90deg,#fff,#aaa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+select,button{width:100%;margin-top:12px;padding:14px;border-radius:14px;border:none;outline:none;font-family:'Outfit'}
+select{background:#111;color:#fff}
+button{background:linear-gradient(135deg,#ff006a,#7b61ff);color:#fff;font-weight:700}
+.circle{width:200px;height:200px;margin:18px auto;border-radius:50%;display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:30px;font-weight:800;border:4px solid #444}
 .buy{color:#00ff84;border-color:#00ff84;box-shadow:0 0 30px #00ff84}
 .sell{color:#ff3355;border-color:#ff3355;box-shadow:0 0 30px #ff3355}
 .hold{color:#ffcc00;border-color:#ffcc00}
-
-.box,.stats,.signalBox{
-margin-top:14px;
-background:rgba(255,255,255,.03);
-padding:14px;
-border-radius:16px;
-border:1px solid rgba(255,255,255,.06);
-font-size:13px;
-}
-
-.stats{
-display:grid;
-grid-template-columns:1fr 1fr 1fr;
-gap:10px;
-text-align:center;
-}
-
+.box{margin-top:12px;background:#111;padding:12px;border-radius:14px;font-size:13px;border:1px solid #222}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;text-align:center}
 .stats h2{margin-top:6px}
-
 .win{color:#00ff84}
 .loss{color:#ff3355}
 </style>
 </head>
 
 <body>
-
 <div class="container">
 
-<h1>⚡ DARK MAGIC AI</h1>
-<p class="sub">90% Accurate Signal Engine 📊</p>
+<h1>⚡ CANDLE AI ENGINE</h1>
 
 <select id="pair">
 <option value="frxEURUSD">EUR/USD</option>
@@ -129,19 +42,14 @@ text-align:center;
 
 <div id="circle" class="circle hold">
 <div>WAIT</div>
-<div style="font-size:14px">EXP: --</div>
+<div style="font-size:14px">1M CANDLE</div>
 </div>
 
 <div class="box">
 <p>Price: <span id="price">--</span></p>
 <p>RSI: <span id="rsi">--</span></p>
 <p>EMA: <span id="ema">--</span></p>
-</div>
-
-<div class="signalBox">
-<p>Signal: <span id="sig">WAIT</span></p>
-<p>Countdown: <span id="countdown">--</span></p>
-<p>Result: <span id="result">--</span></p>
+<p>ATR: <span id="atr">--</span></p>
 </div>
 
 <div class="stats">
@@ -154,9 +62,38 @@ text-align:center;
 
 <script>
 
-let ws,prices=[];
+let ws;
+let ticks=[];
+let candles=[];
 let signalQueue=[];
+let lastSignal="WAIT";
+let confirmSignal="";
 let wins=0,losses=0,total=0;
+
+/* ---------------- CANDLE BUILDER ---------------- */
+function buildCandle(price){
+let now=Math.floor(Date.now()/60000);
+
+let last=candles[candles.length-1];
+
+if(!last || last.time!==now){
+candles.push({time:now,open:price,high:price,low:price,close:price});
+}else{
+last.high=Math.max(last.high,price);
+last.low=Math.min(last.low,price);
+last.close=price;
+}
+if(candles.length>100)candles.shift();
+}
+
+/* ---------------- INDICATORS ---------------- */
+function EMA(data,p=20){
+let k=2/(p+1),ema=data[0];
+for(let i=1;i<data.length;i++){
+ema=data[i]*k+ema*(1-k);
+}
+return ema;
+}
 
 function RSI(data,p=14){
 if(data.length<p+1)return 50;
@@ -170,17 +107,24 @@ let rs=(g/p)/(l/p);
 return 100-(100/(1+rs));
 }
 
-function EMA(data,p=20){
-let k=2/(p+1),ema=data[0];
-for(let i=1;i<data.length;i++){
-ema=data[i]*k+ema*(1-k);
+function ATR(candles,p=14){
+if(candles.length<p+1)return 0;
+let tr=[];
+for(let i=candles.length-p;i<candles.length;i++){
+let c=candles[i];
+let prev=candles[i-1]||c;
+let t=Math.max(c.high-c.low,Math.abs(c.high-prev.close),Math.abs(c.low-prev.close));
+tr.push(t);
 }
-return ema;
+return tr.reduce((a,b)=>a+b,0)/tr.length;
 }
 
+/* ---------------- START BOT ---------------- */
 function start(){
 
-prices=[];
+ticks=[];
+candles=[];
+
 if(ws)ws.close();
 
 ws=new WebSocket("wss://ws.derivws.com/websockets/v3?app_id=1089");
@@ -200,110 +144,91 @@ if(!d.tick)return;
 let price=parseFloat(d.tick.quote);
 if(isNaN(price))return;
 
-prices.push(price);
-if(prices.length>60)prices.shift();
-
 document.getElementById("price").innerText=price;
 
-if(prices.length<15)return;
+/* build candles */
+buildCandle(price);
 
-let rsi=RSI(prices);
-let ema=EMA(prices);
+if(candles.length<20)return;
 
-document.getElementById("rsi").innerText=rsi.toFixed(2);
+let closes=candles.map(c=>c.close);
+let ema=EMA(closes,20);
+let rsi=RSI(closes);
+let atr=ATR(candles);
+
 document.getElementById("ema").innerText=ema.toFixed(5);
+document.getElementById("rsi").innerText=rsi.toFixed(2);
+document.getElementById("atr").innerText=atr.toFixed(5);
 
-let score=0;
-if(price>ema)score+=2;else score-=2;
-if(rsi<30)score+=2;
-else if(rsi<45)score+=1;
-if(rsi>70)score-=2;
+/* VOLATILITY FILTER */
+if(atr<0.0001)return;
 
+/* TREND FILTER */
+let trendUp=price>ema;
+let trendDown=price<ema;
+
+/* SIGNAL LOGIC */
 let signal="WAIT";
-if(score>=3)signal="BUY";
-else if(score<=-3)signal="SELL";
 
-if(signal!=="WAIT"){
+if(trendUp && rsi<45)signal="BUY";
+if(trendDown && rsi>55)signal="SELL";
 
-let duration=60;
-let now=Date.now();
+/* CONFIRMATION SYSTEM */
+if(signal!==lastSignal){
+confirmSignal=signal;
+lastSignal=signal;
+return;
+}
+
+if(confirmSignal===signal && signal!=="WAIT"){
+
+confirmSignal="";
+
+total++;
+document.getElementById("total").innerText=total;
 
 let trade={
-id:now,
 signal,
 entry:price,
-start:now,
-end:now+duration*1000,
+end:Date.now()+60000,
 closed:false
 };
 
 signalQueue.push(trade);
 
-total++;
-document.getElementById("total").innerText=total;
-document.getElementById("sig").innerText=signal;
-
-startCountdown(trade);
-}
-
-updateCircle(signal);
-
-};
-}
-
-function updateCircle(signal){
+/* circle UI */
 let c=document.getElementById("circle");
-c.className="circle hold";
-if(signal==="BUY")c.className="circle buy";
-if(signal==="SELL")c.className="circle sell";
+c.className="circle "+(signal==="BUY"?"buy":"sell");
 c.innerHTML=`<div>${signal}</div><div style="font-size:14px">1 MIN</div>`;
-}
 
-function startCountdown(trade){
+/* evaluate after expiry */
+setTimeout(()=>{
 
-let t=setInterval(()=>{
-
-let left=Math.floor((trade.end-Date.now())/1000);
-
-if(left<=0){
-clearInterval(t);
-evaluate(trade);
-document.getElementById("countdown").innerText="0s";
-return;
-}
-
-document.getElementById("countdown").innerText=left+"s";
-
-},1000);
-
-}
-
-function evaluate(trade){
-
-let price=prices[prices.length-1];
+let p=candles[candles.length-1].close;
 
 let win=false;
-
-if(
-(trade.signal==="BUY" && price>trade.entry)||
-(trade.signal==="SELL" && price<trade.entry)
-){
-win=true;
-}
+if((trade.signal==="BUY" && p>trade.entry)||
+(trade.signal==="SELL" && p<trade.entry))win=true;
 
 trade.closed=true;
 
 if(win){
 wins++;
 document.getElementById("wins").innerText=wins;
-document.getElementById("result").innerHTML="<span class='win'>GAIN ✅</span>";
 }else{
 losses++;
 document.getElementById("losses").innerText=losses;
-document.getElementById("result").innerHTML="<span class='loss'>LOSS ❌</span>";
 }
+
+},60000);
+
+}
+
+};
+
 }
 
 </script>
+
 </body>
 </html>
