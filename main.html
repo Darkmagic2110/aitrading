@@ -30,7 +30,7 @@ border-radius:28px;
 padding:18px;
 border:1px solid rgba(255,255,255,.08);
 backdrop-filter:blur(12px);
-box-shadow:0 0 30px rgba(123,97,255,.18);
+box-shadow:0 0 35px rgba(123,97,255,.18);
 }
 
 h1{
@@ -209,6 +209,11 @@ font-weight:700;
 <p>🎯 Result: <span id="result">--</span></p>
 </div>
 
+<div class="signalBox">
+<p>🧠 Next AI Scan In: <span id="scanTimer">15s</span></p>
+<p>⚡ Signal Status: <span id="scanStatus">Analyzing Market...</span></p>
+</div>
+
 <div class="stats">
 <div class="card">
 Signals
@@ -237,6 +242,29 @@ let lock=false;
 let total=0;
 let wins=0;
 let losses=0;
+
+let scanCooldown=15;
+let canScan=true;
+
+setInterval(()=>{
+
+if(scanCooldown>0){
+
+scanCooldown--;
+
+document.getElementById("scanTimer").innerText=scanCooldown+"s";
+
+}else{
+
+document.getElementById("scanTimer").innerText="SCANNING...";
+
+scanCooldown=15;
+
+canScan=true;
+
+}
+
+},1000);
 
 function RSI(data,p=14){
 
@@ -286,29 +314,17 @@ return data[data.length-1]-data[data.length-5];
 
 }
 
-function getDuration(score,volatility){
+function getDuration(score){
 
-if(Math.abs(score)>=5 && volatility>0.00025){
-return {text:"30 SEC",sec:30};
-}
-
-if(Math.abs(score)>=4){
+if(Math.abs(score)>=6){
 return {text:"1 MIN",sec:60};
 }
 
-if(Math.abs(score)>=3){
-return {text:"1 MIN 30 SEC",sec:90};
-}
-
-if(Math.abs(score)>=2){
+if(Math.abs(score)>=4){
 return {text:"2 MIN",sec:120};
 }
 
-if(Math.abs(score)>=1){
 return {text:"3 MIN",sec:180};
-}
-
-return {text:"5 MIN",sec:300};
 
 }
 
@@ -388,12 +404,12 @@ score+=2;
 score-=2;
 }
 
-if(rsi<55){
-score+=1;
+if(rsi>52){
+score+=2;
 }
 
-if(rsi>45){
-score-=1;
+if(rsi<48){
+score-=2;
 }
 
 if(mom>0){
@@ -402,49 +418,63 @@ score+=2;
 score-=2;
 }
 
-let volatility=Math.abs(prices[prices.length-1]-prices[prices.length-5]);
-
 let signal="WAIT";
 
-if(score>=3 && fastEMA>slowEMA && mom>0){
+let strongBuy=
+fastEMA>slowEMA &&
+rsi>52 &&
+mom>0 &&
+score>=4;
+
+let strongSell=
+fastEMA<slowEMA &&
+rsi<48 &&
+mom<0 &&
+score<=-4;
+
+if(strongBuy){
 signal="BUY";
 }
 
-if(score<=-3 && fastEMA<slowEMA && mom<0){
+if(strongSell){
 signal="SELL";
 }
 
-if(volatility<0.00002){
+if(Math.abs(mom)<0.00003){
 signal="WAIT";
 }
 
-let trend="SIDEWAYS";
+if(signal==="WAIT"){
+document.getElementById("scanStatus").innerText="Waiting For Strong Confirmation...";
+}
 
 if(fastEMA>slowEMA){
-trend="UPTREND 📈";
 document.getElementById("trend").innerHTML="<span class='up'>UPTREND 📈</span>";
 }else{
-trend="DOWNTREND 📉";
 document.getElementById("trend").innerHTML="<span class='down'>DOWNTREND 📉</span>";
 }
 
-let duration=getDuration(score,volatility);
+let duration=getDuration(score);
 
 document.getElementById("interval").innerText=duration.text;
 
 updateCircle(signal,duration.text);
 
-if(lock)return;
+if(lock || !canScan)return;
 
 if(signal!=="WAIT"){
+
+canScan=false;
+
+document.getElementById("scanStatus").innerText="Signal Confirmed ✅";
 
 lock=true;
 
 setTimeout(()=>{
 lock=false;
-},5000);
+},15000);
 
-createTrade(signal,price,duration.sec,duration.text);
+createTrade(signal,price,duration.sec);
 
 }
 
@@ -452,7 +482,7 @@ createTrade(signal,price,duration.sec,duration.text);
 
 }
 
-function createTrade(signal,entry,duration,timeText){
+function createTrade(signal,entry,duration){
 
 total++;
 
@@ -515,6 +545,24 @@ document.getElementById("losses").innerText=losses;
 document.getElementById("result").innerHTML="<span class='loss'>LOSS ❌</span>";
 
 }
+
+setTimeout(()=>{
+
+document.getElementById("sig").innerText="WAIT";
+document.getElementById("entry").innerText="--";
+document.getElementById("countdown").innerText="--";
+document.getElementById("result").innerText="--";
+
+let c=document.getElementById("circle");
+
+c.className="circle hold";
+
+c.innerHTML=`
+<div>WAIT</div>
+<div style="font-size:14px;margin-top:8px;">--</div>
+`;
+
+},4000);
 
 }
 
