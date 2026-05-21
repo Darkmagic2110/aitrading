@@ -175,7 +175,7 @@ color:#ff3355;
 <div class="container">
 
 <h1>⚡ DARK MAGIC AI</h1>
-<p class="sub">Trend Following Signal Engine 📊</p>
+<p class="sub">Continuous Trend Signal Engine 📊</p>
 
 <select id="pair">
 <option value="frxEURUSD">EUR/USD</option>
@@ -561,10 +561,6 @@ lastSignal=signal;
 
 lock=true;
 
-setTimeout(()=>{
-lock=false;
-},15000);
-
 /* CREATE SIGNAL */
 
 total++;
@@ -615,7 +611,19 @@ clearInterval(timer);
 
 document.getElementById("countdown").innerText="0s";
 
+/* EVALUATE */
+
 evaluateTrade(trade);
+
+/* RESET SYSTEM */
+
+lastSignal="WAIT";
+
+lock=false;
+
+document.getElementById("sig").innerText="SEARCHING...";
+
+updateCircle("WAIT");
 
 return;
 
