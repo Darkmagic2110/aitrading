@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>DARK MAGIC AI</title>
+<title>DARK MAGIC AI PRO</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 
@@ -11,17 +11,17 @@
 
 body{
 margin:0;
+padding:18px;
 font-family:'Outfit',sans-serif;
 background:radial-gradient(circle at top,#1a0f2e,#000);
 color:#fff;
-padding:18px;
 overflow-y:auto;
 }
 
 .container{
-max-width:460px;
+max-width:470px;
 margin:auto;
-background:rgba(20,20,20,.85);
+background:rgba(20,20,20,.88);
 border-radius:24px;
 padding:20px;
 border:1px solid rgba(255,255,255,.08);
@@ -30,27 +30,27 @@ backdrop-filter:blur(10px);
 
 h1{
 text-align:center;
-font-size:26px;
+font-size:28px;
 font-weight:800;
-background:linear-gradient(90deg,#fff,#aaa);
+background:linear-gradient(90deg,#fff,#888);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
 
 .sub{
 text-align:center;
-font-size:13px;
 color:#aaa;
-margin-top:8px;
+font-size:13px;
+margin-top:5px;
 }
 
 select,button{
 width:100%;
-margin-top:12px;
 padding:14px;
-border-radius:16px;
+margin-top:12px;
 border:none;
 outline:none;
+border-radius:16px;
 font-family:'Outfit',sans-serif;
 }
 
@@ -66,73 +66,68 @@ color:#fff;
 font-weight:700;
 cursor:pointer;
 font-size:15px;
-transition:.2s;
-}
-
-button:active{
-transform:scale(.98);
 }
 
 .circle{
-width:220px;
-height:220px;
+width:230px;
+height:230px;
 margin:20px auto;
 border-radius:50%;
 display:flex;
-flex-direction:column;
 justify-content:center;
 align-items:center;
+flex-direction:column;
 font-size:38px;
 font-weight:800;
+transition:.4s;
 border:4px solid #444;
 text-align:center;
-transition:.4s;
 }
 
 .buy{
 color:#00ff84;
 border-color:#00ff84;
-box-shadow:0 0 50px #00ff84;
+box-shadow:0 0 60px #00ff84;
 }
 
 .sell{
 color:#ff3355;
 border-color:#ff3355;
-box-shadow:0 0 50px #ff3355;
+box-shadow:0 0 60px #ff3355;
 }
 
 .hold{
 color:#ffcc00;
 border-color:#ffcc00;
-box-shadow:0 0 35px #ffcc00;
+box-shadow:0 0 40px #ffcc00;
 }
 
 .box,.signalBox,.history{
-margin-top:14px;
-background:rgba(255,255,255,.03);
+margin-top:15px;
 padding:14px;
 border-radius:16px;
+background:rgba(255,255,255,.03);
 border:1px solid rgba(255,255,255,.06);
 font-size:13px;
 }
 
 .stats{
 display:grid;
-grid-template-columns:1fr 1fr 1fr;
+grid-template-columns:1fr 1fr;
 gap:10px;
-margin-top:14px;
+margin-top:15px;
 }
 
 .card{
-background:rgba(255,255,255,.03);
-padding:12px;
+padding:14px;
 border-radius:16px;
-text-align:center;
+background:rgba(255,255,255,.03);
 border:1px solid rgba(255,255,255,.06);
+text-align:center;
 }
 
 .card h2{
-margin:6px 0 0;
+margin:8px 0 0;
 font-size:24px;
 }
 
@@ -174,39 +169,67 @@ color:#ff3355;
 
 <div class="container">
 
-<h1>⚡ DARK MAGIC AI</h1>
-<p class="sub">Advanced Signal Engine 📊</p>
+<h1>⚡ DARK MAGIC AI PRO</h1>
+<p class="sub">Smart Trading Signal Engine</p>
 
 <select id="pair">
+
 <option value="frxEURUSD">EUR/USD</option>
 <option value="frxGBPUSD">GBP/USD</option>
 <option value="frxUSDJPY">USD/JPY</option>
 <option value="frxAUDUSD">AUD/USD</option>
 <option value="frxEURJPY">EUR/JPY</option>
 <option value="frxUSDCHF">USD/CHF</option>
+
 </select>
 
-<button onclick="start()">▶ START BOT</button>
+<button onclick="start()">▶ START AI BOT</button>
 
 <div id="circle" class="circle hold">
+
 <div>WAIT</div>
-<div style="font-size:14px">EXP: --</div>
+<div style="font-size:14px">AI READY</div>
+
 </div>
 
 <div class="box">
+
 <p>💰 Price: <span id="price">--</span></p>
+
 <p>📊 RSI: <span id="rsi">--</span></p>
+
 <p>📈 EMA FAST: <span id="emaFast">--</span></p>
+
 <p>📉 EMA SLOW: <span id="emaSlow">--</span></p>
+
 <p>⚡ MACD: <span id="macd">--</span></p>
+
 <p>🔥 Strength: <span id="strength">--</span></p>
+
 <p>📈 Trend: <span id="trend">--</span></p>
+
+<p>🧠 Confidence: <span id="confidence">--</span></p>
+
+<p>⏰ Recommended Duration:
+<span id="durationText">--</span>
+</p>
+
 </div>
 
 <div class="signalBox">
-<p>📡 Signal: <span id="sig">WAIT</span></p>
-<p>⏳ Countdown: <span id="countdown">--</span></p>
-<p>🎯 Result: <span id="result">--</span></p>
+
+<p>📡 Signal:
+<span id="sig">WAIT</span>
+</p>
+
+<p>⏳ Countdown:
+<span id="countdown">--</span>
+</p>
+
+<p>🎯 Result:
+<span id="result">--</span>
+</p>
+
 </div>
 
 <div class="stats">
@@ -222,15 +245,23 @@ Wins
 </div>
 
 <div class="card">
-Loss
+Losses
 <h2 id="losses" class="loss">0</h2>
+</div>
+
+<div class="card">
+Win Rate
+<h2 id="wr">0%</h2>
 </div>
 
 </div>
 
 <div class="history">
+
 <h3>📜 Signal History</h3>
+
 <div id="history"></div>
+
 </div>
 
 </div>
@@ -239,60 +270,60 @@ Loss
 
 let ws;
 
-let prices=[];
+let prices = [];
+let candles = [];
 
-let wins=0;
-let losses=0;
-let total=0;
+let wins = 0;
+let losses = 0;
+let total = 0;
 
-let lastSignal="WAIT";
+let lock = false;
+let lastSignal = "WAIT";
 
-let lock=false;
-
-/* ======================
+/* =========================
    RSI
-====================== */
+========================= */
 
-function RSI(data,period=14){
+function RSI(data, period=14){
 
-if(data.length<period+1)return 50;
+if(data.length < period+1) return 50;
 
-let gains=0;
-let losses=0;
+let gains = 0;
+let lossesNum = 0;
 
 for(let i=data.length-period;i<data.length;i++){
 
-let diff=data[i]-data[i-1];
+let diff = data[i] - data[i-1];
 
-if(diff>0){
-gains+=diff;
+if(diff > 0){
+gains += diff;
 }else{
-losses+=Math.abs(diff);
+lossesNum += Math.abs(diff);
 }
 
 }
 
-if(losses===0)return 100;
+if(lossesNum === 0) return 100;
 
-let rs=(gains/period)/(losses/period);
+let rs = (gains/period)/(lossesNum/period);
 
-return 100-(100/(1+rs));
+return 100 - (100/(1+rs));
 
 }
 
-/* ======================
+/* =========================
    EMA
-====================== */
+========================= */
 
-function EMA(data,period){
+function EMA(data, period){
 
-let k=2/(period+1);
+let k = 2/(period+1);
 
-let ema=data[0];
+let ema = data[0];
 
 for(let i=1;i<data.length;i++){
 
-ema=data[i]*k+ema*(1-k);
+ema = data[i]*k + ema*(1-k);
 
 }
 
@@ -300,212 +331,334 @@ return ema;
 
 }
 
-/* ======================
+/* =========================
    MACD
-====================== */
+========================= */
 
 function MACD(data){
 
-let fast=EMA(data,12);
-
-let slow=EMA(data,26);
-
-return fast-slow;
+return EMA(data,12) - EMA(data,26);
 
 }
 
-/* ======================
+/* =========================
    MOMENTUM
-====================== */
+========================= */
 
 function momentum(data){
 
-if(data.length<10)return 0;
+if(data.length < 10) return 0;
 
-return data[data.length-1]-data[data.length-8];
+return data[data.length-1] - data[data.length-8];
 
 }
 
-/* ======================
+/* =========================
    VOLATILITY
-====================== */
+========================= */
 
 function volatility(data){
 
-if(data.length<15)return 0;
+if(data.length < 15) return 0;
 
-let recent=data.slice(-15);
+let recent = data.slice(-15);
 
-let max=Math.max(...recent);
-
-let min=Math.min(...recent);
-
-return max-min;
+return Math.max(...recent) - Math.min(...recent);
 
 }
 
-/* ======================
-   TREND SCORE
-====================== */
+/* =========================
+   SUPPORT / RESISTANCE
+========================= */
 
-function trendStrength(price,fastEMA,slowEMA,rsi,macd,mom){
+function supportResistance(data){
 
-let score=0;
+let recent = data.slice(-30);
 
-/* EMA */
+return {
 
-if(fastEMA>slowEMA){
-score+=3;
+support: Math.min(...recent),
+resistance: Math.max(...recent)
+
+};
+
+}
+
+/* =========================
+   CANDLE SIGNAL
+========================= */
+
+function candleSignal(){
+
+if(candles.length < 2) return "NONE";
+
+let c = candles[candles.length-1];
+
+let open = parseFloat(c.open);
+let close = parseFloat(c.close);
+
+let body = Math.abs(close-open);
+
+if(close > open && body > 0.00015){
+return "BULL";
+}
+
+if(close < open && body > 0.00015){
+return "BEAR";
+}
+
+return "NONE";
+
+}
+
+/* =========================
+   AI SCORE
+========================= */
+
+function trendStrength(
+fastEMA,
+slowEMA,
+rsi,
+macd,
+mom
+){
+
+let score = 0;
+
+if(fastEMA > slowEMA){
+score += 3;
 }else{
-score-=3;
+score -= 3;
 }
 
-/* RSI */
-
-if(rsi<30){
-score+=2;
+if(rsi > 45 && rsi < 65){
+score += 2;
 }
 
-if(rsi>70){
-score-=2;
-}
-
-/* MACD */
-
-if(macd>0){
-score+=2;
+if(macd > 0){
+score += 2;
 }else{
-score-=2;
+score -= 2;
 }
 
-/* MOMENTUM */
-
-if(mom>0){
-score+=1;
+if(mom > 0){
+score += 1;
 }else{
-score-=1;
+score -= 1;
 }
 
 return score;
 
 }
 
-/* ======================
-   UI CIRCLE
-====================== */
+/* =========================
+   AI CONFIDENCE
+========================= */
 
-function updateCircle(signal){
+function confidence(score,rsi,macd,vol){
 
-let c=document.getElementById("circle");
+let conf = 50;
 
-c.className="circle hold";
+conf += score * 4;
 
-if(signal==="BUY"){
-c.className="circle buy";
+if(rsi > 45 && rsi < 60){
+conf += 10;
 }
 
-if(signal==="SELL"){
-c.className="circle sell";
+if(Math.abs(macd) > 0.00005){
+conf += 10;
 }
 
-c.innerHTML=`
+if(vol > 0.0003){
+conf += 10;
+}
+
+if(conf > 99) conf = 99;
+if(conf < 1) conf = 1;
+
+return Math.floor(conf);
+
+}
+
+/* =========================
+   DURATION AI
+========================= */
+
+function getDuration(conf,vol){
+
+if(conf > 90 && vol > 0.0005){
+
+return {
+seconds:300,
+text:"5 MINUTES"
+};
+
+}
+
+if(conf > 80){
+
+return {
+seconds:180,
+text:"3 MINUTES"
+};
+
+}
+
+return {
+seconds:60,
+text:"1 MINUTE"
+};
+
+}
+
+/* =========================
+   UPDATE CIRCLE
+========================= */
+
+function updateCircle(signal,conf,duration){
+
+let c = document.getElementById("circle");
+
+c.className = "circle hold";
+
+if(signal === "BUY"){
+c.className = "circle buy";
+}
+
+if(signal === "SELL"){
+c.className = "circle sell";
+}
+
+c.innerHTML = `
+
 <div>${signal}</div>
-<div style="font-size:14px">2 MIN</div>
+
+<div style="font-size:15px">
+${duration}
+</div>
+
+<div style="font-size:13px">
+${conf}% AI
+</div>
+
 `;
 
 }
 
-/* ======================
-   START BOT
-====================== */
+/* =========================
+   WIN RATE
+========================= */
+
+function updateWinRate(){
+
+let wr = total === 0
+? 0
+: ((wins/total)*100).toFixed(1);
+
+document.getElementById("wr").innerText =
+wr + "%";
+
+}
+
+/* =========================
+   START
+========================= */
 
 function start(){
 
-prices=[];
+prices = [];
+candles = [];
 
-if(ws)ws.close();
+if(ws){
+ws.close();
+}
 
-ws=new WebSocket("wss://ws.derivws.com/websockets/v3?app_id=1089");
+ws = new WebSocket(
+"wss://ws.derivws.com/websockets/v3?app_id=1089"
+);
 
-ws.onopen=()=>{
+ws.onopen = ()=>{
 
 ws.send(JSON.stringify({
-ticks:document.getElementById("pair").value,
+
+ticks_history:
+document.getElementById("pair").value,
+
+adjust_start_time:1,
+
+count:200,
+
+end:"latest",
+
+granularity:60,
+
+style:"candles",
+
 subscribe:1
+
 }));
 
 };
 
-ws.onmessage=(msg)=>{
+ws.onmessage = (msg)=>{
 
-let data=JSON.parse(msg.data);
+let data = JSON.parse(msg.data);
 
-if(!data.tick)return;
+/* INITIAL */
 
-let price=parseFloat(data.tick.quote);
+if(data.candles){
 
-if(isNaN(price))return;
+candles = data.candles;
 
-prices.push(price);
+prices = candles.map(c =>
+parseFloat(c.close)
+);
 
-if(prices.length>200){
+}
+
+/* LIVE */
+
+if(data.ohlc){
+
+candles.push(data.ohlc);
+
+prices.push(
+parseFloat(data.ohlc.close)
+);
+
+if(candles.length > 200){
+
+candles.shift();
 prices.shift();
+
 }
 
-document.getElementById("price").innerText=price;
+}
 
-if(prices.length<35)return;
+if(prices.length < 35) return;
 
-/* ======================
+let price = prices[prices.length-1];
+
+document.getElementById("price")
+.innerText = price.toFixed(5);
+
+/* =========================
    INDICATORS
-====================== */
+========================= */
 
-let rsi=RSI(prices);
+let rsi = RSI(prices);
 
-let emaFast=EMA(prices,8);
+let emaFast = EMA(prices,8);
 
-let emaSlow=EMA(prices,25);
+let emaSlow = EMA(prices,25);
 
-let macd=MACD(prices);
+let macd = MACD(prices);
 
-let mom=momentum(prices);
+let mom = momentum(prices);
 
-let vol=volatility(prices);
+let vol = volatility(prices);
 
-/* ======================
-   DISPLAY
-====================== */
-
-document.getElementById("rsi").innerText=rsi.toFixed(2);
-
-document.getElementById("emaFast").innerText=emaFast.toFixed(5);
-
-document.getElementById("emaSlow").innerText=emaSlow.toFixed(5);
-
-document.getElementById("macd").innerText=macd.toFixed(5);
-
-/* ======================
-   TREND
-====================== */
-
-let trend="SIDEWAYS";
-
-if(emaFast>emaSlow){
-trend="UPTREND";
-}
-
-if(emaFast<emaSlow){
-trend="DOWNTREND";
-}
-
-document.getElementById("trend").innerText=trend;
-
-/* ======================
-   SCORE
-====================== */
-
-let score=trendStrength(
-price,
+let score = trendStrength(
 emaFast,
 emaSlow,
 rsi,
@@ -513,85 +666,161 @@ macd,
 mom
 );
 
-document.getElementById("strength").innerText=score;
+let conf = confidence(
+score,
+rsi,
+macd,
+vol
+);
 
-/* ======================
+let sr = supportResistance(prices);
+
+let candleBias = candleSignal();
+
+let durationAI = getDuration(conf,vol);
+
+/* =========================
+   DISPLAY
+========================= */
+
+document.getElementById("rsi")
+.innerText = rsi.toFixed(2);
+
+document.getElementById("emaFast")
+.innerText = emaFast.toFixed(5);
+
+document.getElementById("emaSlow")
+.innerText = emaSlow.toFixed(5);
+
+document.getElementById("macd")
+.innerText = macd.toFixed(5);
+
+document.getElementById("strength")
+.innerText = score;
+
+document.getElementById("confidence")
+.innerText = conf + "%";
+
+document.getElementById("durationText")
+.innerText = durationAI.text;
+
+/* =========================
+   TREND
+========================= */
+
+let trend = "SIDEWAYS";
+
+if(emaFast > emaSlow){
+trend = "UPTREND";
+}
+
+if(emaFast < emaSlow){
+trend = "DOWNTREND";
+}
+
+document.getElementById("trend")
+.innerText = trend;
+
+/* =========================
    SIGNAL LOGIC
-====================== */
+========================= */
 
-let signal="WAIT";
+let signal = "WAIT";
 
-/* ANTI-NOISE FILTER */
+let dynamicVol = price * 0.00008;
 
-if(vol < 0.00015){
+if(vol < dynamicVol){
 
-signal="WAIT";
+signal = "WAIT";
 
 }
 
-/* STRONG BUY */
+/* BUY */
 
 else if(
 
-score>=6 &&
-emaFast>emaSlow &&
-macd>0 &&
-rsi>40 &&
-rsi<65 &&
-mom>0
+score >= 6 &&
+emaFast > emaSlow &&
+macd > 0 &&
+rsi > 45 &&
+rsi < 65 &&
+mom > 0 &&
+conf >= 75 &&
+candleBias === "BULL"
 
 ){
 
-signal="BUY";
+signal = "BUY";
 
 }
 
-/* STRONG SELL */
+/* SELL */
 
 else if(
 
-score<=-6 &&
-emaFast<emaSlow &&
-macd<0 &&
-rsi>35 &&
-rsi<60 &&
-mom<0
+score <= -6 &&
+emaFast < emaSlow &&
+macd < 0 &&
+rsi > 35 &&
+rsi < 55 &&
+mom < 0 &&
+conf >= 75 &&
+candleBias === "BEAR"
 
 ){
 
-signal="SELL";
+signal = "SELL";
 
 }
 
-/* ======================
-   LOCK SYSTEM
-====================== */
+/* FILTER */
 
-if(lock)return;
+if(price >= sr.resistance * 0.9995){
+signal = "WAIT";
+}
 
-if(signal!=="WAIT" && signal!==lastSignal){
+if(price <= sr.support * 1.0005){
+signal = "WAIT";
+}
 
-lastSignal=signal;
+/* =========================
+   EXECUTE SIGNAL
+========================= */
 
-lock=true;
+if(lock) return;
+
+if(
+signal !== "WAIT" &&
+signal !== lastSignal
+){
+
+lastSignal = signal;
+
+lock = true;
 
 setTimeout(()=>{
-lock=false;
+lock = false;
 },20000);
-
-/* CREATE SIGNAL */
 
 total++;
 
-document.getElementById("total").innerText=total;
+document.getElementById("total")
+.innerText = total;
 
-document.getElementById("sig").innerText=signal;
+document.getElementById("sig")
+.innerText = signal;
 
-updateCircle(signal);
+updateCircle(
+signal,
+conf,
+durationAI.text
+);
 
-let duration=120;
+updateWinRate();
 
-let trade={
+/* TRADE */
+
+let trade = {
 
 signal:signal,
 
@@ -599,9 +828,9 @@ entry:price,
 
 start:Date.now(),
 
-end:Date.now()+(duration*1000),
-
-closed:false
+end:
+Date.now() +
+(durationAI.seconds * 1000)
 
 };
 
@@ -611,23 +840,38 @@ startCountdown(trade);
 
 };
 
+/* =========================
+   AUTO RECONNECT
+========================= */
+
+ws.onclose = ()=>{
+
+setTimeout(()=>{
+start();
+},3000);
+
+};
+
 }
 
-/* ======================
+/* =========================
    COUNTDOWN
-====================== */
+========================= */
 
 function startCountdown(trade){
 
-let timer=setInterval(()=>{
+let timer = setInterval(()=>{
 
-let left=Math.floor((trade.end-Date.now())/1000);
+let left = Math.floor(
+(trade.end - Date.now()) / 1000
+);
 
-if(left<=0){
+if(left <= 0){
 
 clearInterval(timer);
 
-document.getElementById("countdown").innerText="0s";
+document.getElementById("countdown")
+.innerText = "0s";
 
 evaluateTrade(trade);
 
@@ -635,84 +879,97 @@ return;
 
 }
 
-document.getElementById("countdown").innerText=left+"s";
+document.getElementById("countdown")
+.innerText = left + "s";
 
 },1000);
 
 }
 
-/* ======================
+/* =========================
    EVALUATE
-====================== */
+========================= */
 
 function evaluateTrade(trade){
 
-let current=prices[prices.length-1];
+let current = prices[prices.length-1];
 
-let win=false;
+let win = false;
 
 if(
-(trade.signal==="BUY" && current>trade.entry)
+(trade.signal==="BUY" &&
+current > trade.entry)
 ||
-(trade.signal==="SELL" && current<trade.entry)
+(trade.signal==="SELL" &&
+current < trade.entry)
 ){
-win=true;
+win = true;
 }
 
 if(win){
 
 wins++;
 
-document.getElementById("wins").innerText=wins;
+document.getElementById("wins")
+.innerText = wins;
 
-document.getElementById("result").innerHTML=
+document.getElementById("result")
+.innerHTML =
 "<span class='win'>GAIN ✅</span>";
 
 }else{
 
 losses++;
 
-document.getElementById("losses").innerText=losses;
+document.getElementById("losses")
+.innerText = losses;
 
-document.getElementById("result").innerHTML=
+document.getElementById("result")
+.innerHTML =
 "<span class='loss'>LOSS ❌</span>";
 
 }
+
+updateWinRate();
 
 addHistory(trade,win,current);
 
 }
 
-/* ======================
+/* =========================
    HISTORY
-====================== */
+========================= */
 
 function addHistory(trade,win,current){
 
-let history=document.getElementById("history");
+let history =
+document.getElementById("history");
 
-let item=document.createElement("div");
+let item =
+document.createElement("div");
 
-item.className="historyItem";
+item.className = "historyItem";
 
-let badge=trade.signal==="BUY"
+let badge = trade.signal === "BUY"
 
 ? "<span class='badge buyBadge'>BUY</span>"
 
 : "<span class='badge sellBadge'>SELL</span>";
 
-item.innerHTML=`
+item.innerHTML = `
 
-${badge}<br>
+${badge}<br><br>
 
-Entry: ${trade.entry}<br>
+Entry:
+${trade.entry.toFixed(5)}<br>
 
-Close: ${current}<br>
+Close:
+${current.toFixed(5)}<br>
 
 Result:
 ${win
-? "<span class='win'>GAIN</span>"
-: "<span class='loss'>LOSS</span>"
+? "<span class='win'>GAIN ✅</span>"
+: "<span class='loss'>LOSS ❌</span>"
 }
 
 `;
