@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>DARK MAGIC AI FIXED</title>
+<title>DARK MAGIC AI SMART BOT</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 
@@ -11,9 +11,9 @@
 body{
 margin:0;
 font-family:'Outfit',sans-serif;
-background:radial-gradient(circle at top,#1a0f2e,#000);
+background:radial-gradient(circle at top,#120a2a,#000);
 color:#fff;
-padding:18px;
+padding:16px;
 overflow-y:auto;
 }
 
@@ -22,31 +22,50 @@ max-width:460px;
 margin:auto;
 background:rgba(20,20,20,.85);
 border-radius:24px;
-padding:20px;
+padding:18px;
 border:1px solid rgba(255,255,255,.08);
 }
 
-h1{text-align:center}
+h1{
+text-align:center;
+font-size:22px;
+font-weight:800;
+background:linear-gradient(90deg,#fff,#aaa);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+.sub{
+text-align:center;
+font-size:12px;
+color:#aaa;
+}
 
 select,button{
 width:100%;
+margin-top:10px;
 padding:14px;
-margin-top:12px;
 border-radius:14px;
 border:none;
-font-family:'Outfit';
+font-family:'Outfit',sans-serif;
 }
 
-select{background:#111;color:#fff;border:1px solid #333}
+select{
+background:rgba(255,255,255,.05);
+color:#fff;
+}
 
 button{
 background:linear-gradient(135deg,#ff006a,#7b61ff);
 color:#fff;
 font-weight:700;
+cursor:pointer;
 }
 
 .circle{
-width:200px;height:200px;margin:18px auto;
+width:190px;
+height:190px;
+margin:16px auto;
 border-radius:50%;
 display:flex;
 flex-direction:column;
@@ -55,12 +74,12 @@ align-items:center;
 font-size:30px;
 font-weight:800;
 border:4px solid #444;
-text-align:center;
+transition:.3s;
 }
 
 .buy{color:#00ff84;border-color:#00ff84;box-shadow:0 0 25px #00ff84}
 .sell{color:#ff3355;border-color:#ff3355;box-shadow:0 0 25px #ff3355}
-.hold{color:#ffcc00}
+.hold{color:#ffcc00;border-color:#ffcc00}
 
 .box,.stats{
 margin-top:12px;
@@ -68,13 +87,14 @@ background:rgba(255,255,255,.03);
 padding:12px;
 border-radius:14px;
 font-size:13px;
+border:1px solid rgba(255,255,255,.06);
 }
 
 .stats{
 display:grid;
 grid-template-columns:1fr 1fr 1fr;
 text-align:center;
-gap:10px;
+gap:8px;
 }
 </style>
 </head>
@@ -83,7 +103,8 @@ gap:10px;
 
 <div class="container">
 
-<h1>⚡ DARK MAGIC AI</h1>
+<h1>⚡ SMART AI BOT</h1>
+<p class="sub">Auto Market Intelligence Engine</p>
 
 <select id="pair">
 <option value="frxEURUSD">EUR/USD</option>
@@ -92,62 +113,69 @@ gap:10px;
 <option value="frxAUDUSD">AUD/USD</option>
 </select>
 
-<select id="tf">
-<option value="30">30 Sec</option>
-<option value="60" selected>1 Min</option>
-<option value="120">2 Min</option>
-<option value="180">3 Min</option>
-<option value="300">5 Min</option>
-</select>
-
-<button onclick="start()">START BOT</button>
+<button onclick="start()">▶ START BOT</button>
 
 <div id="circle" class="circle hold">
 <div>WAIT</div>
-<div style="font-size:14px">NEXT: --</div>
+<div style="font-size:13px">EXP: --</div>
 </div>
 
 <div class="box">
-Price: <span id="price">--</span><br>
-Trend: <span id="trend">--</span><br>
-Next: <span id="next">--</span>
+<p>Price: <span id="price">--</span></p>
+<p>Trend: <span id="trend">--</span></p>
+<p>Volatility: <span id="vol">--</span></p>
+<p>Next Signal: <span id="next">--</span></p>
 </div>
 
 <div class="stats">
 <div>Total<h2 id="total">0</h2></div>
 <div>Wins<h2 id="wins">0</h2></div>
-<div>Loss<h2 id="loss">0</h2></div>
+<div>Loss<h2 id="losses">0</h2></div>
 </div>
 
 </div>
 
 <script>
 
-let ws,prices=[];
-let interval=60;
+let ws, prices=[];
 let lastSignalTime=0;
-let cooldown=false;
 
-let total=0,wins=0,loss=0;
+let wins=0,losses=0,total=0;
 
-function SMA(a,n){
-if(a.length<n)return 0;
-return a.slice(-n).reduce((x,y)=>x+y,0)/n;
+/* ---------- SMA ---------- */
+function SMA(arr,p){
+let sum=0;
+for(let i=arr.length-p;i<arr.length;i++){
+sum+=arr[i];
+}
+return sum/p;
 }
 
-function trend(){
-let f=SMA(prices,5);
-let s=SMA(prices,15);
-if(f>s)return "UP";
-if(f<s)return "DOWN";
-return "SIDE";
+/* ---------- VOLATILITY ---------- */
+function volatility(arr){
+let changes=0;
+for(let i=1;i<arr.length;i++){
+changes+=Math.abs(arr[i]-arr[i-1]);
+}
+return changes/arr.length;
 }
 
+/* ---------- AUTO EXPIRY ---------- */
+function getExpiry(vol,trendStrength){
+
+if(vol < 0.0002) return 0; // no trade
+
+if(trendStrength > 0.6) return 300;
+if(trendStrength > 0.4) return 180;
+if(trendStrength > 0.2) return 120;
+
+return 60;
+}
+
+/* ---------- START ---------- */
 function start(){
 
 prices=[];
-interval=parseInt(document.getElementById("tf").value);
-
 if(ws)ws.close();
 
 ws=new WebSocket("wss://ws.derivws.com/websockets/v3?app_id=1089");
@@ -166,84 +194,87 @@ if(!d.tick)return;
 
 let price=parseFloat(d.tick.quote);
 prices.push(price);
-if(prices.length>60)prices.shift();
+if(prices.length>80)prices.shift();
 
-document.getElementById("price").innerText=price.toFixed(5);
+document.getElementById("price").innerText=price;
 
-let t=trend();
-document.getElementById("trend").innerText=t;
+if(prices.length<20)return;
 
+/* ---------- TREND ---------- */
+let fast=SMA(prices,5);
+let slow=SMA(prices,20);
+
+let trend="SIDEWAYS";
+let strength=Math.abs(fast-slow);
+
+if(fast>slow)trend="UP";
+if(fast<slow)trend="DOWN";
+
+/* ---------- VOLATILITY ---------- */
+let vol=volatility(prices);
+
+/* ---------- SIGNAL ---------- */
+let signal="WAIT";
+
+if(vol>0.0002){
+
+if(trend==="UP") signal="BUY";
+else if(trend==="DOWN") signal="SELL";
+
+}
+
+/* ---------- EXPIRY ---------- */
+let expiry=getExpiry(vol,strength);
+
+/* ---------- COOLDOWN ---------- */
 let now=Date.now();
-let next=Math.max(0,interval*1000-(now-lastSignalTime));
-document.getElementById("next").innerText=Math.floor(next/1000)+"s";
+if(now-lastSignalTime<8000)return;
 
-/* ONLY RUN EVERY INTERVAL */
-if(now-lastSignalTime < interval*1000 || cooldown) return;
+if(signal!=="WAIT"){
 
 lastSignalTime=now;
-cooldown=true;
-setTimeout(()=>cooldown=false,3000);
 
-/* ---------------- SAFE SIGNAL ENGINE ---------------- */
-let sma10=SMA(prices,10);
-let sma20=SMA(prices,20);
+total++;
+document.getElementById("total").innerText=total;
 
-let signal;
+/* fake evaluation (simple) */
+setTimeout(()=>{
+let endPrice=prices[prices.length-1];
 
-/* MAIN TREND SIGNAL */
-if(t==="UP") signal="BUY";
-else if(t==="DOWN") signal="SELL";
-
-/* FALLBACK (IMPORTANT FIX) */
-if(!signal){
-if(price>sma10)signal="BUY";
-else signal="SELL";
+if(
+(signal==="BUY" && endPrice>price) ||
+(signal==="SELL" && endPrice<price)
+){
+wins++;
+document.getElementById("wins").innerText=wins;
+}else{
+losses++;
+document.getElementById("losses").innerText=losses;
 }
-
-/* SHOW */
-show(signal,price);
-};
+},expiry*1000);
 
 }
 
-function show(signal,entry){
-
+/* ---------- UI ---------- */
 let c=document.getElementById("circle");
 
 c.className="circle hold";
 if(signal==="BUY")c.className="circle buy";
 if(signal==="SELL")c.className="circle sell";
 
-c.innerHTML=`<div>${signal}</div><div style="font-size:14px">${interval}s TF</div>`;
+c.innerHTML=`<div>${signal}</div><div style="font-size:13px">EXP: ${Math.round(expiry/60)}m</div>`;
 
-total++;
-document.getElementById("total").innerText=total;
+document.getElementById("trend").innerText=trend;
+document.getElementById("vol").innerText=vol.toFixed(6);
 
-setTimeout(()=>{
-evaluate(signal,entry);
-},interval*1000);
-}
+/* next signal timer */
+let wait=Math.max(0,8-(now-lastSignalTime)/1000);
+document.getElementById("next").innerText=Math.ceil(wait)+"s";
 
-function evaluate(signal,entry){
-
-let last=prices[prices.length-1];
-
-let win=false;
-
-if(signal==="BUY" && last>entry)win=true;
-if(signal==="SELL" && last<entry)win=true;
-
-if(win){
-wins++;
-document.getElementById("wins").innerText=wins;
-}else{
-loss++;
-document.getElementById("loss").innerText=loss;
-}
+};
 
 }
 
 </script>
-
 </body>
 </html>
