@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>OTC AI Signal Engine v4</title>
+<title>OTC Signal Bot (Button Mode)</title>
 
 <style>
 body {
@@ -15,86 +15,79 @@ body {
 .card {
     background:#111827;
     padding:20px;
-    margin:10px;
+    margin:20px auto;
     border-radius:12px;
-    width:340px;
-    display:inline-block;
+    width:360px;
+}
+
+button {
+    padding:12px 20px;
+    font-size:16px;
+    border:none;
+    border-radius:8px;
+    background:#38bdf8;
+    color:black;
+    cursor:pointer;
+    margin-top:15px;
+}
+
+button:hover {
+    background:#0ea5e9;
 }
 
 #signal {
     font-size:55px;
     font-weight:bold;
+    margin-top:15px;
 }
 
 #confidence {
-    font-size:22px;
-    color:#38bdf8;
+    font-size:20px;
+    color:#9ca3af;
 }
 
-.zone {
-    color:#9ca3af;
+#status {
     font-size:14px;
+    color:#9ca3af;
 }
 </style>
 </head>
 
 <body>
 
-<h1>OTC AI Engine v4 (High Accuracy Mode)</h1>
+<h1>OTC Signal Bot (Manual Mode)</h1>
 
 <div class="card">
-    <div id="asset">Asset: EUR/USD</div>
+
+    <button onclick="getSignal()">GET SIGNAL</button>
+
     <div id="signal">WAIT</div>
-    <div id="confidence">0%</div>
-    <div id="zone" class="zone">No Zone</div>
+    <div id="confidence">Confidence: 0%</div>
+    <div id="status">Click button to analyze market</div>
+
 </div>
 
 <script>
-// ==========================
-// MULTI-ASSET SIMULATION
-// ==========================
-let assets = {
-    "EURUSD": [],
-    "GBPUSD": [],
-    "BTCUSD": []
-};
+// ======================
+// SIMULATED PRICE DATA
+// ======================
+let prices = [];
 
-let activeAsset = "EURUSD";
+function generatePrice() {
+    let last = prices.length ? prices[prices.length - 1] : 100;
+    let change = (Math.random() - 0.5) * 2;
+    let newPrice = last + change;
+    prices.push(newPrice);
 
-// Binance feed (BTC real-time base)
-let socket = new WebSocket("wss://stream.binance.com:9443/ws/btcusdt@trade");
-
-socket.onmessage = function(event) {
-    let data = JSON.parse(event.data);
-    let price = parseFloat(data.p);
-
-    updateAssets(price);
-    analyzeAll();
-};
-
-// ==========================
-// UPDATE ALL SIMULATED PAIRS
-// ==========================
-function updateAssets(price) {
-
-    // map BTC movement into FX-like behavior
-    let eur = price * 0.00002;
-    let gbp = price * 0.000025;
-    let btc = price;
-
-    push("EURUSD", eur);
-    push("GBPUSD", gbp);
-    push("BTCUSD", btc);
+    if (prices.length > 200) prices.shift();
 }
 
-function push(asset, price) {
-    assets[asset].push(price);
-    if (assets[asset].length > 200) assets[asset].shift();
-}
+// preload data
+for (let i = 0; i < 50; i++) generatePrice();
 
-// ==========================
+// ======================
 // EMA
-// ==========================
+// ======================
 function ema(period, data) {
     let k = 2 / (period + 1);
     let e = data[0];
@@ -105,9 +98,9 @@ function ema(period, data) {
     return e;
 }
 
-// ==========================
+// ======================
 // RSI
-// ==========================
+// ======================
 function rsi(data) {
     let gain = 0, loss = 0;
 
@@ -121,104 +114,74 @@ function rsi(data) {
     return 100 - (100 / (1 + rs));
 }
 
-// ==========================
+// ======================
 // SUPPORT / RESISTANCE
-// ==========================
-function supportResistance(data) {
-    let min = Math.min(...data.slice(-20));
-    let max = Math.max(...data.slice(-20));
-    return { support: min, resistance: max };
+// ======================
+function zone(data) {
+    let support = Math.min(...data.slice(-20));
+    let resistance = Math.max(...data.slice(-20));
+    return { support, resistance };
 }
 
-// ==========================
-// AI ADAPTIVE MEMORY (simple)
-// ==========================
-let bias = 0;
+// ======================
+// SIGNAL ENGINE
+// ======================
+function analyze() {
 
-function adapt(signal) {
-    if (signal === "BUY") bias += 0.1;
-    if (signal === "SELL") bias -= 0.1;
-    if (bias > 2) bias = 2;
-    if (bias < -2) bias = -2;
-}
-
-// ==========================
-// HIGH ACCURACY ENGINE
-// ==========================
-function analyzeAsset(name) {
-
-    let data = assets[name];
-    if (data.length < 30) return;
-
-    let ema9 = ema(9, data);
-    let ema21 = ema(21, data);
-    let r = rsi(data);
-    let zone = supportResistance(data);
-
-    let price = data[data.length - 1];
+    let ema9 = ema(9, prices);
+    let ema21 = ema(21, prices);
+    let r = rsi(prices);
+    let z = zone(prices);
+    let price = prices[prices.length - 1];
 
     let score = 0;
 
-    // TREND
+    // trend
     if (ema9 > ema21) score += 3;
     else score -= 3;
 
-    // RSI
+    // momentum
     if (r > 55) score += 2;
     else if (r < 45) score -= 2;
 
-    // SUPPORT / RESISTANCE FILTER
-    if (price > zone.resistance * 0.999) score -= 2;
-    if (price < zone.support * 1.001) score -= 2;
+    // zone filter
+    if (price > z.resistance * 0.999) score -= 2;
+    if (price < z.support * 1.001) score -= 2;
 
-    // AI BIAS
-    score += bias;
-
-    // HIGH ACCURACY MODE FILTER (STRICT)
-    if (Math.abs(score) < 5) {
-        return show(name, "WAIT", 0, zone);
-    }
-
-    let confidence = Math.min(100, Math.abs(score) * 12);
+    let confidence = Math.min(100, Math.abs(score) * 15);
 
     let signal = "WAIT";
 
     if (score >= 5) signal = "BUY";
     if (score <= -5) signal = "SELL";
 
-    adapt(signal);
-
-    show(name, signal, confidence, zone);
+    return { signal, confidence, z };
 }
 
-// ==========================
-// RUN ALL ASSETS
-// ==========================
-function analyzeAll() {
+// ======================
+// BUTTON FUNCTION
+// ======================
+function getSignal() {
 
-    analyzeAsset("EURUSD");
+    // update prices before analysis
+    for (let i = 0; i < 5; i++) generatePrice();
 
-}
+    let result = analyze();
 
-// ==========================
-// UI
-// ==========================
-function show(name, signal, confidence, zone) {
+    let signalEl = document.getElementById("signal");
+    let confEl = document.getElementById("confidence");
+    let statusEl = document.getElementById("status");
 
-    document.getElementById("asset").innerText = "Asset: " + name;
-    document.getElementById("signal").innerText = signal;
-    document.getElementById("confidence").innerText =
-        "Confidence: " + confidence.toFixed(0) + "%";
+    signalEl.innerText = result.signal;
+    confEl.innerText = "Confidence: " + result.confidence.toFixed(0) + "%";
 
-    document.getElementById("zone").innerText =
-        "Support: " + zone.support.toFixed(4) +
-        " | Resistance: " + zone.resistance.toFixed(4);
+    statusEl.innerText =
+        "Support: " + result.z.support.toFixed(2) +
+        " | Resistance: " + result.z.resistance.toFixed(2);
 
-    let s = document.getElementById("signal");
-
-    if (signal === "BUY") s.style.color = "lime";
-    else if (signal === "SELL") s.style.color = "red";
-    else s.style.color = "yellow";
+    if (result.signal === "BUY") signalEl.style.color = "lime";
+    else if (result.signal === "SELL") signalEl.style.color = "red";
+    else signalEl.style.color = "yellow";
 }
 </script>
 
