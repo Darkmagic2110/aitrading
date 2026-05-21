@@ -1,22 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>DERIV AI STABLE</title>
+<title>30s DERIV SCALP AI</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 
 <style>
-body{margin:0;font-family:'Outfit',sans-serif;background:radial-gradient(circle at top,#120b2e,#000);color:#fff;padding:16px}
-.container{max-width:460px;margin:auto;background:rgba(20,20,20,.85);border-radius:20px;padding:18px}
-h1{text-align:center}
-button{width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#ff006a,#7b61ff);color:#fff;font-weight:700}
-.circle{width:190px;height:190px;margin:18px auto;border-radius:50%;display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:30px;font-weight:800;border:4px solid #444;text-align:center}
+body{
+margin:0;
+font-family:'Outfit',sans-serif;
+background:radial-gradient(circle,#120b2e,#000);
+color:#fff;
+padding:16px;
+}
+
+.container{
+max-width:460px;
+margin:auto;
+background:rgba(20,20,20,.85);
+padding:18px;
+border-radius:20px;
+border:1px solid rgba(255,255,255,.08);
+}
+
+h1{text-align:center;font-size:20px}
+
+button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:14px;
+background:linear-gradient(135deg,#ff006a,#7b61ff);
+color:#fff;
+font-weight:700;
+}
+
+.circle{
+width:180px;
+height:180px;
+margin:18px auto;
+border-radius:50%;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+font-size:28px;
+font-weight:800;
+border:4px solid #444;
+}
+
 .buy{color:#00ff84;border-color:#00ff84;box-shadow:0 0 25px #00ff84}
 .sell{color:#ff3355;border-color:#ff3355;box-shadow:0 0 25px #ff3355}
-.hold{color:#ffcc00}
-.box{margin-top:12px;background:rgba(255,255,255,.04);padding:12px;border-radius:14px;font-size:13px}
+.wait{color:#ffcc00}
+
+.box{
+margin-top:12px;
+background:rgba(255,255,255,.04);
+padding:12px;
+border-radius:14px;
+font-size:13px;
+}
 </style>
 </head>
 
@@ -24,19 +69,20 @@ button{width:100%;padding:14px;border:none;border-radius:14px;background:linear-
 
 <div class="container">
 
-<h1>⚡ STABLE DERIV AI</h1>
+<h1>⚡ 30s SCALP AI ENGINE</h1>
 
 <button onclick="start()">START BOT</button>
 
-<div id="circle" class="circle hold">
+<div id="circle" class="circle wait">
 <div>WAIT</div>
-<div style="font-size:13px">Analyzing...</div>
+<div style="font-size:13px">30s cycle</div>
 </div>
 
 <div class="box">
 <p>Price: <span id="price">--</span></p>
-<p>Score: <span id="score">--</span></p>
 <p>Signal: <span id="signal">WAIT</span></p>
+<p>Countdown: <span id="cd">--</span></p>
+<p>Wins: <span id="win">0</span> | Loss: <span id="loss">0</span></p>
 </div>
 
 </div>
@@ -45,6 +91,12 @@ button{width:100%;padding:14px;border:none;border-radius:14px;background:linear-
 
 let ws;
 let prices=[];
+let lastSignal="WAIT";
+let trades=[];
+let wins=0,losses=0;
+
+let cycle=30;
+let timer=30;
 
 /* RSI */
 function RSI(data,p=14){
@@ -69,9 +121,18 @@ ema=data[i]*k+ema*(1-k);
 return ema;
 }
 
-let lastSignal="WAIT";
-let lock=false;
+/* TIMER */
+setInterval(()=>{
+timer--;
+if(timer<=0){
+evaluateLastTrade();
+timer=30;
+generateSignal();
+}
+document.getElementById("cd").innerText=timer+"s";
+},1000);
 
+/* START */
 function start(){
 
 prices=[];
@@ -97,56 +158,74 @@ if(prices.length>80)prices.shift();
 
 document.getElementById("price").innerText=price;
 
+};
+
+}
+
+/* SIGNAL GENERATION */
+function generateSignal(){
+
 if(prices.length<25)return;
 
-/* ---------------- INDICATORS ---------------- */
 let rsi=RSI(prices);
 let ema=EMA(prices.slice(-20),10);
 
-/* ---------------- SCORE SYSTEM ---------------- */
+let momentum=prices[prices.length-1]-prices[prices.length-5];
+
 let score=0;
 
-/* trend */
-if(price>ema)score+=2;
+if(prices[prices.length-1]>ema)score+=2;
 else score-=2;
 
-/* RSI */
 if(rsi<30)score+=1;
 if(rsi>70)score-=1;
 
-/* momentum */
-if(prices[prices.length-1]>prices[prices.length-2])score+=1;
+if(momentum>0)score+=1;
 else score-=1;
 
-/* ---------------- FILTER ---------------- */
-if(lock)return;
-
-/* ---------------- SIGNAL ---------------- */
 let signal="WAIT";
 
 if(score>=3)signal="BUY";
 else if(score<=-3)signal="SELL";
 
-/* cooldown */
-if(signal!==lastSignal){
 lastSignal=signal;
-lock=true;
-setTimeout(()=>lock=false,5000);
-}
 
-document.getElementById("score").innerText=score;
+trades.push({
+signal,
+entry:prices[prices.length-1],
+time:Date.now()
+});
+
 document.getElementById("signal").innerText=signal;
 
-/* UI */
 let c=document.getElementById("circle");
-c.className="circle hold";
+c.className="circle wait";
 
 if(signal==="BUY")c.className="circle buy";
 if(signal==="SELL")c.className="circle sell";
 
-c.innerHTML=`<div>${signal}</div><div style="font-size:13px">STABLE MODE</div>`;
+c.innerHTML=`<div>${signal}</div><div style="font-size:13px">30s TRADE</div>`;
 
-};
+}
+
+/* EVALUATION */
+function evaluateLastTrade(){
+
+let trade=trades[trades.length-1];
+if(!trade)return;
+
+let current=prices[prices.length-1];
+let win=false;
+
+if(trade.signal==="BUY" && current>trade.entry)win=true;
+if(trade.signal==="SELL" && current<trade.entry)win=true;
+
+if(trade.signal==="WAIT")return;
+
+if(win)wins++; else losses++;
+
+document.getElementById("win").innerText=wins;
+document.getElementById("loss").innerText=losses;
 
 }
 
