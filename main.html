@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>DARK MAGIC AI</title>
+<title>DARK MAGIC AI FIXED</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 
@@ -26,41 +26,27 @@ padding:20px;
 border:1px solid rgba(255,255,255,.08);
 }
 
-h1{
-text-align:center;
-font-size:24px;
-font-weight:800;
-}
+h1{text-align:center}
 
 select,button{
 width:100%;
-margin-top:12px;
 padding:14px;
-border-radius:16px;
+margin-top:12px;
+border-radius:14px;
 border:none;
-outline:none;
-font-family:'Outfit',sans-serif;
+font-family:'Outfit';
 }
 
-select{
-background:#111;
-color:#fff;
-border:1px solid #333;
-}
+select{background:#111;color:#fff;border:1px solid #333}
 
 button{
 background:linear-gradient(135deg,#ff006a,#7b61ff);
 color:#fff;
 font-weight:700;
-cursor:pointer;
 }
 
-button:active{transform:scale(.98)}
-
 .circle{
-width:200px;
-height:200px;
-margin:18px auto;
+width:200px;height:200px;margin:18px auto;
 border-radius:50%;
 display:flex;
 flex-direction:column;
@@ -74,7 +60,7 @@ text-align:center;
 
 .buy{color:#00ff84;border-color:#00ff84;box-shadow:0 0 25px #00ff84}
 .sell{color:#ff3355;border-color:#ff3355;box-shadow:0 0 25px #ff3355}
-.hold{color:#ffcc00;border-color:#ffcc00}
+.hold{color:#ffcc00}
 
 .box,.stats{
 margin-top:12px;
@@ -114,7 +100,7 @@ gap:10px;
 <option value="300">5 Min</option>
 </select>
 
-<button onclick="start()">START BOT ▶</button>
+<button onclick="start()">START BOT</button>
 
 <div id="circle" class="circle hold">
 <div>WAIT</div>
@@ -124,7 +110,7 @@ gap:10px;
 <div class="box">
 Price: <span id="price">--</span><br>
 Trend: <span id="trend">--</span><br>
-Next Signal: <span id="next">--</span>
+Next: <span id="next">--</span>
 </div>
 
 <div class="stats">
@@ -137,27 +123,23 @@ Next Signal: <span id="next">--</span>
 
 <script>
 
-let ws;
-let prices=[];
+let ws,prices=[];
+let interval=60;
+let lastSignalTime=0;
+let cooldown=false;
 
 let total=0,wins=0,loss=0;
 
-let lastSignalTime=0;
-let cooldown=false;
-let interval=60;
-
-/* SMA */
-function SMA(arr,n){
-if(arr.length<n)return 0;
-return arr.slice(-n).reduce((a,b)=>a+b,0)/n;
+function SMA(a,n){
+if(a.length<n)return 0;
+return a.slice(-n).reduce((x,y)=>x+y,0)/n;
 }
 
-/* TREND FILTER */
-function getTrend(){
-let fast=SMA(prices,5);
-let slow=SMA(prices,15);
-if(fast>slow)return "UP";
-if(fast<slow)return "DOWN";
+function trend(){
+let f=SMA(prices,5);
+let s=SMA(prices,15);
+if(f>s)return "UP";
+if(f<s)return "DOWN";
 return "SIDE";
 }
 
@@ -188,58 +170,58 @@ if(prices.length>60)prices.shift();
 
 document.getElementById("price").innerText=price.toFixed(5);
 
-let trend=getTrend();
-document.getElementById("trend").innerText=trend;
+let t=trend();
+document.getElementById("trend").innerText=t;
 
-/* NEXT SIGNAL TIMER */
 let now=Date.now();
-let next=Math.max(0,(interval*1000)-(now-lastSignalTime));
+let next=Math.max(0,interval*1000-(now-lastSignalTime));
 document.getElementById("next").innerText=Math.floor(next/1000)+"s";
 
-/* ONLY SIGNAL EVERY FIXED TIME */
+/* ONLY RUN EVERY INTERVAL */
 if(now-lastSignalTime < interval*1000 || cooldown) return;
 
 lastSignalTime=now;
 cooldown=true;
-setTimeout(()=>cooldown=false,4000);
+setTimeout(()=>cooldown=false,3000);
 
-/* SIGNAL ENGINE (SMOOTHED) */
+/* ---------------- SAFE SIGNAL ENGINE ---------------- */
 let sma10=SMA(prices,10);
 let sma20=SMA(prices,20);
 
-let signal="WAIT";
+let signal;
 
-if(trend==="UP" && sma10>sma20)signal="BUY";
-if(trend==="DOWN" && sma10<sma20)signal="SELL";
+/* MAIN TREND SIGNAL */
+if(t==="UP") signal="BUY";
+else if(t==="DOWN") signal="SELL";
 
-/* noise filter */
-if(Math.abs(price-sma10)<0.00025)signal="WAIT";
+/* FALLBACK (IMPORTANT FIX) */
+if(!signal){
+if(price>sma10)signal="BUY";
+else signal="SELL";
+}
 
-showSignal(signal,price);
+/* SHOW */
+show(signal,price);
 };
 
 }
 
-function showSignal(signal,price){
+function show(signal,entry){
 
 let c=document.getElementById("circle");
-c.className="circle hold";
 
+c.className="circle hold";
 if(signal==="BUY")c.className="circle buy";
 if(signal==="SELL")c.className="circle sell";
 
 c.innerHTML=`<div>${signal}</div><div style="font-size:14px">${interval}s TF</div>`;
 
-if(signal!=="WAIT"){
-
 total++;
 document.getElementById("total").innerText=total;
 
 setTimeout(()=>{
-evaluate(signal,price);
-}, interval*1000);
-
-}
+evaluate(signal,entry);
+},interval*1000);
 }
 
 function evaluate(signal,entry){
