@@ -15,32 +15,27 @@ margin:0;
 font-family:'Outfit',sans-serif;
 background:radial-gradient(circle at top,#1a0b2e,#000);
 color:#fff;
-overflow:hidden;
-}
-
-/* APP */
-.app{
 height:100vh;
-padding:16px;
 display:flex;
-flex-direction:column;
-}
-
-/* TOP */
-.topbar{
-display:flex;
-justify-content:space-between;
+justify-content:center;
 align-items:center;
 }
 
-h1{font-size:18px;margin:0}
-
-.menuBtn{
-font-size:26px;
-cursor:pointer;
+.app{
+width:100%;
+height:100vh;
+padding:18px;
+display:flex;
+flex-direction:column;
+justify-content:space-between;
 }
 
-/* SELECT */
+h1{
+text-align:center;
+margin:0;
+font-size:22px;
+}
+
 select,button{
 width:100%;
 padding:14px;
@@ -51,7 +46,7 @@ font-family:'Outfit',sans-serif;
 }
 
 select{
-background:rgba(255,255,255,.05);
+background:rgba(255,255,255,.06);
 color:#fff;
 }
 
@@ -59,9 +54,9 @@ button{
 background:linear-gradient(135deg,#ff006a,#7b61ff);
 color:#fff;
 font-weight:700;
+cursor:pointer;
 }
 
-/* CIRCLE */
 .circle{
 width:220px;
 height:220px;
@@ -71,10 +66,9 @@ display:flex;
 flex-direction:column;
 justify-content:center;
 align-items:center;
-font-size:30px;
+font-size:32px;
 font-weight:800;
 border:4px solid #444;
-transition:.3s;
 text-align:center;
 }
 
@@ -82,141 +76,78 @@ text-align:center;
 .sell{color:#ff3355;border-color:#ff3355}
 .wait{color:#ffcc00}
 
-/* BOX */
 .panel{
-background:rgba(255,255,255,.03);
+background:rgba(255,255,255,.04);
 padding:12px;
 border-radius:14px;
 font-size:13px;
 margin-top:10px;
 }
 
-/* MENU */
-.overlay{
-position:fixed;
-top:0;left:0;
-width:100%;height:100%;
-background:rgba(0,0,0,.5);
-display:none;
-}
-
-.menu{
-position:fixed;
-right:-70%;
-top:0;
-width:70%;
-height:100%;
-background:#0f0f0f;
-padding:16px;
-transition:.3s;
-border-left:1px solid rgba(255,255,255,.1);
-}
-
-.menuItem{
-padding:12px;
+.stats{
+display:grid;
+grid-template-columns:1fr 1fr 1fr;
+gap:10px;
 margin-top:10px;
-background:rgba(255,255,255,.05);
-border-radius:10px;
-cursor:pointer;
+text-align:center;
 }
 
-.time{
-font-size:12px;
-opacity:.7;
-margin-top:6px;
+.stats div{
+background:rgba(255,255,255,.04);
+padding:10px;
+border-radius:12px;
 }
+
+.small{font-size:12px;opacity:.8}
 
 </style>
 </head>
 
 <body>
 
-<div class="overlay" id="overlay" onclick="closeMenu()"></div>
-
-<div class="menu" id="menu">
-<h3>MENU</h3>
-
-<div class="menuItem" onclick="go('deposit.html')">💰 Purchase Coins</div>
-<div class="menuItem" onclick="go('referral.html')">🎁 Referral Code</div>
-<div class="menuItem" onclick="go('help.html')">❓ Help</div>
-<div class="menuItem" onclick="go('customer.html')">📞 Customer Support</div>
-
-</div>
-
 <div class="app">
 
-<div class="topbar">
-<h1>⚡ DARK MAGIC AI</h1>
-<div class="menuBtn" onclick="openMenu()">☰</div>
-</div>
+<h1>⚡ DARK MAGIC AI PRO</h1>
 
-<div class="time">🕒 <span id="clock"></span></div>
-
-<select id="pair">
-<option value="frxEURUSD">EUR/USD</option>
-<option value="frxGBPUSD">GBP/USD</option>
-<option value="frxUSDJPY">USD/JPY</option>
-<option value="frxAUDUSD">AUD/USD</option>
+<select id="tf">
+<option value="30">30 Sec</option>
+<option value="60">1 Min</option>
+<option value="90">1:30 Min</option>
+<option value="120">2 Min</option>
+<option value="150">2:30 Min</option>
+<option value="180">3 Min</option>
 </select>
 
-<button onclick="start()">START BOT</button>
+<button onclick="start()">▶ START BOT</button>
 
 <div id="circle" class="circle wait">
 <div>WAIT</div>
-<div id="cd" style="font-size:13px">--</div>
+<div class="small" id="cd">--</div>
 </div>
 
 <div class="panel">
 Price: <span id="price">--</span><br>
-Signal: <span id="sig">WAIT</span><br>
-Trend: <span id="trend">--</span>
+Signal: <span id="sig">WAIT</span>
+</div>
+
+<div class="stats">
+<div>Signals<br><b id="total">0</b></div>
+<div>Wins<br><b id="wins">0</b></div>
+<div>Loss<br><b id="loss">0</b></div>
 </div>
 
 </div>
 
 <script>
 
-let ws,prices=[],trade=null,timer;
+let ws;
+let prices=[];
+let trade=null;
+let countdownInterval;
 
-/* MENU */
-function openMenu(){
-document.getElementById("menu").style.right="0";
-document.getElementById("overlay").style.display="block";
-}
-function closeMenu(){
-document.getElementById("menu").style.right="-70%";
-document.getElementById("overlay").style.display="none";
-}
-function go(p){
-closeMenu();
-window.location.href=p;
-}
+let total=0,wins=0,loss=0;
 
-/* CLOCK */
-setInterval(()=>{
-let d=new Date();
-document.getElementById("clock").innerText=d.toLocaleTimeString();
-},1000);
-
-/* EMA */
-function EMA(data,p=20){
-let k=2/(p+1),e=data[0];
-for(let i=1;i<data.length;i++){
-e=data[i]*k+e*(1-k);
-}
-return e;
-}
-
-/* VOL */
-function volatility(data){
-let s=0;
-for(let i=1;i<data.length;i++){
-s+=Math.abs(data[i]-data[i-1]);
-}
-return s/data.length;
-}
-
-/* START */
+/* START DERIV */
 function start(){
 
 prices=[];
@@ -235,84 +166,108 @@ if(!d.tick)return;
 
 let price=parseFloat(d.tick.quote);
 prices.push(price);
-if(prices.length>120)prices.shift();
+if(prices.length>100)prices.shift();
 
 document.getElementById("price").innerText=price.toFixed(5);
 
-if(prices.length<30)return;
-
-let ema=EMA(prices.slice(-30),15);
-let vol=volatility(prices.slice(-20));
-let momentum=prices.at(-1)-prices.at(-10);
-
-let score=0;
-
-if(price>ema)score+=2;
-else score-=2;
-
-if(momentum>0)score+=1;
-else score-=1;
-
-document.getElementById("trend").innerText=momentum>0?"UPTREND":"DOWNTREND";
-
-/* filter weak market */
-if(vol<0.00025)return;
-
-let signal="WAIT";
-
-if(score>=2)signal="BUY";
-else if(score<=-2)signal="SELL";
-
-if(signal==="WAIT")return;
-
-trade={
-signal,
-entry:price,
-end:Date.now()+chooseTime()
-};
-
-document.getElementById("sig").innerText=signal;
-updateCircle(signal);
-startCountdown();
+/* ONLY ONE TRADE AT A TIME */
+if(!trade && prices.length>20){
+createTrade(price);
+}
 
 };
 
 }
 
-/* TIMEFRAME (stable not changing randomly) */
-function chooseTime(){
-return 30000; // 30s fixed (you can change to 60000, 120000 etc)
+/* CREATE TRADE */
+function createTrade(price){
+
+let tf=parseInt(document.getElementById("tf").value);
+
+/* SIMPLE TREND LOGIC (NOT RANDOM) */
+let last=prices.slice(-10);
+let up=0,down=0;
+
+for(let i=1;i<last.length;i++){
+if(last[i]>last[i-1])up++;
+else down++;
+}
+
+let signal=(up>=down)?"BUY":"SELL";
+
+trade={
+signal,
+entry:price,
+end:Date.now()+tf*1000,
+closed:false
+};
+
+total++;
+document.getElementById("total").innerText=total;
+document.getElementById("sig").innerText=signal;
+
+updateCircle(signal);
+startCountdown();
+
 }
 
 /* UI */
 function updateCircle(sig){
 let c=document.getElementById("circle");
 c.className="circle wait";
+
 if(sig==="BUY")c.className="circle buy";
 if(sig==="SELL")c.className="circle sell";
-c.innerHTML=`<div>${sig}</div><div id="cd">30s</div>`;
+
+c.innerHTML=`<div>${sig}</div><div class="small" id="cd">STARTED</div>`;
 }
 
-/* COUNTDOWN */
+/* COUNTDOWN FIXED */
 function startCountdown(){
-clearInterval(timer);
 
-timer=setInterval(()=>{
+clearInterval(countdownInterval);
+
+countdownInterval=setInterval(()=>{
+
+if(!trade)return;
 
 let left=Math.floor((trade.end-Date.now())/1000);
 
 document.getElementById("cd").innerText=left+"s";
 
 if(left<=0){
-clearInterval(timer);
+clearInterval(countdownInterval);
+evaluate();
 trade=null;
-document.getElementById("cd").innerText="DONE";
 }
 
 },1000);
 
 }
 
+/* EVALUATION */
+function evaluate(){
+
+let price=prices[prices.length-1];
+
+let win=false;
+
+if(trade.signal==="BUY" && price>=trade.entry)win=true;
+if(trade.signal==="SELL" && price<=trade.entry)win=true;
+
+if(win){
+wins++;
+document.getElementById("wins").innerText=wins;
+}else{
+loss++;
+document.getElementById("loss").innerText=loss;
+}
+
+document.getElementById("cd").innerText="DONE";
+
+}
+
 </script>
+
 </body>
 </html>
