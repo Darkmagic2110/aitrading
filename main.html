@@ -2,51 +2,52 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>OTC Signal Bot (Button Mode)</title>
+<title>OTC Signal Bot Countdown</title>
 
 <style>
-body {
+body{
     background:#0b1220;
     color:white;
     font-family:Arial;
     text-align:center;
 }
 
-.card {
+.card{
+    width:360px;
+    margin:20px auto;
     background:#111827;
     padding:20px;
-    margin:20px auto;
     border-radius:12px;
-    width:360px;
 }
 
-button {
-    padding:12px 20px;
-    font-size:16px;
-    border:none;
-    border-radius:8px;
-    background:#38bdf8;
-    color:black;
-    cursor:pointer;
-    margin-top:15px;
-}
-
-button:hover {
-    background:#0ea5e9;
-}
-
-#signal {
-    font-size:55px;
+#sig{
+    font-size:40px;
     font-weight:bold;
-    margin-top:15px;
 }
 
-#confidence {
-    font-size:20px;
-    color:#9ca3af;
+#countdown{
+    font-size:30px;
+    color:#38bdf8;
 }
 
-#status {
+button{
+    padding:10px 15px;
+    margin:5px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.mode{
+    background:#38bdf8;
+}
+
+.start{
+    background:#22c55e;
+}
+
+.circle{
+    margin-top:10px;
     font-size:14px;
     color:#9ca3af;
 }
@@ -55,134 +56,188 @@ button:hover {
 
 <body>
 
-<h1>OTC Signal Bot (Manual Mode)</h1>
+<h1>OTC Signal Bot (Countdown Mode)</h1>
 
 <div class="card">
 
-    <button onclick="getSignal()">GET SIGNAL</button>
+    <div id="sig">WAIT</div>
+    <div id="countdown">0s</div>
 
-    <div id="signal">WAIT</div>
-    <div id="confidence">Confidence: 0%</div>
-    <div id="status">Click button to analyze market</div>
+    <button class="mode" onclick="setMode(5)">5 SEC</button>
+    <button class="mode" onclick="setMode(10)">10 SEC</button>
+    <br>
+
+    <button class="start" onclick="startSignal()">START SIGNAL</button>
+
+    <div class="circle" id="circle">Status: IDLE</div>
 
 </div>
 
 <script>
+
 // ======================
-// SIMULATED PRICE DATA
+// SETTINGS
 // ======================
+let mode = 5;
+let lock = false;
+let lastSignal = "WAIT";
+
 let prices = [];
 
-function generatePrice() {
-    let last = prices.length ? prices[prices.length - 1] : 100;
-    let change = (Math.random() - 0.5) * 2;
+// simulate EUR/USD price
+function generatePrice(){
+    let last = prices.length ? prices[prices.length-1] : 1.1000;
+    let change = (Math.random()-0.5)*0.001;
     let newPrice = last + change;
     prices.push(newPrice);
-
-    if (prices.length > 200) prices.shift();
+    if(prices.length>200) prices.shift();
 }
 
-// preload data
-for (let i = 0; i < 50; i++) generatePrice();
+// preload
+for(let i=0;i<50;i++) generatePrice();
 
 // ======================
-// EMA
+// INDICATORS
 // ======================
-function ema(period, data) {
-    let k = 2 / (period + 1);
-    let e = data[0];
-
-    for (let i = 1; i < data.length; i++) {
-        e = data[i] * k + e * (1 - k);
+function ema(period,data){
+    let k=2/(period+1);
+    let e=data[0];
+    for(let i=1;i<data.length;i++){
+        e=data[i]*k+e*(1-k);
     }
     return e;
 }
 
-// ======================
-// RSI
-// ======================
-function rsi(data) {
-    let gain = 0, loss = 0;
-
-    for (let i = data.length - 15; i < data.length; i++) {
-        let diff = data[i] - data[i - 1];
-        if (diff > 0) gain += diff;
-        else loss -= diff;
+function rsi(data){
+    let gain=0,loss=0;
+    for(let i=data.length-15;i<data.length;i++){
+        let diff=data[i]-data[i-1];
+        if(diff>0)gain+=diff;
+        else loss-=diff;
     }
-
-    let rs = gain / (loss || 1);
-    return 100 - (100 / (1 + rs));
-}
-
-// ======================
-// SUPPORT / RESISTANCE
-// ======================
-function zone(data) {
-    let support = Math.min(...data.slice(-20));
-    let resistance = Math.max(...data.slice(-20));
-    return { support, resistance };
+    let rs=gain/(loss||1);
+    return 100-(100/(1+rs));
 }
 
 // ======================
 // SIGNAL ENGINE
 // ======================
-function analyze() {
+function analyze(){
 
-    let ema9 = ema(9, prices);
-    let ema21 = ema(21, prices);
-    let r = rsi(prices);
-    let z = zone(prices);
-    let price = prices[prices.length - 1];
+    let ema9=ema(9,prices);
+    let ema21=ema(21,prices);
+    let r=rsi(prices);
 
-    let score = 0;
+    let score=0;
 
-    // trend
-    if (ema9 > ema21) score += 3;
-    else score -= 3;
+    if(ema9>ema21)score+=3;
+    else score-=3;
 
-    // momentum
-    if (r > 55) score += 2;
-    else if (r < 45) score -= 2;
+    if(r>55)score+=2;
+    else if(r<45)score-=2;
 
-    // zone filter
-    if (price > z.resistance * 0.999) score -= 2;
-    if (price < z.support * 1.001) score -= 2;
+    let signal="WAIT";
 
-    let confidence = Math.min(100, Math.abs(score) * 15);
+    if(score>=4)signal="BUY";
+    if(score<=-4)signal="SELL";
 
-    let signal = "WAIT";
-
-    if (score >= 5) signal = "BUY";
-    if (score <= -5) signal = "SELL";
-
-    return { signal, confidence, z };
+    return signal;
 }
 
 // ======================
-// BUTTON FUNCTION
+// TRADE OBJECT
 // ======================
-function getSignal() {
-
-    // update prices before analysis
-    for (let i = 0; i < 5; i++) generatePrice();
-
-    let result = analyze();
-
-    let signalEl = document.getElementById("signal");
-    let confEl = document.getElementById("confidence");
-    let statusEl = document.getElementById("status");
-
-    signalEl.innerText = result.signal;
-    confEl.innerText = "Confidence: " + result.confidence.toFixed(0) + "%";
-
-    statusEl.innerText =
-        "Support: " + result.z.support.toFixed(2) +
-        " | Resistance: " + result.z.resistance.toFixed(2);
-
-    if (result.signal === "BUY") signalEl.style.color = "lime";
-    else if (result.signal === "SELL") signalEl.style.color = "red";
-    else signalEl.style.color = "yellow";
+function createTrade(){
+    return{
+        start:Date.now(),
+        end:Date.now()+(mode*1000),
+        signal:analyze()
+    };
 }
+
+// ======================
+// COUNTDOWN SYSTEM
+// ======================
+function startCountdown(trade){
+
+let timer=setInterval(()=>{
+
+    let left=Math.floor((trade.end-Date.now())/1000);
+
+    if(left<=0){
+
+        clearInterval(timer);
+
+        document.getElementById("countdown").innerText="0s";
+
+        evaluateTrade(trade);
+
+        lastSignal="WAIT";
+        lock=false;
+
+        document.getElementById("sig").innerText="SEARCHING...";
+        updateCircle("WAIT");
+
+        return;
+    }
+
+    document.getElementById("countdown").innerText=left+"s";
+
+},1000);
+
+}
+
+// ======================
+// EVALUATE TRADE
+// ======================
+function evaluateTrade(trade){
+
+    generatePrice();
+
+    let newSignal=analyze();
+
+    if(newSignal===trade.signal){
+        document.getElementById("sig").innerText=trade.signal+" WIN";
+        updateCircle("WIN");
+    }else{
+        document.getElementById("sig").innerText=trade.signal+" LOSS";
+        updateCircle("LOSS");
+    }
+}
+
+// ======================
+// UI HELPERS
+// ======================
+function updateCircle(status){
+    document.getElementById("circle").innerText="Status: "+status;
+}
+
+// ======================
+// MODE
+// ======================
+function setMode(m){
+    mode=m;
+    document.getElementById("circle").innerText="Status: MODE "+m+"s";
+}
+
+// ======================
+// START SIGNAL
+// ======================
+function startSignal(){
+
+    if(lock)return;
+
+    lock=true;
+
+    generatePrice();
+
+    let trade=createTrade();
+
+    document.getElementById("sig").innerText="TRADE: "+trade.signal;
+
+    startCountdown(trade);
+}
+
 </script>
 
 </body>
