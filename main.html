@@ -5,39 +5,33 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>DARK MAGIC AI</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
-
 body{
+margin:0;
 font-family:'Outfit',sans-serif;
-background:radial-gradient(circle at top,#1b1033,#050505);
+background:radial-gradient(circle at top,#1a0f2e,#000);
 color:#fff;
-padding:15px;
+padding:18px;
 overflow-y:auto;
 }
 
 .container{
-max-width:480px;
+max-width:460px;
 margin:auto;
-background:rgba(18,18,18,.92);
-border-radius:28px;
-padding:18px;
+background:rgba(20,20,20,.85);
+border-radius:24px;
+padding:20px;
 border:1px solid rgba(255,255,255,.08);
-backdrop-filter:blur(12px);
-box-shadow:0 0 35px rgba(123,97,255,.18);
+backdrop-filter:blur(10px);
 }
 
 h1{
 text-align:center;
-font-size:28px;
+font-size:26px;
 font-weight:800;
-background:linear-gradient(90deg,#ff2e93,#7b61ff,#00e0ff);
+background:linear-gradient(90deg,#fff,#aaa);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
@@ -45,34 +39,32 @@ background:linear-gradient(90deg,#ff2e93,#7b61ff,#00e0ff);
 .sub{
 text-align:center;
 font-size:13px;
-color:#bbb;
-margin-top:6px;
-margin-bottom:18px;
+color:#aaa;
+margin-top:8px;
 }
 
 select,button{
 width:100%;
-padding:15px;
+margin-top:12px;
+padding:14px;
+border-radius:16px;
 border:none;
 outline:none;
-border-radius:18px;
 font-family:'Outfit',sans-serif;
 }
 
 select{
 background:rgba(255,255,255,.05);
 color:#fff;
-border:1px solid rgba(255,255,255,.08);
-margin-bottom:12px;
+border:1px solid rgba(255,255,255,.1);
 }
 
 button{
 background:linear-gradient(135deg,#ff006a,#7b61ff);
 color:#fff;
-font-size:15px;
 font-weight:700;
 cursor:pointer;
-box-shadow:0 0 25px rgba(123,97,255,.35);
+font-size:15px;
 }
 
 button:active{
@@ -80,50 +72,46 @@ transform:scale(.98);
 }
 
 .circle{
-width:220px;
-height:220px;
-margin:20px auto;
+width:210px;
+height:210px;
+margin:18px auto;
 border-radius:50%;
 display:flex;
 flex-direction:column;
 justify-content:center;
 align-items:center;
-text-align:center;
 font-size:34px;
 font-weight:800;
-border:5px solid #444;
-transition:.3s;
+border:4px solid #444;
+text-align:center;
+transition:.4s;
 }
 
 .buy{
-color:#00ff99;
-border-color:#00ff99;
-box-shadow:0 0 35px #00ff99;
+color:#00ff84;
+border-color:#00ff84;
+box-shadow:0 0 40px #00ff84;
 }
 
 .sell{
 color:#ff3355;
 border-color:#ff3355;
-box-shadow:0 0 35px #ff3355;
+box-shadow:0 0 40px #ff3355;
 }
 
 .hold{
 color:#ffcc00;
 border-color:#ffcc00;
-box-shadow:0 0 30px #ffcc00;
+box-shadow:0 0 25px #ffcc00;
 }
 
-.box,.signalBox,.trendBox{
+.box,.signalBox,.history{
 margin-top:14px;
-background:rgba(255,255,255,.04);
-padding:15px;
-border-radius:18px;
+background:rgba(255,255,255,.03);
+padding:14px;
+border-radius:16px;
 border:1px solid rgba(255,255,255,.06);
-font-size:14px;
-}
-
-.box p,.signalBox p,.trendBox p{
-margin-top:8px;
+font-size:13px;
 }
 
 .stats{
@@ -134,34 +122,42 @@ margin-top:14px;
 }
 
 .card{
-background:rgba(255,255,255,.04);
-padding:14px;
-border-radius:18px;
+background:rgba(255,255,255,.03);
+padding:12px;
+border-radius:16px;
 text-align:center;
 border:1px solid rgba(255,255,255,.06);
 }
 
 .card h2{
-margin-top:6px;
+margin:6px 0 0;
 font-size:24px;
 }
 
-.win{
-color:#00ff99;
+.win{color:#00ff84}
+.loss{color:#ff3355}
+
+.historyItem{
+padding:10px;
+border-bottom:1px solid rgba(255,255,255,.06);
+font-size:12px;
 }
 
-.loss{
-color:#ff3355;
-}
-
-.up{
-color:#00ff99;
+.badge{
+padding:4px 8px;
+border-radius:8px;
+font-size:11px;
 font-weight:700;
 }
 
-.down{
+.buyBadge{
+background:#003d22;
+color:#00ff84;
+}
+
+.sellBadge{
+background:#3d0012;
 color:#ff3355;
-font-weight:700;
 }
 </style>
 </head>
@@ -171,7 +167,7 @@ font-weight:700;
 <div class="container">
 
 <h1>⚡ DARK MAGIC AI</h1>
-<p class="sub">90% Accurate AI Signal Engine 📊</p>
+<p class="sub">90% Accurate Signal Engine 📊</p>
 
 <select id="pair">
 <option value="frxEURUSD">EUR/USD</option>
@@ -179,39 +175,28 @@ font-weight:700;
 <option value="frxUSDJPY">USD/JPY</option>
 <option value="frxAUDUSD">AUD/USD</option>
 <option value="frxEURJPY">EUR/JPY</option>
-<option value="frxUSDCAD">USD/CAD</option>
+<option value="frxUSDCHF">USD/CHF</option>
 </select>
 
 <button onclick="start()">▶ START BOT</button>
 
 <div id="circle" class="circle hold">
 <div>WAIT</div>
-<div style="font-size:14px;margin-top:8px;">--</div>
-</div>
-
-<div class="trendBox">
-<p>📈 Market Trend: <span id="trend">WAITING...</span></p>
-<p>⏱ Recommended Interval: <span id="interval">--</span></p>
+<div style="font-size:14px">EXP: --</div>
 </div>
 
 <div class="box">
 <p>💰 Price: <span id="price">--</span></p>
 <p>📊 RSI: <span id="rsi">--</span></p>
-<p>⚡ Momentum: <span id="mom">--</span></p>
-<p>📈 EMA FAST: <span id="fema">--</span></p>
-<p>📉 EMA SLOW: <span id="sema">--</span></p>
+<p>📈 EMA: <span id="ema">--</span></p>
+<p>⚡ Trend: <span id="trend">--</span></p>
+<p>🔥 Strength: <span id="strength">--</span></p>
 </div>
 
 <div class="signalBox">
 <p>📡 Signal: <span id="sig">WAIT</span></p>
-<p>💵 Entry Price: <span id="entry">--</span></p>
 <p>⏳ Countdown: <span id="countdown">--</span></p>
 <p>🎯 Result: <span id="result">--</span></p>
-</div>
-
-<div class="signalBox">
-<p>🧠 Next AI Scan In: <span id="scanTimer">15s</span></p>
-<p>⚡ Signal Status: <span id="scanStatus">Analyzing Market...</span></p>
 </div>
 
 <div class="stats">
@@ -222,13 +207,18 @@ Signals
 
 <div class="card">
 Wins
-<h2 class="win" id="wins">0</h2>
+<h2 id="wins" class="win">0</h2>
 </div>
 
 <div class="card">
 Loss
-<h2 class="loss" id="losses">0</h2>
+<h2 id="losses" class="loss">0</h2>
 </div>
+</div>
+
+<div class="history">
+<h3>📜 Signal History</h3>
+<div id="history"></div>
 </div>
 
 </div>
@@ -237,41 +227,16 @@ Loss
 
 let ws;
 let prices=[];
+let signalQueue=[];
+let wins=0,losses=0,total=0;
+
+let lastSignal="WAIT";
 let lock=false;
 
-let total=0;
-let wins=0;
-let losses=0;
-
-let scanCooldown=15;
-let canScan=true;
-
-setInterval(()=>{
-
-if(scanCooldown>0){
-
-scanCooldown--;
-
-document.getElementById("scanTimer").innerText=scanCooldown+"s";
-
-}else{
-
-document.getElementById("scanTimer").innerText="SCANNING...";
-
-scanCooldown=15;
-
-canScan=true;
-
-}
-
-},1000);
-
 function RSI(data,p=14){
-
 if(data.length<p+1)return 50;
 
-let gain=0;
-let loss=0;
+let gain=0,loss=0;
 
 for(let i=data.length-p;i<data.length;i++){
 
@@ -287,64 +252,63 @@ if(loss===0)return 100;
 let rs=(gain/p)/(loss/p);
 
 return 100-(100/(1+rs));
-
 }
 
-function EMA(data,p){
+function EMA(data,p=20){
 
 let k=2/(p+1);
 
 let ema=data[0];
 
 for(let i=1;i<data.length;i++){
-
 ema=data[i]*k+ema*(1-k);
-
 }
 
 return ema;
-
 }
 
-function Momentum(data){
+function momentum(data){
 
 if(data.length<10)return 0;
 
-return data[data.length-1]-data[data.length-5];
+let recent=data[data.length-1];
+let old=data[data.length-8];
 
+return recent-old;
 }
 
-function getDuration(score){
+function trendStrength(price,ema,rsi,mom){
 
-if(Math.abs(score)>=6){
-return {text:"1 MIN",sec:60};
+let score=0;
+
+if(price>ema)score+=2;
+else score-=2;
+
+if(rsi<35)score+=2;
+else if(rsi<45)score+=1;
+
+if(rsi>65)score-=2;
+else if(rsi>55)score-=1;
+
+if(mom>0)score+=1;
+else score-=1;
+
+return score;
 }
 
-if(Math.abs(score)>=4){
-return {text:"2 MIN",sec:120};
-}
-
-return {text:"3 MIN",sec:180};
-
-}
-
-function updateCircle(signal,time){
+function updateCircle(signal){
 
 let c=document.getElementById("circle");
 
 c.className="circle hold";
 
-if(signal==="BUY"){
-c.className="circle buy";
-}
+if(signal==="BUY")c.className="circle buy";
 
-if(signal==="SELL"){
-c.className="circle sell";
-}
+if(signal==="SELL")c.className="circle sell";
 
 c.innerHTML=`
 <div>${signal}</div>
-<div style="font-size:14px;margin-top:8px;">${time}</div>
+<div style="font-size:14px">2 MIN</div>
 `;
 
 }
@@ -378,95 +342,72 @@ if(isNaN(price))return;
 
 prices.push(price);
 
-if(prices.length>150){
-prices.shift();
-}
+if(prices.length>120)prices.shift();
 
 document.getElementById("price").innerText=price;
 
-if(prices.length<30)return;
+if(prices.length<25)return;
 
 let rsi=RSI(prices);
-let fastEMA=EMA(prices,10);
-let slowEMA=EMA(prices,25);
-let mom=Momentum(prices);
+let ema=EMA(prices,20);
+let fastEMA=EMA(prices,8);
+let slowEMA=EMA(prices,30);
+
+let mom=momentum(prices);
 
 document.getElementById("rsi").innerText=rsi.toFixed(2);
-document.getElementById("fema").innerText=fastEMA.toFixed(5);
-document.getElementById("sema").innerText=slowEMA.toFixed(5);
-document.getElementById("mom").innerText=mom.toFixed(5);
+document.getElementById("ema").innerText=ema.toFixed(5);
 
-let score=0;
+let trend="SIDEWAYS";
 
-if(fastEMA>slowEMA){
-score+=2;
-}else{
-score-=2;
-}
+if(fastEMA>slowEMA)trend="UPTREND";
+if(fastEMA<slowEMA)trend="DOWNTREND";
 
-if(rsi>52){
-score+=2;
-}
+document.getElementById("trend").innerText=trend;
 
-if(rsi<48){
-score-=2;
-}
+let score=trendStrength(price,ema,rsi,mom);
 
-if(mom>0){
-score+=2;
-}else{
-score-=2;
-}
+document.getElementById("strength").innerText=score;
 
 let signal="WAIT";
 
-let strongBuy=
-fastEMA>slowEMA &&
-rsi>52 &&
-mom>0 &&
-score>=4;
+let volatility=Math.abs(prices[prices.length-1]-prices[prices.length-5]);
 
-let strongSell=
-fastEMA<slowEMA &&
-rsi<48 &&
-mom<0 &&
-score<=-4;
+/* ANTI-NOISE FILTER */
 
-if(strongBuy){
-signal="BUY";
-}
-
-if(strongSell){
-signal="SELL";
-}
-
-if(Math.abs(mom)<0.00003){
+if(volatility<0.00005){
 signal="WAIT";
 }
 
-if(signal==="WAIT"){
-document.getElementById("scanStatus").innerText="Waiting For Strong Confirmation...";
+/* STRONG BUY */
+
+else if(
+score>=4 &&
+fastEMA>slowEMA &&
+rsi<48 &&
+mom>0
+){
+signal="BUY";
 }
 
-if(fastEMA>slowEMA){
-document.getElementById("trend").innerHTML="<span class='up'>UPTREND 📈</span>";
-}else{
-document.getElementById("trend").innerHTML="<span class='down'>DOWNTREND 📉</span>";
+/* STRONG SELL */
+
+else if(
+score<=-4 &&
+fastEMA<slowEMA &&
+rsi>52 &&
+mom<0
+){
+signal="SELL";
 }
 
-let duration=getDuration(score);
+/* LOCK SYSTEM */
 
-document.getElementById("interval").innerText=duration.text;
+if(lock)return;
 
-updateCircle(signal,duration.text);
+if(signal!=="WAIT" && signal!==lastSignal){
 
-if(lock || !canScan)return;
-
-if(signal!=="WAIT"){
-
-canScan=false;
-
-document.getElementById("scanStatus").innerText="Signal Confirmed ✅";
+lastSignal=signal;
 
 lock=true;
 
@@ -474,7 +415,29 @@ setTimeout(()=>{
 lock=false;
 },15000);
 
-createTrade(signal,price,duration.sec);
+/* CREATE TRADE */
+
+total++;
+
+document.getElementById("total").innerText=total;
+
+document.getElementById("sig").innerText=signal;
+
+updateCircle(signal);
+
+let duration=120;
+
+let trade={
+signal:signal,
+entry:price,
+start:Date.now(),
+end:Date.now()+(duration*1000),
+closed:false
+};
+
+signalQueue.push(trade);
+
+startCountdown(trade);
 
 }
 
@@ -482,19 +445,11 @@ createTrade(signal,price,duration.sec);
 
 }
 
-function createTrade(signal,entry,duration){
-
-total++;
-
-document.getElementById("total").innerText=total;
-document.getElementById("sig").innerText=signal;
-document.getElementById("entry").innerText=entry;
-
-let end=Date.now()+(duration*1000);
+function startCountdown(trade){
 
 let timer=setInterval(()=>{
 
-let left=Math.floor((end-Date.now())/1000);
+let left=Math.floor((trade.end-Date.now())/1000);
 
 if(left<=0){
 
@@ -502,10 +457,9 @@ clearInterval(timer);
 
 document.getElementById("countdown").innerText="0s";
 
-checkResult(signal,entry);
+evaluateTrade(trade);
 
 return;
-
 }
 
 document.getElementById("countdown").innerText=left+"s";
@@ -514,19 +468,20 @@ document.getElementById("countdown").innerText=left+"s";
 
 }
 
-function checkResult(signal,entry){
+function evaluateTrade(trade){
 
 let current=prices[prices.length-1];
 
 let win=false;
 
-if(signal==="BUY" && current>entry){
+if(
+(trade.signal==="BUY" && current>trade.entry)||
+(trade.signal==="SELL" && current<trade.entry)
+){
 win=true;
 }
 
-if(signal==="SELL" && current<entry){
-win=true;
-}
+trade.closed=true;
 
 if(win){
 
@@ -546,23 +501,30 @@ document.getElementById("result").innerHTML="<span class='loss'>LOSS ❌</span>"
 
 }
 
-setTimeout(()=>{
+addHistory(trade,win,current);
 
-document.getElementById("sig").innerText="WAIT";
-document.getElementById("entry").innerText="--";
-document.getElementById("countdown").innerText="--";
-document.getElementById("result").innerText="--";
+}
 
-let c=document.getElementById("circle");
+function addHistory(trade,win,current){
 
-c.className="circle hold";
+let history=document.getElementById("history");
 
-c.innerHTML=`
-<div>WAIT</div>
-<div style="font-size:14px;margin-top:8px;">--</div>
+let item=document.createElement("div");
+
+item.className="historyItem";
+
+let badge=trade.signal==="BUY"
+? "<span class='badge buyBadge'>BUY</span>"
+: "<span class='badge sellBadge'>SELL</span>";
+
+item.innerHTML=`
+${badge}<br>
+Entry: ${trade.entry}<br>
+Close: ${current}<br>
+Result: ${win ? "<span class='win'>GAIN</span>" : "<span class='loss'>LOSS</span>"}
 `;
 
-},4000);
+history.prepend(item);
 
 }
 
