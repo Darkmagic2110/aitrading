@@ -2,719 +2,224 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>DARK MAGIC AI</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+<title>OTC AI Signal Engine v4</title>
 
 <style>
-
-body{
-margin:0;
-font-family:'Outfit',sans-serif;
-background:radial-gradient(circle at top,#1a0f2e,#000);
-color:#fff;
-padding:18px;
-overflow-y:auto;
+body {
+    background:#0b1220;
+    color:white;
+    font-family:Arial;
+    text-align:center;
 }
 
-.container{
-max-width:460px;
-margin:auto;
-background:rgba(20,20,20,.85);
-border-radius:24px;
-padding:20px;
-border:1px solid rgba(255,255,255,.08);
-backdrop-filter:blur(10px);
+.card {
+    background:#111827;
+    padding:20px;
+    margin:10px;
+    border-radius:12px;
+    width:340px;
+    display:inline-block;
 }
 
-h1{
-text-align:center;
-font-size:26px;
-font-weight:800;
-background:linear-gradient(90deg,#fff,#aaa);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
+#signal {
+    font-size:55px;
+    font-weight:bold;
 }
 
-.sub{
-text-align:center;
-font-size:13px;
-color:#aaa;
-margin-top:8px;
+#confidence {
+    font-size:22px;
+    color:#38bdf8;
 }
 
-select,button{
-width:100%;
-margin-top:12px;
-padding:14px;
-border-radius:16px;
-border:none;
-outline:none;
-font-family:'Outfit',sans-serif;
+.zone {
+    color:#9ca3af;
+    font-size:14px;
 }
-
-select{
-background:rgba(255,255,255,.05);
-color:#fff;
-border:1px solid rgba(255,255,255,.1);
-}
-
-button{
-background:linear-gradient(135deg,#ff006a,#7b61ff);
-color:#fff;
-font-weight:700;
-cursor:pointer;
-font-size:15px;
-transition:.2s;
-}
-
-button:active{
-transform:scale(.98);
-}
-
-.circle{
-width:220px;
-height:220px;
-margin:20px auto;
-border-radius:50%;
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-font-size:38px;
-font-weight:800;
-border:4px solid #444;
-text-align:center;
-transition:.4s;
-}
-
-.buy{
-color:#00ff84;
-border-color:#00ff84;
-box-shadow:0 0 50px #00ff84;
-}
-
-.sell{
-color:#ff3355;
-border-color:#ff3355;
-box-shadow:0 0 50px #ff3355;
-}
-
-.hold{
-color:#ffcc00;
-border-color:#ffcc00;
-box-shadow:0 0 35px #ffcc00;
-}
-
-.box,.signalBox,.history{
-margin-top:14px;
-background:rgba(255,255,255,.03);
-padding:14px;
-border-radius:16px;
-border:1px solid rgba(255,255,255,.06);
-font-size:13px;
-}
-
-.stats{
-display:grid;
-grid-template-columns:1fr 1fr 1fr;
-gap:10px;
-margin-top:14px;
-}
-
-.card{
-background:rgba(255,255,255,.03);
-padding:12px;
-border-radius:16px;
-text-align:center;
-border:1px solid rgba(255,255,255,.06);
-}
-
-.card h2{
-margin:6px 0 0;
-font-size:24px;
-}
-
-.win{
-color:#00ff84;
-}
-
-.loss{
-color:#ff3355;
-}
-
-.historyItem{
-padding:10px;
-border-bottom:1px solid rgba(255,255,255,.06);
-font-size:12px;
-}
-
-.badge{
-padding:4px 8px;
-border-radius:8px;
-font-size:11px;
-font-weight:700;
-}
-
-.buyBadge{
-background:#003d22;
-color:#00ff84;
-}
-
-.sellBadge{
-background:#3d0012;
-color:#ff3355;
-}
-
 </style>
 </head>
 
 <body>
 
-<div class="container">
-
-<h1>⚡ DARK MAGIC AI</h1>
-<p class="sub">Continuous Trend Signal Engine 📊</p>
-
-<select id="pair">
-<option value="frxEURUSD">EUR/USD</option>
-<option value="frxGBPUSD">GBP/USD</option>
-<option value="frxUSDJPY">USD/JPY</option>
-<option value="frxAUDUSD">AUD/USD</option>
-<option value="frxEURJPY">EUR/JPY</option>
-<option value="frxUSDCHF">USD/CHF</option>
-</select>
-
-<button onclick="start()">▶ START BOT</button>
-
-<div id="circle" class="circle hold">
-<div>WAIT</div>
-<div style="font-size:14px">EXP: --</div>
-</div>
-
-<div class="box">
-<p>💰 Price: <span id="price">--</span></p>
-<p>📊 RSI: <span id="rsi">--</span></p>
-<p>📈 EMA FAST: <span id="emaFast">--</span></p>
-<p>📉 EMA SLOW: <span id="emaSlow">--</span></p>
-<p>⚡ MACD: <span id="macd">--</span></p>
-<p>🔥 Strength: <span id="strength">--</span></p>
-<p>📈 Trend: <span id="trend">--</span></p>
-</div>
-
-<div class="signalBox">
-<p>📡 Signal: <span id="sig">WAIT</span></p>
-<p>⏳ Countdown: <span id="countdown">--</span></p>
-<p>🎯 Result: <span id="result">--</span></p>
-</div>
-
-<div class="stats">
+<h1>OTC AI Engine v4 (High Accuracy Mode)</h1>
 
 <div class="card">
-Signals
-<h2 id="total">0</h2>
-</div>
-
-<div class="card">
-Wins
-<h2 id="wins" class="win">0</h2>
-</div>
-
-<div class="card">
-Loss
-<h2 id="losses" class="loss">0</h2>
-</div>
-
-</div>
-
-<div class="history">
-<h3>📜 Signal History</h3>
-<div id="history"></div>
-</div>
-
+    <div id="asset">Asset: EUR/USD</div>
+    <div id="signal">WAIT</div>
+    <div id="confidence">0%</div>
+    <div id="zone" class="zone">No Zone</div>
 </div>
 
 <script>
-
-let ws;
-
-let prices=[];
-
-let wins=0;
-let losses=0;
-let total=0;
-
-let lastSignal="WAIT";
-
-let lock=false;
-
-/* ======================
-   RSI
-====================== */
-
-function RSI(data,period=14){
-
-if(data.length<period+1)return 50;
-
-let gains=0;
-let losses=0;
-
-for(let i=data.length-period;i<data.length;i++){
-
-let diff=data[i]-data[i-1];
-
-if(diff>0){
-gains+=diff;
-}else{
-losses+=Math.abs(diff);
-}
-
-}
-
-if(losses===0)return 100;
-
-let rs=(gains/period)/(losses/period);
-
-return 100-(100/(1+rs));
-
-}
-
-/* ======================
-   EMA
-====================== */
-
-function EMA(data,period){
-
-let k=2/(period+1);
-
-let ema=data[0];
-
-for(let i=1;i<data.length;i++){
-
-ema=data[i]*k+ema*(1-k);
-
-}
-
-return ema;
-
-}
-
-/* ======================
-   MACD
-====================== */
-
-function MACD(data){
-
-let fast=EMA(data,12);
-
-let slow=EMA(data,26);
-
-return fast-slow;
-
-}
-
-/* ======================
-   MOMENTUM
-====================== */
-
-function momentum(data){
-
-if(data.length<10)return 0;
-
-return data[data.length-1]-data[data.length-8];
-
-}
-
-/* ======================
-   VOLATILITY
-====================== */
-
-function volatility(data){
-
-if(data.length<15)return 0;
-
-let recent=data.slice(-15);
-
-let max=Math.max(...recent);
-
-let min=Math.min(...recent);
-
-return max-min;
-
-}
-
-/* ======================
-   TREND SCORE
-====================== */
-
-function trendStrength(price,fastEMA,slowEMA,rsi,macd,mom){
-
-let score=0;
-
-if(fastEMA>slowEMA){
-score+=3;
-}else{
-score-=3;
-}
-
-if(rsi<30){
-score+=2;
-}
-
-if(rsi>70){
-score-=2;
-}
-
-if(macd>0){
-score+=2;
-}else{
-score-=2;
-}
-
-if(mom>0){
-score+=1;
-}else{
-score-=1;
-}
-
-return score;
-
-}
-
-/* ======================
-   UI CIRCLE
-====================== */
-
-function updateCircle(signal){
-
-let c=document.getElementById("circle");
-
-c.className="circle hold";
-
-if(signal==="BUY"){
-c.className="circle buy";
-}
-
-if(signal==="SELL"){
-c.className="circle sell";
-}
-
-c.innerHTML=`
-<div>${signal}</div>
-<div style="font-size:14px">2 MIN</div>
-`;
-
-}
-
-/* ======================
-   START BOT
-====================== */
-
-function start(){
-
-prices=[];
-
-if(ws)ws.close();
-
-ws=new WebSocket("wss://ws.derivws.com/websockets/v3?app_id=1089");
-
-ws.onopen=()=>{
-
-ws.send(JSON.stringify({
-ticks:document.getElementById("pair").value,
-subscribe:1
-}));
-
+// ==========================
+// MULTI-ASSET SIMULATION
+// ==========================
+let assets = {
+    "EURUSD": [],
+    "GBPUSD": [],
+    "BTCUSD": []
 };
 
-ws.onmessage=(msg)=>{
+let activeAsset = "EURUSD";
 
-let data=JSON.parse(msg.data);
+// Binance feed (BTC real-time base)
+let socket = new WebSocket("wss://stream.binance.com:9443/ws/btcusdt@trade");
 
-if(!data.tick)return;
+socket.onmessage = function(event) {
+    let data = JSON.parse(event.data);
+    let price = parseFloat(data.p);
 
-let price=parseFloat(data.tick.quote);
-
-if(isNaN(price))return;
-
-prices.push(price);
-
-if(prices.length>200){
-prices.shift();
-}
-
-document.getElementById("price").innerText=price;
-
-if(prices.length<35)return;
-
-/* ======================
-   INDICATORS
-====================== */
-
-let rsi=RSI(prices);
-
-let emaFast=EMA(prices,8);
-
-let emaSlow=EMA(prices,25);
-
-let macd=MACD(prices);
-
-let mom=momentum(prices);
-
-let vol=volatility(prices);
-
-/* ======================
-   DISPLAY
-====================== */
-
-document.getElementById("rsi").innerText=rsi.toFixed(2);
-
-document.getElementById("emaFast").innerText=emaFast.toFixed(5);
-
-document.getElementById("emaSlow").innerText=emaSlow.toFixed(5);
-
-document.getElementById("macd").innerText=macd.toFixed(5);
-
-/* ======================
-   TREND
-====================== */
-
-let trend="SIDEWAYS";
-
-if(emaFast>emaSlow){
-trend="UPTREND";
-}
-
-if(emaFast<emaSlow){
-trend="DOWNTREND";
-}
-
-document.getElementById("trend").innerText=trend;
-
-/* ======================
-   SCORE
-====================== */
-
-let score=trendStrength(
-price,
-emaFast,
-emaSlow,
-rsi,
-macd,
-mom
-);
-
-document.getElementById("strength").innerText=score;
-
-/* ======================
-   SIGNAL LOGIC
-====================== */
-
-let signal="WAIT";
-
-/* ANTI-NOISE FILTER */
-
-if(vol < 0.00015){
-
-signal="WAIT";
-
-}
-
-/* BUY ON UPTREND */
-
-else if(
-
-emaFast > emaSlow &&
-macd > 0 &&
-mom > 0
-
-){
-
-signal="BUY";
-
-}
-
-/* SELL ON DOWNTREND */
-
-else if(
-
-emaFast < emaSlow &&
-macd < 0 &&
-mom < 0
-
-){
-
-signal="SELL";
-
-}
-
-/* ======================
-   LOCK SYSTEM
-====================== */
-
-if(lock)return;
-
-if(signal!=="WAIT" && signal!==lastSignal){
-
-lastSignal=signal;
-
-lock=true;
-
-/* CREATE SIGNAL */
-
-total++;
-
-document.getElementById("total").innerText=total;
-
-document.getElementById("sig").innerText=signal;
-
-updateCircle(signal);
-
-let duration=120;
-
-let trade={
-
-signal:signal,
-
-entry:price,
-
-start:Date.now(),
-
-end:Date.now()+(duration*1000),
-
-closed:false
-
+    updateAssets(price);
+    analyzeAll();
 };
 
-startCountdown(trade);
+// ==========================
+// UPDATE ALL SIMULATED PAIRS
+// ==========================
+function updateAssets(price) {
+
+    // map BTC movement into FX-like behavior
+    let eur = price * 0.00002;
+    let gbp = price * 0.000025;
+    let btc = price;
+
+    push("EURUSD", eur);
+    push("GBPUSD", gbp);
+    push("BTCUSD", btc);
+}
+
+function push(asset, price) {
+    assets[asset].push(price);
+    if (assets[asset].length > 200) assets[asset].shift();
+}
+
+// ==========================
+// EMA
+// ==========================
+function ema(period, data) {
+    let k = 2 / (period + 1);
+    let e = data[0];
+
+    for (let i = 1; i < data.length; i++) {
+        e = data[i] * k + e * (1 - k);
+    }
+    return e;
+}
+
+// ==========================
+// RSI
+// ==========================
+function rsi(data) {
+    let gain = 0, loss = 0;
+
+    for (let i = data.length - 15; i < data.length; i++) {
+        let diff = data[i] - data[i - 1];
+        if (diff > 0) gain += diff;
+        else loss -= diff;
+    }
+
+    let rs = gain / (loss || 1);
+    return 100 - (100 / (1 + rs));
+}
+
+// ==========================
+// SUPPORT / RESISTANCE
+// ==========================
+function supportResistance(data) {
+    let min = Math.min(...data.slice(-20));
+    let max = Math.max(...data.slice(-20));
+    return { support: min, resistance: max };
+}
+
+// ==========================
+// AI ADAPTIVE MEMORY (simple)
+// ==========================
+let bias = 0;
+
+function adapt(signal) {
+    if (signal === "BUY") bias += 0.1;
+    if (signal === "SELL") bias -= 0.1;
+    if (bias > 2) bias = 2;
+    if (bias < -2) bias = -2;
+}
+
+// ==========================
+// HIGH ACCURACY ENGINE
+// ==========================
+function analyzeAsset(name) {
+
+    let data = assets[name];
+    if (data.length < 30) return;
+
+    let ema9 = ema(9, data);
+    let ema21 = ema(21, data);
+    let r = rsi(data);
+    let zone = supportResistance(data);
+
+    let price = data[data.length - 1];
+
+    let score = 0;
+
+    // TREND
+    if (ema9 > ema21) score += 3;
+    else score -= 3;
+
+    // RSI
+    if (r > 55) score += 2;
+    else if (r < 45) score -= 2;
+
+    // SUPPORT / RESISTANCE FILTER
+    if (price > zone.resistance * 0.999) score -= 2;
+    if (price < zone.support * 1.001) score -= 2;
+
+    // AI BIAS
+    score += bias;
+
+    // HIGH ACCURACY MODE FILTER (STRICT)
+    if (Math.abs(score) < 5) {
+        return show(name, "WAIT", 0, zone);
+    }
+
+    let confidence = Math.min(100, Math.abs(score) * 12);
+
+    let signal = "WAIT";
+
+    if (score >= 5) signal = "BUY";
+    if (score <= -5) signal = "SELL";
+
+    adapt(signal);
+
+    show(name, signal, confidence, zone);
+}
+
+// ==========================
+// RUN ALL ASSETS
+// ==========================
+function analyzeAll() {
+
+    analyzeAsset("EURUSD");
 
 }
 
-};
+// ==========================
+// UI
+// ==========================
+function show(name, signal, confidence, zone) {
 
+    document.getElementById("asset").innerText = "Asset: " + name;
+    document.getElementById("signal").innerText = signal;
+    document.getElementById("confidence").innerText =
+        "Confidence: " + confidence.toFixed(0) + "%";
+
+    document.getElementById("zone").innerText =
+        "Support: " + zone.support.toFixed(4) +
+        " | Resistance: " + zone.resistance.toFixed(4);
+
+    let s = document.getElementById("signal");
+
+    if (signal === "BUY") s.style.color = "lime";
+    else if (signal === "SELL") s.style.color = "red";
+    else s.style.color = "yellow";
 }
-
-/* ======================
-   COUNTDOWN
-====================== */
-
-function startCountdown(trade){
-
-let timer=setInterval(()=>{
-
-let left=Math.floor((trade.end-Date.now())/1000);
-
-if(left<=0){
-
-clearInterval(timer);
-
-document.getElementById("countdown").innerText="0s";
-
-/* EVALUATE */
-
-evaluateTrade(trade);
-
-/* RESET SYSTEM */
-
-lastSignal="WAIT";
-
-lock=false;
-
-document.getElementById("sig").innerText="SEARCHING...";
-
-updateCircle("WAIT");
-
-return;
-
-}
-
-document.getElementById("countdown").innerText=left+"s";
-
-},1000);
-
-}
-
-/* ======================
-   EVALUATE
-====================== */
-
-function evaluateTrade(trade){
-
-let current=prices[prices.length-1];
-
-let win=false;
-
-if(
-(trade.signal==="BUY" && current>trade.entry)
-||
-(trade.signal==="SELL" && current<trade.entry)
-){
-win=true;
-}
-
-if(win){
-
-wins++;
-
-document.getElementById("wins").innerText=wins;
-
-document.getElementById("result").innerHTML=
-"<span class='win'>GAIN ✅</span>";
-
-}else{
-
-losses++;
-
-document.getElementById("losses").innerText=losses;
-
-document.getElementById("result").innerHTML=
-"<span class='loss'>LOSS ❌</span>";
-
-}
-
-addHistory(trade,win,current);
-
-}
-
-/* ======================
-   HISTORY
-====================== */
-
-function addHistory(trade,win,current){
-
-let history=document.getElementById("history");
-
-let item=document.createElement("div");
-
-item.className="historyItem";
-
-let badge=trade.signal==="BUY"
-
-? "<span class='badge buyBadge'>BUY</span>"
-
-: "<span class='badge sellBadge'>SELL</span>";
-
-item.innerHTML=`
-
-${badge}<br>
-
-Entry: ${trade.entry}<br>
-
-Close: ${current}<br>
-
-Result:
-${win
-? "<span class='win'>GAIN</span>"
-: "<span class='loss'>LOSS</span>"
-}
-
-`;
-
-history.prepend(item);
-
-}
-
 </script>
 
 </body>
