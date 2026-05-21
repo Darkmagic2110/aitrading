@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DARK MAGIC LOGIN</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial;
+    background: radial-gradient(circle at top,#0a0a0a,#000);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    color:white;
+}
+
+/* CARD */
+.container{
+    width:92%;
+    max-width:420px;
+    background:rgba(20,20,20,0.95);
+    padding:24px;
+    border-radius:18px;
+    border:1px solid #333;
+    text-align:center;
+    box-shadow:0 0 30px rgba(255,0,80,0.15);
+}
+
+h2{
+    color:#ff2e63;
+    text-shadow:0 0 10px rgba(255,46,99,0.6);
+}
+
+/* FLOAT INPUT */
+.input-box{
+    position:relative;
+    margin-top:16px;
+}
+
+input{
+    width:100%;
+    padding:16px 12px 10px 12px;
+    border-radius:12px;
+    border:1px solid #333;
+    background:#0f0f0f;
+    color:white;
+    outline:none;
+    font-size:14px;
+    transition:0.3s;
+}
+
+input:focus{
+    border-color:#ff2e63;
+    box-shadow:0 0 10px rgba(255,46,99,0.4);
+}
+
+.input-box label{
+    position:absolute;
+    left:12px;
+    top:14px;
+    color:#888;
+    font-size:13px;
+    pointer-events:none;
+    transition:0.25s ease;
+    background:#0f0f0f;
+    padding:0 6px;
+}
+
+input:focus + label,
+input:not(:placeholder-shown) + label{
+    top:-8px;
+    font-size:11px;
+    color:#ff2e63;
+}
+
+/* BUTTON */
+button{
+    width:100%;
+    padding:12px;
+    margin-top:18px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:bold;
+    background:linear-gradient(90deg,#ff0057,#ffb300);
+    color:black;
+    transition:0.2s;
+}
+
+button:active{
+    transform:scale(0.98);
+}
+
+a{
+    color:#00e5ff;
+    cursor:pointer;
+    display:block;
+    margin-top:14px;
+    font-size:13px;
+}
+
+/* TOAST */
+.toast{
+    position:fixed;
+    bottom:25px;
+    left:50%;
+    transform:translateX(-50%);
+    background:#111;
+    padding:12px 18px;
+    border-radius:10px;
+    border:1px solid #333;
+    opacity:0;
+    transition:0.4s;
+}
+
+.toast.show{
+    opacity:1;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>⚡ DARK MAGIC LOGIN</h2>
+
+<div class="input-box">
+    <input type="email" id="email" placeholder=" " />
+    <label>Email Address</label>
+</div>
+
+<div class="input-box">
+    <input type="password" id="password" placeholder=" " />
+    <label>Password</label>
+</div>
+
+<button onclick="login()">LOGIN</button>
+
+<a onclick="goRegister()">Don't have an account? Register</a>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+/* ---------------- FIREBASE CONFIG ---------------- */
+const firebaseConfig = {
+    apiKey: "AIzaSyDvFDByPPo9zgwKLdPaREz1OVMQCXmPfrs",
+    authDomain: "bets-d795d.firebaseapp.com",
+    databaseURL: "https://bets-d795d-default-rtdb.firebaseio.com",
+    projectId: "bets-d795d",
+    storageBucket: "bets-d795d.appspot.com",
+    messagingSenderId: "384386108287",
+    appId: "1:384386108287:android:d238a5ec8068d9bb9be84a"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+/* ================= LOGIN ================= */
+window.login = async function(){
+
+    let email = document.getElementById("email").value;
+    let password = document.getElementById("password").value;
+
+    if(!email || !password){
+        showToast("Fill all fields");
+        return;
+    }
+
+    try{
+
+        let userCred = await signInWithEmailAndPassword(auth, email, password);
+        let user = userCred.user;
+
+        /* ================= LOCAL STORAGE (SESSION + PERSISTENT) ================= */
+        const sessionData = {
+            email: email,
+            uid: user.uid,
+            loginTime: Date.now(),
+            isLoggedIn: true
+        };
+
+        localStorage.setItem("darkMagicSession", JSON.stringify(sessionData));
+        localStorage.setItem("userEmail", email);
+        localStorage.setItem("userUID", user.uid);
+        localStorage.setItem("dm_email", email);
+        localStorage.setItem("dm_password", password);
+        localStorage.setItem("isLoggedIn", "true");
+
+        /* ================= FIREBASE SAVE ================= */
+        await set(ref(db, "users/" + user.uid), {
+            email: email,
+            uid: user.uid,
+            lastLogin: Date.now()
+        });
+
+        showToast("Login successful");
+
+        setTimeout(()=>{
+            window.location.href = "main.html";
+        },1500);
+
+    }catch(error){
+        showToast(error.code);
+    }
+};
+
+/* ================= AUTO SAVE INPUTS ================= */
+window.addEventListener("load", () => {
+
+    const email = localStorage.getItem("dm_email");
+    const pass = localStorage.getItem("dm_password");
+
+    if(email){
+        document.getElementById("email").value = email;
+    }
+
+    if(pass){
+        document.getElementById("password").value = pass;
+    }
+});
+
+document.addEventListener("input", (e) => {
+    if(e.target.id === "email"){
+        localStorage.setItem("dm_email", e.target.value);
+    }
+
+    if(e.target.id === "password"){
+        localStorage.setItem("dm_password", e.target.value);
+    }
+});
+
+/* ================= REGISTER PAGE ================= */
+window.goRegister = function(){
+    window.location.href = "register.html";
+};
+
+/* ================= TOAST ================= */
+window.showToast = function(msg){
+    let toast = document.getElementById("toast");
+    toast.innerText = msg;
+    toast.classList.add("show");
+
+    setTimeout(()=>{
+        toast.classList.remove("show");
+    },2500);
+};
+
+</script>
+
+</body>
+</html>

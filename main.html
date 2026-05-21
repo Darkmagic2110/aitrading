@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stable AI Deriv Bot</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial;
+    background: radial-gradient(circle at top,#050505,#000);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    color:white;
+}
+
+.container{
+    width:92%;
+    max-width:460px;
+    background:rgba(10,10,10,0.92);
+    border-radius:24px;
+    padding:20px;
+    border:1px solid #222;
+    text-align:center;
+}
+
+h1{
+    font-size:18px;
+    color:#ff2e63;
+    text-shadow:0 0 10px #ff2e63;
+}
+
+select{
+    width:100%;
+    padding:12px;
+    border-radius:12px;
+    background:#111;
+    color:white;
+    border:1px solid #333;
+    outline:none;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:14px;
+    font-weight:bold;
+    cursor:pointer;
+    background:linear-gradient(90deg,#ff0057,#ffb300);
+    color:black;
+}
+
+.circle{
+    width:180px;
+    height:180px;
+    margin:20px auto;
+    border-radius:50%;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    font-size:26px;
+    font-weight:bold;
+    border:4px solid #444;
+    transition:0.5s;
+}
+
+.buy{
+    color:#00ff6a;
+    border-color:#00ff6a;
+    box-shadow:0 0 25px #00ff6a;
+}
+
+.sell{
+    color:#ff0033;
+    border-color:#ff0033;
+    box-shadow:0 0 25px #ff0033;
+}
+
+.hold{
+    color:#ffcc00;
+    border-color:#ffcc00;
+    box-shadow:0 0 25px #ffcc00;
+}
+
+.box{
+    margin-top:10px;
+    background:#0f0f0f;
+    padding:12px;
+    border-radius:12px;
+    font-size:14px;
+    border:1px solid #222;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>⚡ STABLE AI DERIV BOT</h1>
+
+<select id="pair">
+    <option value="frxEURUSD">EUR/USD</option>
+    <option value="frxGBPUSD">GBP/USD</option>
+    <option value="frxUSDJPY">USD/JPY</option>
+    <option value="frxAUDUSD">AUD/USD</option>
+</select>
+
+<button onclick="start()">START BOT</button>
+
+<div id="circle" class="circle hold">
+    <div>WAIT</div>
+    <div style="font-size:14px;opacity:0.8">EXP: --</div>
+</div>
+
+<div class="box">
+<p>💰 Price: <span id="price">--</span></p>
+<p>📊 RSI: <span id="rsi">--</span></p>
+<p>📈 EMA: <span id="ema">--</span></p>
+</div>
+
+</div>
+
+<script>
+
+let ws;
+let prices = [];
+
+/* ---------------- INDICATORS ---------------- */
+function RSI(data, period=14){
+    if(data.length < period+1) return 50;
+
+    let gain=0, loss=0;
+
+    for(let i=data.length-period;i<data.length;i++){
+        let diff = data[i]-data[i-1];
+        if(diff>0) gain+=diff;
+        else loss+=Math.abs(diff);
+    }
+
+    if(loss===0) return 100;
+
+    let rs = (gain/period)/(loss/period);
+    return 100-(100/(1+rs));
+}
+
+function EMA(data, period=20){
+    let k = 2/(period+1);
+    let ema = data[0];
+
+    for(let i=1;i<data.length;i++){
+        ema = data[i]*k + ema*(1-k);
+    }
+    return ema;
+}
+
+/* ---------------- STABILITY CONTROL ---------------- */
+let lastSignal = "WAIT";
+let lock = false;
+
+function start(){
+
+    prices = [];
+
+    if(ws) ws.close();
+
+    ws = new WebSocket("wss://ws.derivws.com/websockets/v3?app_id=1089");
+
+    ws.onopen = ()=>{
+
+        ws.send(JSON.stringify({
+            ticks: document.getElementById("pair").value,
+            subscribe:1
+        }));
+
+    };
+
+    ws.onmessage = (msg)=>{
+
+        let data = JSON.parse(msg.data);
+        if(!data.tick) return;
+
+        let price = parseFloat(data.tick.quote);
+        if(isNaN(price)) return;
+
+        prices.push(price);
+        if(prices.length>60) prices.shift();
+
+        document.getElementById("price").innerText = price;
+
+        if(prices.length<15) return;
+
+        let rsi = RSI(prices);
+        let ema = EMA(prices,20);
+
+        document.getElementById("rsi").innerText = rsi.toFixed(2);
+        document.getElementById("ema").innerText = ema.toFixed(5);
+
+        let recent = prices[prices.length-1];
+
+        /* ---------------- SCORE SYSTEM ---------------- */
+        let score = 0;
+
+        if(recent > ema) score += 2;
+        else score -= 2;
+
+        if(rsi < 30) score += 2;
+        else if(rsi < 45) score += 1;
+
+        if(rsi > 70) score -= 2;
+        else if(rsi > 55) score -= 1;
+
+        /* ---------------- SIGNAL ENGINE ---------------- */
+        let newSignal = "WAIT";
+
+        if(score >= 3){
+            newSignal = "BUY";
+        }
+        else if(score <= -3){
+            newSignal = "SELL";
+        }
+        else if(score > 0){
+            newSignal = "BUY";
+        }
+        else if(score < 0){
+            newSignal = "SELL";
+        }
+
+        /* ---------------- LOCK SYSTEM (FIX FLIP ISSUE) ---------------- */
+        if(lock) return;
+
+        if(newSignal !== lastSignal){
+
+            lastSignal = newSignal;
+            lock = true;
+
+            setTimeout(()=>{
+                lock = false;
+            }, 6000); // 6 second stability lock
+        }
+
+        /* ---------------- EXPIRY ENGINE ---------------- */
+        let expiry = "--";
+
+        if(Math.abs(score) >= 4){
+            expiry = "1m";
+        }
+        else if(Math.abs(score) >= 3){
+            expiry = "2m";
+        }
+        else if(Math.abs(score) >= 2){
+            expiry = "3m";
+        }
+        else{
+            expiry = "5m";
+        }
+
+        /* ---------------- UI UPDATE ---------------- */
+        let circle = document.getElementById("circle");
+
+        circle.className = "circle hold";
+
+        if(lastSignal === "BUY"){
+            circle.className = "circle buy";
+        }
+        else if(lastSignal === "SELL"){
+            circle.className = "circle sell";
+        }
+
+        circle.innerHTML = `
+            <div>${lastSignal}</div>
+            <div style="font-size:14px;opacity:0.8">EXP: ${expiry}</div>
+        `;
+
+    };
+
+}
+
+</script>
+
+</body>
+</html>
