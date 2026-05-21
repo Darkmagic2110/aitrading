@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>DARK MAGIC AI - OTC PRO</title>
+<title>DARK MAGIC AI - OTC ENGINE</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 
@@ -36,13 +36,6 @@ background:linear-gradient(90deg,#fff,#aaa);
 -webkit-text-fill-color:transparent;
 }
 
-.sub{
-text-align:center;
-font-size:13px;
-color:#aaa;
-margin-top:8px;
-}
-
 select,button{
 width:100%;
 margin-top:12px;
@@ -63,7 +56,6 @@ background:linear-gradient(135deg,#ff006a,#7b61ff);
 color:#fff;
 font-weight:700;
 cursor:pointer;
-font-size:15px;
 }
 
 .circle{
@@ -75,32 +67,17 @@ display:flex;
 flex-direction:column;
 justify-content:center;
 align-items:center;
-font-size:38px;
+font-size:40px;
 font-weight:800;
 border:4px solid #444;
-text-align:center;
-transition:.4s;
+transition:.3s;
 }
 
-.buy{
-color:#00ff84;
-border-color:#00ff84;
-box-shadow:0 0 50px #00ff84;
-}
+.buy{color:#00ff84;border-color:#00ff84;box-shadow:0 0 40px #00ff84;}
+.sell{color:#ff3355;border-color:#ff3355;box-shadow:0 0 40px #ff3355;}
+.hold{color:#ffcc00;border-color:#ffcc00;}
 
-.sell{
-color:#ff3355;
-border-color:#ff3355;
-box-shadow:0 0 50px #ff3355;
-}
-
-.hold{
-color:#ffcc00;
-border-color:#ffcc00;
-box-shadow:0 0 35px #ffcc00;
-}
-
-.box,.signalBox,.history{
+.box{
 margin-top:14px;
 background:rgba(255,255,255,.03);
 padding:14px;
@@ -116,52 +93,72 @@ font-size:13px;
 
 <div class="container">
 
-<h1>⚡ DARK MAGIC AI</h1>
-<p class="sub">OTC Signal Engine + Countdown System</p>
+<h1>⚡ DARK MAGIC OTC ENGINE</h1>
 
 <select id="pair">
-<option value="frxEURUSD">EUR/USD</option>
-<option value="frxGBPUSD">GBP/USD</option>
-<option value="frxUSDJPY">USD/JPY</option>
+<option value="EURUSD">EUR/USD OTC</option>
+<option value="GBPUSD">GBP/USD OTC</option>
+<option value="USDJPY">USD/JPY OTC</option>
 </select>
 
-<select id="mode">
-<option value="5">5 SEC MODE</option>
-<option value="10">10 SEC MODE</option>
-</select>
-
-<button onclick="start()">▶ START BOT</button>
+<button onclick="start()">▶ START ENGINE</button>
 
 <div id="circle" class="circle hold">
 <div>WAIT</div>
-<div style="font-size:14px">EXP: --</div>
+<div style="font-size:14px">OTC MODE</div>
 </div>
 
 <div class="box">
-<p>💰 Price: <span id="price">--</span></p>
-<p>📊 RSI: <span id="rsi">--</span></p>
-<p>📈 EMA FAST: <span id="emaFast">--</span></p>
-<p>📉 EMA SLOW: <span id="emaSlow">--</span></p>
-</div>
-
-<div class="signalBox">
-<p>📡 Signal: <span id="sig">WAIT</span></p>
-<p>⏳ Countdown: <span id="countdown">--</span></p>
-<p>🎯 Result: <span id="result">--</span></p>
+<p>Price: <span id="price">--</span></p>
+<p>RSI: <span id="rsi">--</span></p>
+<p>EMA FAST: <span id="emaFast">--</span></p>
+<p>EMA SLOW: <span id="emaSlow">--</span></p>
+<p>Signal: <span id="sig">WAIT</span></p>
 </div>
 
 </div>
 
 <script>
 
-let ws;
 let prices=[];
-let lock=false;
-let lastSignal="WAIT";
+let basePrice=1.1000;
 
-/* ======================
+/* =====================
+   SIMULATE OTC FEED
+===================== */
+
+function generatePrice(){
+
+let move=(Math.random()-0.5)*0.0012;
+
+// OTC-style noise (more chaotic)
+move += (Math.random()-0.5)*0.0006;
+
+basePrice += move;
+
+prices.push(basePrice);
+
+if(prices.length>200)prices.shift();
+
+}
+
+/* =====================
+   EMA
+===================== */
+
+function EMA(data,p){
+let k=2/(p+1);
+let e=data[0];
+for(let i=1;i<data.length;i++){
+e=data[i]*k+e*(1-k);
+}
+return e;
+}
+
+/* =====================
    RSI
-====================== */
+===================== */
+
 function RSI(data){
 let g=0,l=0;
 for(let i=data.length-14;i<data.length;i++){
@@ -172,22 +169,11 @@ let rs=g/(l||1);
 return 100-(100/(1+rs));
 }
 
-/* ======================
-   EMA
-====================== */
-function EMA(data,p){
-let k=2/(p+1);
-let e=data[0];
-for(let i=1;i<data.length;i++){
-e=data[i]*k+e*(1-k);
-}
-return e;
-}
-
-/* ======================
+/* =====================
    SIGNAL ENGINE
-====================== */
-function signalEngine(){
+===================== */
+
+function analyze(){
 
 let emaFast=EMA(prices,8);
 let emaSlow=EMA(prices,21);
@@ -195,134 +181,56 @@ let rsi=RSI(prices);
 
 let signal="WAIT";
 
-if(emaFast>emaSlow && rsi>55) signal="BUY";
-else if(emaFast<emaSlow && rsi<45) signal="SELL";
+if(emaFast>emaSlow && rsi>55)signal="BUY";
+else if(emaFast<emaSlow && rsi<45)signal="SELL";
 
 return {signal,emaFast,emaSlow,rsi};
-}
-
-/* ======================
-   START BOT
-====================== */
-function start(){
-
-prices=[];
-if(ws)ws.close();
-
-ws=new WebSocket("wss://ws.derivws.com/websockets/v3?app_id=1089");
-
-ws.onopen=()=>{
-
-ws.send(JSON.stringify({
-ticks:document.getElementById("pair").value,
-subscribe:1
-}));
-
-};
-
-ws.onmessage=(msg)=>{
-
-let data=JSON.parse(msg.data);
-if(!data.tick)return;
-
-let price=parseFloat(data.tick.quote);
-prices.push(price);
-if(prices.length>200)prices.shift();
-
-document.getElementById("price").innerText=price.toFixed(5);
-
-if(prices.length<20)return;
-
-let result=signalEngine();
-
-document.getElementById("rsi").innerText=result.rsi.toFixed(2);
-document.getElementById("emaFast").innerText=result.emaFast.toFixed(5);
-document.getElementById("emaSlow").innerText=result.emaSlow.toFixed(5);
-
-if(lock)return;
-
-if(result.signal!==lastSignal && result.signal!=="WAIT"){
-
-lastSignal=result.signal;
-lock=true;
-
-document.getElementById("sig").innerText=result.signal;
-
-let trade={
-signal:result.signal,
-entry:price,
-end:Date.now()+(parseInt(document.getElementById("mode").value)*1000)
-};
-
-updateCircle(result.signal);
-startCountdown(trade);
 
 }
 
-};
+/* =====================
+   UI
+===================== */
 
-}
-
-/* ======================
-   CIRCLE UI
-====================== */
 function updateCircle(sig){
 
 let c=document.getElementById("circle");
+
 c.className="circle hold";
 
 if(sig==="BUY")c.className="circle buy";
 if(sig==="SELL")c.className="circle sell";
 
-c.innerHTML=`<div>${sig}</div><div style="font-size:14px">ACTIVE</div>`;
+c.innerHTML=`<div>${sig}</div><div style="font-size:14px">OTC</div>`;
+
 }
 
-/* ======================
-   COUNTDOWN (YOUR STYLE)
-====================== */
-function startCountdown(trade){
+/* =====================
+   MAIN LOOP
+===================== */
 
-let timer=setInterval(()=>{
+function start(){
 
-let left=Math.floor((trade.end-Date.now())/1000);
+prices=[];
+basePrice=1.1000;
 
-if(left<=0){
+setInterval(()=>{
 
-clearInterval(timer);
+generatePrice();
 
-document.getElementById("countdown").innerText="0s";
+if(prices.length<20)return;
 
-evaluate(trade);
+let r=analyze();
 
-lock=false;
-lastSignal="WAIT";
+document.getElementById("price").innerText=basePrice.toFixed(5);
+document.getElementById("rsi").innerText=r.rsi.toFixed(2);
+document.getElementById("emaFast").innerText=r.emaFast.toFixed(5);
+document.getElementById("emaSlow").innerText=r.emaSlow.toFixed(5);
+document.getElementById("sig").innerText=r.signal;
 
-document.getElementById("sig").innerText="SEARCHING...";
-
-updateCircle("WAIT");
-
-return;
-}
-
-document.getElementById("countdown").innerText=left+"s";
+updateCircle(r.signal);
 
 },1000);
-
-}
-
-/* ======================
-   EVALUATE
-====================== */
-function evaluate(trade){
-
-let current=prices[prices.length-1];
-
-let win=false;
-
-if(trade.signal==="BUY" && current>trade.entry)win=true;
-if(trade.signal==="SELL" && current<trade.entry)win=true;
-
-document.getElementById("result").innerText=win?"WIN ✅":"LOSS ❌";
 
 }
 
