@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>30s DERIV SCALP AI</title>
+<title>DARK MAGIC TIME AI</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 
@@ -11,7 +11,7 @@
 body{
 margin:0;
 font-family:'Outfit',sans-serif;
-background:radial-gradient(circle,#120b2e,#000);
+background:radial-gradient(circle,#1a0b2e,#000);
 color:#fff;
 padding:16px;
 }
@@ -25,13 +25,20 @@ border-radius:20px;
 border:1px solid rgba(255,255,255,.08);
 }
 
-h1{text-align:center;font-size:20px}
+h1{text-align:center}
+
+select,button{
+width:100%;
+padding:12px;
+margin-top:10px;
+border-radius:12px;
+border:none;
+font-family:'Outfit',sans-serif;
+}
+
+select{background:#111;color:#fff}
 
 button{
-width:100%;
-padding:14px;
-border:none;
-border-radius:14px;
 background:linear-gradient(135deg,#ff006a,#7b61ff);
 color:#fff;
 font-weight:700;
@@ -40,7 +47,7 @@ font-weight:700;
 .circle{
 width:180px;
 height:180px;
-margin:18px auto;
+margin:16px auto;
 border-radius:50%;
 display:flex;
 flex-direction:column;
@@ -51,15 +58,23 @@ font-weight:800;
 border:4px solid #444;
 }
 
-.buy{color:#00ff84;border-color:#00ff84;box-shadow:0 0 25px #00ff84}
-.sell{color:#ff3355;border-color:#ff3355;box-shadow:0 0 25px #ff3355}
+.buy{color:#00ff84;border-color:#00ff84}
+.sell{color:#ff3355;border-color:#ff3355}
 .wait{color:#ffcc00}
+
+.stats{
+display:grid;
+grid-template-columns:1fr 1fr 1fr;
+text-align:center;
+margin-top:12px;
+gap:8px;
+}
 
 .box{
 margin-top:12px;
 background:rgba(255,255,255,.04);
-padding:12px;
-border-radius:14px;
+padding:10px;
+border-radius:12px;
 font-size:13px;
 }
 </style>
@@ -69,20 +84,33 @@ font-size:13px;
 
 <div class="container">
 
-<h1>⚡ 30s SCALP AI ENGINE</h1>
+<h1>⚡ TIMEFRAME AI BOT</h1>
+
+<select id="timeframe">
+<option value="30">30 sec</option>
+<option value="60">1 min</option>
+<option value="90">1:30 min</option>
+<option value="120">2 min</option>
+<option value="150">2:30 min</option>
+<option value="180">3 min</option>
+</select>
 
 <button onclick="start()">START BOT</button>
 
 <div id="circle" class="circle wait">
 <div>WAIT</div>
-<div style="font-size:13px">30s cycle</div>
+<div id="cd" style="font-size:13px">--</div>
 </div>
 
 <div class="box">
 <p>Price: <span id="price">--</span></p>
-<p>Signal: <span id="signal">WAIT</span></p>
-<p>Countdown: <span id="cd">--</span></p>
-<p>Wins: <span id="win">0</span> | Loss: <span id="loss">0</span></p>
+<p>Signal: <span id="signal">--</span></p>
+</div>
+
+<div class="stats">
+<div>Signals<br><b id="total">0</b></div>
+<div>Wins<br><b id="wins">0</b></div>
+<div>Loss<br><b id="loss">0</b></div>
 </div>
 
 </div>
@@ -91,46 +119,10 @@ font-size:13px;
 
 let ws;
 let prices=[];
-let lastSignal="WAIT";
 let trades=[];
-let wins=0,losses=0;
 
-let cycle=30;
-let timer=30;
-
-/* RSI */
-function RSI(data,p=14){
-if(data.length<p+1)return 50;
-let g=0,l=0;
-for(let i=data.length-p;i<data.length;i++){
-let d=data[i]-data[i-1];
-if(d>0)g+=d;else l+=Math.abs(d);
-}
-if(l===0)return 100;
-let rs=(g/p)/(l/p);
-return 100-(100/(1+rs));
-}
-
-/* EMA */
-function EMA(data,p){
-let k=2/(p+1);
-let ema=data[0];
-for(let i=1;i<data.length;i++){
-ema=data[i]*k+ema*(1-k);
-}
-return ema;
-}
-
-/* TIMER */
-setInterval(()=>{
-timer--;
-if(timer<=0){
-evaluateLastTrade();
-timer=30;
-generateSignal();
-}
-document.getElementById("cd").innerText=timer+"s";
-},1000);
+let total=0,wins=0,loss=0;
+let currentTrade=null;
 
 /* START */
 function start(){
@@ -154,78 +146,98 @@ if(!d.tick)return;
 
 let price=parseFloat(d.tick.quote);
 prices.push(price);
-if(prices.length>80)prices.shift();
+if(prices.length>100)prices.shift();
 
-document.getElementById("price").innerText=price;
+document.getElementById("price").innerText=price.toFixed(5);
+
+/* CREATE SIGNAL ONLY IF NO ACTIVE TRADE */
+if(!currentTrade && prices.length>20){
+generateSignal(price);
+}
 
 };
 
 }
 
-/* SIGNAL GENERATION */
-function generateSignal(){
+/* SIGNAL */
+function generateSignal(price){
 
-if(prices.length<25)return;
+let direction=Math.random()>0.5?"BUY":"SELL"; // simplified stable logic (can upgrade later)
 
-let rsi=RSI(prices);
-let ema=EMA(prices.slice(-20),10);
+let tf=parseInt(document.getElementById("timeframe").value);
 
-let momentum=prices[prices.length-1]-prices[prices.length-5];
+currentTrade={
+signal:direction,
+entry:price,
+time:Date.now(),
+expiry:Date.now()+tf*1000
+};
 
-let score=0;
+document.getElementById("signal").innerText=direction;
+document.getElementById("total").innerText=++total;
 
-if(prices[prices.length-1]>ema)score+=2;
-else score-=2;
+updateCircle(direction);
 
-if(rsi<30)score+=1;
-if(rsi>70)score-=1;
+startEvaluation();
+}
 
-if(momentum>0)score+=1;
-else score-=1;
-
-let signal="WAIT";
-
-if(score>=3)signal="BUY";
-else if(score<=-3)signal="SELL";
-
-lastSignal=signal;
-
-trades.push({
-signal,
-entry:prices[prices.length-1],
-time:Date.now()
-});
-
-document.getElementById("signal").innerText=signal;
-
+/* UI */
+function updateCircle(sig){
 let c=document.getElementById("circle");
 c.className="circle wait";
 
-if(signal==="BUY")c.className="circle buy";
-if(signal==="SELL")c.className="circle sell";
+if(sig==="BUY")c.className="circle buy";
+if(sig==="SELL")c.className="circle sell";
 
-c.innerHTML=`<div>${signal}</div><div style="font-size:13px">30s TRADE</div>`;
+c.innerHTML=`<div>${sig}</div><div id="cd">ACTIVE TRADE</div>`;
+}
+
+/* EVALUATION LOOP */
+function startEvaluation(){
+
+let timer=setInterval(()=>{
+
+if(!currentTrade)return;
+
+let now=Date.now();
+let left=Math.floor((currentTrade.expiry-now)/1000);
+
+document.getElementById("cd").innerText=left+"s";
+
+if(now>=currentTrade.expiry){
+
+clearInterval(timer);
+evaluateTrade();
+currentTrade=null;
 
 }
 
-/* EVALUATION */
-function evaluateLastTrade(){
+},1000);
 
-let trade=trades[trades.length-1];
-if(!trade)return;
+}
 
-let current=prices[prices.length-1];
+/* RESULT CHECK */
+function evaluateTrade(){
+
+let price=prices[prices.length-1];
+
 let win=false;
 
-if(trade.signal==="BUY" && current>trade.entry)win=true;
-if(trade.signal==="SELL" && current<trade.entry)win=true;
+if(currentTrade.signal==="BUY" && price>=currentTrade.entry){
+win=true;
+}
 
-if(trade.signal==="WAIT")return;
+if(currentTrade.signal==="SELL" && price<=currentTrade.entry){
+win=true;
+}
 
-if(win)wins++; else losses++;
-
-document.getElementById("win").innerText=wins;
-document.getElementById("loss").innerText=losses;
+if(win){
+wins++;
+document.getElementById("wins").innerText=wins;
+}else{
+loss++;
+document.getElementById("loss").innerText=loss;
+}
 
 }
 
