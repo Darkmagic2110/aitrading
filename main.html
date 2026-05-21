@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>DARK MAGIC AI - OTC ENGINE</title>
+<title>DARK MAGIC AI - FIXED OTC</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 
@@ -93,7 +93,7 @@ font-size:13px;
 
 <div class="container">
 
-<h1>⚡ DARK MAGIC OTC ENGINE</h1>
+<h1>⚡ DARK MAGIC AI OTC</h1>
 
 <select id="pair">
 <option value="EURUSD">EUR/USD OTC</option>
@@ -101,11 +101,11 @@ font-size:13px;
 <option value="USDJPY">USD/JPY OTC</option>
 </select>
 
-<button onclick="start()">▶ START ENGINE</button>
+<button onclick="start()">▶ START BOT</button>
 
 <div id="circle" class="circle hold">
 <div>WAIT</div>
-<div style="font-size:14px">OTC MODE</div>
+<div style="font-size:14px">READY</div>
 </div>
 
 <div class="box">
@@ -120,31 +120,36 @@ font-size:13px;
 
 <script>
 
+let interval;
 let prices=[];
-let basePrice=1.1000;
+let basePrices={
+EURUSD:1.1000,
+GBPUSD:1.2500,
+USDJPY:150.00
+};
 
-/* =====================
-   SIMULATE OTC FEED
-===================== */
+let base=1.1000;
+
+/* ======================
+   PRICE SIMULATION
+====================== */
 
 function generatePrice(){
 
 let move=(Math.random()-0.5)*0.0012;
+move += (Math.random()-0.5)*0.0005;
 
-// OTC-style noise (more chaotic)
-move += (Math.random()-0.5)*0.0006;
+base += move;
 
-basePrice += move;
-
-prices.push(basePrice);
+prices.push(base);
 
 if(prices.length>200)prices.shift();
 
 }
 
-/* =====================
+/* ======================
    EMA
-===================== */
+====================== */
 
 function EMA(data,p){
 let k=2/(p+1);
@@ -155,23 +160,31 @@ e=data[i]*k+e*(1-k);
 return e;
 }
 
-/* =====================
+/* ======================
    RSI
-===================== */
+====================== */
 
 function RSI(data){
+
+if(data.length<15)return 50;
+
 let g=0,l=0;
+
 for(let i=data.length-14;i<data.length;i++){
 let d=data[i]-data[i-1];
-if(d>0)g+=d;else l+=Math.abs(d);
-}
-let rs=g/(l||1);
-return 100-(100/(1+rs));
+if(d>0)g+=d;
+else l+=Math.abs(d);
 }
 
-/* =====================
+let rs=g/(l||1);
+
+return 100-(100/(1+rs));
+
+}
+
+/* ======================
    SIGNAL ENGINE
-===================== */
+====================== */
 
 function analyze(){
 
@@ -188,9 +201,9 @@ return {signal,emaFast,emaSlow,rsi};
 
 }
 
-/* =====================
-   UI
-===================== */
+/* ======================
+   UI UPDATE
+====================== */
 
 function updateCircle(sig){
 
@@ -201,20 +214,29 @@ c.className="circle hold";
 if(sig==="BUY")c.className="circle buy";
 if(sig==="SELL")c.className="circle sell";
 
-c.innerHTML=`<div>${sig}</div><div style="font-size:14px">OTC</div>`;
+c.innerHTML=`<div>${sig}</div><div style="font-size:14px">OTC ACTIVE</div>`;
 
 }
 
-/* =====================
-   MAIN LOOP
-===================== */
+/* ======================
+   START BUTTON FIXED
+====================== */
 
 function start(){
 
-prices=[];
-basePrice=1.1000;
+// stop old loop if exists
+if(interval)clearInterval(interval);
 
-setInterval(()=>{
+prices=[];
+
+let pair=document.getElementById("pair").value;
+
+// set base price per pair
+base=basePrices[pair];
+
+document.getElementById("sig").innerText="RUNNING...";
+
+interval=setInterval(()=>{
 
 generatePrice();
 
@@ -222,7 +244,7 @@ if(prices.length<20)return;
 
 let r=analyze();
 
-document.getElementById("price").innerText=basePrice.toFixed(5);
+document.getElementById("price").innerText=base.toFixed(5);
 document.getElementById("rsi").innerText=r.rsi.toFixed(2);
 document.getElementById("emaFast").innerText=r.emaFast.toFixed(5);
 document.getElementById("emaSlow").innerText=r.emaSlow.toFixed(5);
