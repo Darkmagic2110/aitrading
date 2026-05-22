@@ -107,8 +107,23 @@ border-left:1px solid rgba(255,255,255,.08);
 right:0;
 }
 
+#closeSidebar{
+position:absolute;
+top:18px;
+right:18px;
+font-size:28px;
+cursor:pointer;
+width:40px;
+height:40px;
+display:flex;
+justify-content:center;
+align-items:center;
+border-radius:12px;
+background:rgba(255,255,255,.08);
+}
+
 #sidebar h2{
-margin-top:50px;
+margin-top:70px;
 font-size:24px;
 }
 
@@ -308,17 +323,27 @@ color:#ff3355;
 
 <div id="sidebar">
 
+<div id="closeSidebar">✕</div>
+
 <h2>⚡ MENU</h2>
 
-<button class="sideBtn" onclick="openSupport()">
+<button class="sideBtn"
+onclick="window.location.href='deposit.html'">
+Deposit
+</button>
+
+<button class="sideBtn"
+onclick="openSupport()">
 Customer Support
 </button>
 
-<button class="sideBtn" onclick="window.location.href='key.html'">
+<button class="sideBtn"
+onclick="window.location.href='key.html'">
 Get Key
 </button>
 
-<button class="sideBtn" onclick="window.location.href='help.html'">
+<button class="sideBtn"
+onclick="window.location.href='help.html'">
 Help
 </button>
 
@@ -422,9 +447,7 @@ Loss
 <!-- FIREBASE -->
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
@@ -469,9 +492,17 @@ const menuBtn=document.getElementById("menuBtn");
 
 const sidebar=document.getElementById("sidebar");
 
+const closeSidebar=document.getElementById("closeSidebar");
+
 menuBtn.onclick=()=>{
 
-sidebar.classList.toggle("active");
+sidebar.classList.add("active");
+
+};
+
+closeSidebar.onclick=()=>{
+
+sidebar.classList.remove("active");
 
 };
 
@@ -534,7 +565,11 @@ let keyActive=false;
 
 let keyInterval=null;
 
-let keyExpireTime=0;
+let activeKey="";
+
+let remainingKeySeconds=0;
+
+/* VALIDATE KEY */
 
 function validateAndStart(){
 
@@ -553,7 +588,7 @@ document.getElementById("keyInput").value.trim();
 
 if(enteredKey===""){
 
-alert("Please Enter Access Key");
+alert("Enter Access Key");
 
 return;
 
@@ -581,24 +616,20 @@ return;
 
 }
 
-if(keyData.expireTime){
+if(keyData.remainingSeconds == null){
 
-keyExpireTime=keyData.expireTime;
-
-}else{
-
-keyExpireTime=
-Date.now()+(keyData.duration*1000);
+keyData.remainingSeconds=
+keyData.duration;
 
 db.ref("keys/"+enteredKey).update({
 
-expireTime:keyExpireTime
+remainingSeconds:keyData.duration
 
 });
 
 }
 
-if(Date.now()>=keyExpireTime){
+if(keyData.remainingSeconds <= 0){
 
 alert("Key Expired");
 
@@ -606,9 +637,22 @@ return;
 
 }
 
+activeKey=enteredKey;
+
+remainingKeySeconds=
+keyData.remainingSeconds;
+
 keyActive=true;
 
-startKeyCountdown(enteredKey);
+localStorage.setItem(
+"activeKey",
+enteredKey
+);
+
+document.getElementById("keyInput").value=
+enteredKey;
+
+startKeyCountdown();
 
 start();
 
@@ -618,29 +662,38 @@ start();
 
 /* KEY COUNTDOWN */
 
-function startKeyCountdown(key){
+function startKeyCountdown(){
 
 clearInterval(keyInterval);
 
 keyInterval=setInterval(()=>{
 
-let left=
-Math.floor((keyExpireTime-Date.now())/1000);
+if(!keyActive)return;
 
-if(left<=0){
+remainingKeySeconds--;
+
+db.ref("keys/"+activeKey).update({
+
+remainingSeconds:remainingKeySeconds
+
+});
+
+if(remainingKeySeconds <= 0){
 
 clearInterval(keyInterval);
 
 document.getElementById("keyTimer").innerText=
 "Key Expired";
 
-stopBot();
+db.ref("keys/"+activeKey).update({
 
-db.ref("keys/"+key).update({
+status:"expired",
 
-expired:true
+remainingSeconds:0
 
 });
+
+stopBot();
 
 alert("Your Key Has Expired");
 
@@ -648,11 +701,15 @@ return;
 
 }
 
-let hrs=Math.floor(left/3600);
+let hrs=Math.floor(
+remainingKeySeconds/3600
+);
 
-let mins=Math.floor((left%3600)/60);
+let mins=Math.floor(
+(remainingKeySeconds%3600)/60
+);
 
-let secs=left%60;
+let secs=remainingKeySeconds%60;
 
 document.getElementById("keyTimer").innerText=
 
@@ -680,6 +737,8 @@ function stopBot(){
 
 keyActive=false;
 
+clearInterval(keyInterval);
+
 if(ws){
 
 ws.close();
@@ -693,26 +752,34 @@ updateCircle("WAIT");
 
 }
 
-/* SAVE KEY */
+/* PAUSE TIMER WHEN USER LEAVES */
 
-window.addEventListener("beforeunload",()=>{
+document.addEventListener("visibilitychange",()=>{
 
-localStorage.setItem(
+if(document.hidden){
 
-"savedKey",
+clearInterval(keyInterval);
 
-document.getElementById("keyInput").value
+}
 
-);
+else{
+
+if(keyActive){
+
+startKeyCountdown();
+
+}
+
+}
 
 });
 
-/* RESTORE KEY */
+/* RESTORE SAVED KEY */
 
 window.onload=()=>{
 
 const savedKey=
-localStorage.getItem("savedKey");
+localStorage.getItem("activeKey");
 
 if(savedKey){
 
