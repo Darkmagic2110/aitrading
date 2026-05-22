@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>KEY GENERATOR</title>
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:#0b0b1a;
+color:#fff;
+padding:20px;
+}
+
+.container{
+max-width:450px;
+margin:auto;
+background:#15152b;
+padding:20px;
+border-radius:15px;
+border:1px solid #333;
+}
+
+h2{text-align:center}
+
+input,button{
+width:100%;
+padding:14px;
+margin-top:10px;
+border-radius:10px;
+border:none;
+outline:none;
+font-size:16px;
+}
+
+input{
+background:#222;
+color:#fff;
+}
+
+button{
+background:linear-gradient(135deg,#ff006a,#7b61ff);
+color:#fff;
+font-weight:bold;
+cursor:pointer;
+}
+
+.box{
+margin-top:15px;
+padding:10px;
+background:#222;
+border-radius:10px;
+font-size:14px;
+}
+
+.key{
+font-size:18px;
+font-weight:bold;
+color:#00ff84;
+text-align:center;
+margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h2>🔑 KEY GENERATOR</h2>
+
+<p>Enter coins to use (10 coins = 5 minutes)</p>
+
+<input type="number" id="coinInput" placeholder="Enter coins e.g 10">
+
+<button onclick="generateKey()">Generate Key</button>
+
+<div class="box">
+<p>Balance: <span id="balance">0</span></p>
+<p>Duration: <span id="duration">--</span></p>
+<p>Expiry: <span id="expiry">--</span></p>
+</div>
+
+<div class="key" id="keyBox">KEY: --</div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+
+const firebaseConfig={
+apiKey:"AIzaSyDvFDByPPo9zgwKLdPaREz1OVMQCXmPfrs",
+authDomain:"bets-d795d.firebaseapp.com",
+databaseURL:"https://bets-d795d-default-rtdb.firebaseio.com",
+projectId:"bets-d795d",
+storageBucket:"bets-d795d.appspot.com",
+messagingSenderId:"384386108287",
+appId:"1:384386108287:android:d238a5ec8068d9bb9be84a"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db=firebase.database();
+
+let userId=null;
+
+/* AUTH */
+firebase.auth().onAuthStateChanged(user=>{
+if(!user){
+window.location.href="login.html";
+return;
+}
+userId=user.uid;
+loadBalance();
+});
+
+/* LOAD BALANCE */
+function loadBalance(){
+db.ref("users/"+userId+"/balance").on("value",snap=>{
+document.getElementById("balance").innerText=Math.floor(snap.val()||0);
+});
+}
+
+/* GENERATE KEY */
+function generateKey(){
+
+let coins=parseInt(document.getElementById("coinInput").value);
+
+if(!coins || coins<1){
+alert("Enter valid coins");
+return;
+}
+
+db.ref("users/"+userId+"/balance").once("value",snap=>{
+
+let bal=snap.val()||0;
+
+if(bal<coins){
+alert("Insufficient balance");
+return;
+}
+
+/* DEDUCT COINS */
+let newBal=bal-coins;
+db.ref("users/"+userId+"/balance").set(newBal);
+
+/* TIME CALC */
+let seconds=coins*30; // 10 coins = 300 sec = 5 mins
+
+let expiry=Date.now()+seconds*1000;
+
+/* KEY */
+let key="DM-"+Math.random().toString(36).substring(2,8).toUpperCase();
+
+/* SAVE */
+db.ref("keys/"+key).set({
+uid:userId,
+coins:coins,
+expiry:expiry,
+active:true
+});
+
+document.getElementById("keyBox").innerText="KEY: "+key;
+
+startCountdown(expiry);
+});
+
+}
+
+/* COUNTDOWN */
+function startCountdown(expiry){
+
+let x=setInterval(()=>{
+
+let now=Date.now();
+let diff=expiry-now;
+
+if(diff<=0){
+clearInterval(x);
+document.getElementById("expiry").innerText="EXPIRED";
+return;
+}
+
+let h=Math.floor(diff/3600000);
+let m=Math.floor((diff%3600000)/60000);
+let s=Math.floor((diff%60000)/1000);
+
+document.getElementById("expiry").innerText=
+String(h).padStart(2,'0')+":"+
+String(m).padStart(2,'0')+":"+
+String(s).padStart(2,'0');
+
+},1000);
+
+}
+
+</script>
+
+</body>
+</html>
