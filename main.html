@@ -31,11 +31,7 @@ justify-content:space-between;
 cursor:pointer;
 z-index:10000;
 }
-#menuBtn span{
-height:4px;
-background:#fff;
-border-radius:10px;
-}
+#menuBtn span{height:4px;background:#fff;border-radius:10px;}
 #menuBox{
 position:fixed;
 top:60px;
@@ -50,16 +46,9 @@ gap:10px;
 z-index:9999;
 backdrop-filter:blur(10px);
 }
-#menuBox button{
-padding:10px;
-border:none;
-border-radius:10px;
-cursor:pointer;
-background:#222;
-color:#fff;
-}
+#menuBox button{padding:10px;border:none;border-radius:10px;cursor:pointer;background:#222;color:#fff;}
 
-/* BALANCE PANEL */
+/* BALANCE */
 #balanceContainer{
 position:fixed;
 top:12px;
@@ -75,15 +64,10 @@ border:1px solid rgba(255,215,0,.25);
 box-shadow:0 0 18px rgba(255,215,0,.25);
 backdrop-filter:blur(10px);
 }
-
 #coinEmoji{font-size:20px;}
 #balanceAmount{font-size:15px;font-weight:700;color:#ffd700;}
 #dmText{font-size:13px;color:#fff;opacity:.9;}
-#addBalanceBtn{
-width:28px;height:28px;border-radius:50%;border:none;
-background:linear-gradient(135deg,#ffd700,#ff9900);
-color:#000;font-size:18px;font-weight:800;cursor:pointer;
-}
+#addBalanceBtn{width:28px;height:28px;border-radius:50%;border:none;background:linear-gradient(135deg,#ffd700,#ff9900);color:#000;font-size:18px;font-weight:800;cursor:pointer;}
 
 /* KEY BOX */
 #keyBox{
@@ -94,17 +78,10 @@ padding:12px;
 border-radius:14px;
 border:1px solid rgba(255,255,255,.1);
 }
-#keyInput{
-width:100%;
-padding:12px;
-border-radius:10px;
-border:none;
-outline:none;
-margin-bottom:8px;
-}
+#keyInput{width:100%;padding:12px;border-radius:10px;border:none;outline:none;margin-bottom:8px;}
 #keyStatus{font-size:12px;color:#aaa}
 
-/* CONTAINER */
+/* MAIN */
 .container{
 max-width:460px;
 margin:auto;
@@ -115,14 +92,12 @@ padding:20px;
 border:1px solid rgba(255,255,255,.08);
 backdrop-filter:blur(10px);
 }
-
 h1{text-align:center;font-size:26px;font-weight:800;background:linear-gradient(90deg,#fff,#aaa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .sub{text-align:center;font-size:13px;color:#aaa;margin-top:8px;}
 
 select,button{
 width:100%;margin-top:12px;padding:14px;border-radius:16px;border:none;outline:none;font-family:'Outfit',sans-serif;
 }
-
 select{background:rgba(255,255,255,.05);color:#fff;border:1px solid rgba(255,255,255,.1);}
 button{background:linear-gradient(135deg,#ff006a,#7b61ff);color:#fff;font-weight:700;cursor:pointer;font-size:15px;}
 
@@ -131,9 +106,7 @@ button{background:linear-gradient(135deg,#ff006a,#7b61ff);color:#fff;font-weight
 .sell{color:#ff3355;border-color:#ff3355;box-shadow:0 0 50px #ff3355;}
 .hold{color:#ffcc00;border-color:#ffcc00;box-shadow:0 0 35px #ffcc00;}
 
-.box,.signalBox,.history{
-margin-top:14px;background:rgba(255,255,255,.03);padding:14px;border-radius:16px;border:1px solid rgba(255,255,255,.06);font-size:13px;
-}
+.box,.signalBox,.history{margin-top:14px;background:rgba(255,255,255,.03);padding:14px;border-radius:16px;border:1px solid rgba(255,255,255,.06);font-size:13px;}
 
 .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px;}
 .card{background:rgba(255,255,255,.03);padding:12px;border-radius:16px;text-align:center;border:1px solid rgba(255,255,255,.06);}
@@ -157,7 +130,6 @@ margin-top:14px;background:rgba(255,255,255,.03);padding:14px;border-radius:16px
 </div>
 
 <div id="menuBox">
-<button onclick="randomSupport()">Customer Support</button>
 <button onclick="window.location.href='key.html'">Get Key</button>
 <button onclick="window.location.href='help.html'">Help</button>
 </div>
@@ -170,10 +142,10 @@ margin-top:14px;background:rgba(255,255,255,.03);padding:14px;border-radius:16px
 <button id="addBalanceBtn">+</button>
 </div>
 
-<!-- KEY INPUT -->
+<!-- KEY -->
 <div id="keyBox">
 <input id="keyInput" placeholder="Enter Access Key">
-<div id="keyStatus">Key required to start bot</div>
+<div id="keyStatus">Key required</div>
 </div>
 
 <div class="container">
@@ -198,30 +170,12 @@ margin-top:14px;background:rgba(255,255,255,.03);padding:14px;border-radius:16px
 
 <div class="box">
 <p>💰 Price: <span id="price">--</span></p>
-<p>📊 RSI: <span id="rsi">--</span></p>
-<p>📈 EMA FAST: <span id="emaFast">--</span></p>
-<p>📉 EMA SLOW: <span id="emaSlow">--</span></p>
-<p>⚡ MACD: <span id="macd">--</span></p>
-<p>🔥 Strength: <span id="strength">--</span></p>
-<p>📈 Trend: <span id="trend">--</span></p>
 </div>
 
 <div class="signalBox">
 <p>📡 Signal: <span id="sig">WAIT</span></p>
 <p>⏳ Countdown: <span id="countdown">--</span></p>
-<p>🎯 Result: <span id="result">--</span></p>
 <p>🔑 Key Time: <span id="keyTime">--</span></p>
-</div>
-
-<div class="stats">
-<div class="card">Signals<h2 id="total">0</h2></div>
-<div class="card">Wins<h2 id="wins" class="win">0</h2></div>
-<div class="card">Loss<h2 id="losses" class="loss">0</h2></div>
-</div>
-
-<div class="history">
-<h3>📜 Signal History</h3>
-<div id="history"></div>
 </div>
 
 </div>
@@ -232,116 +186,140 @@ margin-top:14px;background:rgba(255,255,255,.03);padding:14px;border-radius:16px
 
 <script>
 
-const firebaseConfig={apiKey:"AIzaSyDvFDByPPo9zgwKLdPaREz1OVMQCXmPfrs",authDomain:"bets-d795d.firebaseapp.com",projectId:"bets-d795d",storageBucket:"bets-d795d.appspot.com",messagingSenderId:"384386108287",appId:"1:384386108287:android:d238a5ec8068d9bb9be84a",databaseURL:"https://bets-d795d-default-rtdb.firebaseio.com"};
+const firebaseConfig={
+apiKey:"AIzaSyDvFDByPPo9zgwKLdPaREz1OVMQCXmPfrs",
+authDomain:"bets-d795d.firebaseapp.com",
+databaseURL:"https://bets-d795d-default-rtdb.firebaseio.com"
+};
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
 
-/* MENU */
-function toggleMenu(){
-let m=document.getElementById("menuBox");
-m.style.display=m.style.display==="flex"?"none":"flex";
-}
-function randomSupport(){
-let links=["https://t.me/dark_maggik","https://t.me/dark_magiks"];
-window.location.href=links[Math.floor(Math.random()*links.length)];
-}
+let userEmail="";
+let ws,prices=[],lock=false,last="WAIT";
+let keyActive=false;
+let keyExpires=0;
+let keyTimer=null;
 
-/* KEY SYSTEM */
-let keyData={valid:false,expires:0,interval:null};
-
-function saveKey(k,mins){
-keyData={valid:true,expires:Date.now()+mins*60000};
-localStorage.setItem("dm_key",JSON.stringify(keyData));
-startKeyTimer();
-}
-
-function loadKey(){
-let k=localStorage.getItem("dm_key");
-if(k){keyData=JSON.parse(k);}
-startKeyTimer();
-}
-
-function startKeyTimer(){
-if(keyData.interval)clearInterval(keyData.interval);
-keyData.interval=setInterval(()=>{
-let left=keyData.expires-Date.now();
-if(left<=0){
-keyData.valid=false;
-document.getElementById("keyTime").innerText="EXPIRED";
-stopBot();
-return;
-}
-document.getElementById("keyTime")?document.getElementById("keyTime").innerText=Math.floor(left/1000)+"s":null;
-},1000);
-}
-
-loadKey();
-
-/* BALANCE */
-document.getElementById("addBalanceBtn").onclick=()=>{window.location.href="deposit.html";};
-
+/* AUTH */
 firebase.auth().onAuthStateChanged(u=>{
-if(!u){window.location.href="login.html";return;}
+if(!u){location.href="login.html";return;}
+userEmail=u.email;
 db.ref("users/"+u.uid+"/balance").on("value",s=>{
 document.getElementById("balanceAmount").innerText=Math.floor(s.val()||0);
 });
 });
 
-/* BOT */
-let ws,prices=[],lock=false,last="WAIT";
+/* FORMAT TIME */
+function fmt(ms){
+let s=Math.max(0,Math.floor(ms/1000));
+let h=Math.floor(s/3600);
+let m=Math.floor((s%3600)/60);
+let sec=s%60;
+return String(h).padStart(2,'0')+":"+String(m).padStart(2,'0')+":"+String(sec).padStart(2,'0');
+}
 
+/* KEY VALIDATION */
+function validateKey(key){
+return db.ref("keys/"+key).once("value").then(snap=>{
+let d=snap.val();
+if(!d) return false;
+if(d.email!==userEmail) return false;
+if(Date.now()>d.expires) return false;
+keyExpires=d.expires;
+keyActive=true;
+startKeyCountdown();
+return true;
+});
+}
+
+/* KEY COUNTDOWN */
+function startKeyCountdown(){
+if(keyTimer)clearInterval(keyTimer);
+keyTimer=setInterval(()=>{
+let left=keyExpires-Date.now();
+document.getElementById("keyTime").innerText=fmt(left);
+if(left<=0){
+clearInterval(keyTimer);
+keyActive=false;
+stopBot();
+document.getElementById("keyStatus").innerText="Key expired";
+}
+},1000);
+}
+
+/* START BOT */
 function start(){
+let key=document.getElementById("keyInput").value.trim();
+if(!key){alert("Enter key");return;}
 
-let input=document.getElementById("keyInput").value;
-if(!keyData.valid){
-alert("Invalid or expired key");
+validateKey(key).then(ok=>{
+if(!ok){
+document.getElementById("keyStatus").innerText="Invalid or expired key";
 return;
 }
-if(!ws){
+
+document.getElementById("keyStatus").innerText="Key active";
+
+if(ws)ws.close();
 prices=[];
 ws=new WebSocket("wss://ws.derivws.com/websockets/v3?app_id=1089");
-ws.onopen=()=>ws.send(JSON.stringify({ticks:document.getElementById("pair").value,subscribe:1}));
-ws.onmessage=onMsg;
+
+ws.onopen=()=>{
+ws.send(JSON.stringify({ticks:document.getElementById("pair").value,subscribe:1}));
+};
+
+ws.onmessage=(msg)=>{
+if(!keyActive)return;
+
+let d=JSON.parse(msg.data);
+if(!d.tick)return;
+let price=parseFloat(d.tick.quote);
+
+prices.push(price);
+if(prices.length>200)prices.shift();
+
+document.getElementById("price").innerText=price;
+
+if(prices.length<20)return;
+
+let emaFast=price;
+let emaSlow=price;
+
+let signal="WAIT";
+if(emaFast>emaSlow)signal="BUY";
+else if(emaFast<emaSlow)signal="SELL";
+
+if(!lock&&signal!==last){
+last=signal;
+lock=true;
+startTradeCountdown();
 }
+};
+});
 }
 
+/* STOP */
 function stopBot(){
 if(ws)ws.close();
 ws=null;
 }
 
-function onMsg(msg){
-let d=JSON.parse(msg.data);
-if(!d.tick)return;
-let price=parseFloat(d.tick.quote);
-prices.push(price);
-if(prices.length>200)prices.shift();
-document.getElementById("price").innerText=price;
-if(prices.length<35)return;
-
-let rsi=50,emaFast=price,emaSlow=price,macd=0,mom=0,vol=0;
-
-let signal="WAIT";
-if(emaFast>emaSlow&&macd>0)signal="BUY";
-else if(emaFast<emaSlow&&macd<0)signal="SELL";
-
-if(!lock&&signal!==last){
-last=signal;lock=true;
-startCountdown();
-}
-}
-
-function startCountdown(){
-let t=120;
+/* TRADE COUNTDOWN */
+function startTradeCountdown(){
+let t=300;
 let x=setInterval(()=>{
+document.getElementById("countdown").innerText=fmt(t*1000);
 t--;
-document.getElementById("countdown").innerText=t+"s";
-document.getElementById("keyTime").innerText=t+"s ACTIVE";
 if(t<=0){
 clearInterval(x);
 lock=false;
 }
 },1000);
+}
+
+function toggleMenu(){
+let m=document.getElementById("menuBox");
+m.style.display=m.style.display==="flex"?"none":"flex";
 }
 
 </script>
