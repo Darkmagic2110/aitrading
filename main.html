@@ -34,6 +34,7 @@ z-index:9999;
 border:1px solid rgba(255,215,0,.25);
 box-shadow:0 0 18px rgba(255,215,0,.25);
 backdrop-filter:blur(10px);
+cursor:pointer;
 }
 
 #coinEmoji{
@@ -52,6 +53,8 @@ color:#fff;
 opacity:.9;
 }
 
+/* UPDATED BUTTON */
+
 #addBalanceBtn{
 width:28px;
 height:28px;
@@ -59,10 +62,13 @@ border-radius:50%;
 border:none;
 background:linear-gradient(135deg,#ffd700,#ff9900);
 color:#000;
-font-size:18px;
+font-size:15px;
 font-weight:800;
 cursor:pointer;
 transition:.2s;
+display:flex;
+align-items:center;
+justify-content:center;
 }
 
 #addBalanceBtn:active{
@@ -313,8 +319,12 @@ color:#ff3355;
 <div id="balanceContainer">
 <span id="coinEmoji">🪙</span>
 <span id="balanceAmount">0</span>
-<span id="dmText">DM COINS</span>
-<button id="addBalanceBtn">+</button>
+
+<!-- UPDATED TEXT -->
+<span id="dmText">COINS</span>
+
+<!-- UPDATED ICON -->
+<button id="addBalanceBtn">➜</button>
 </div>
 
 <!-- MENU -->
@@ -326,6 +336,8 @@ color:#ff3355;
 <div id="closeSidebar">✕</div>
 
 <h2>⚡ MENU</h2>
+
+<!-- UPDATED DEPOSIT BUTTON -->
 
 <button class="sideBtn"
 onclick="window.location.href='deposit.html'">
@@ -480,7 +492,17 @@ const db = firebase.database();
 
 const balanceDisplay=document.getElementById("balanceAmount");
 
-document.getElementById("addBalanceBtn").onclick=()=>{
+/* UPDATED REDIRECTS */
+
+document.getElementById("balanceContainer").onclick=()=>{
+
+window.location.href="deposit.html";
+
+};
+
+document.getElementById("addBalanceBtn").onclick=(e)=>{
+
+e.stopPropagation();
 
 window.location.href="deposit.html";
 
@@ -752,28 +774,6 @@ updateCircle("WAIT");
 
 }
 
-/* PAUSE TIMER WHEN USER LEAVES */
-
-document.addEventListener("visibilitychange",()=>{
-
-if(document.hidden){
-
-clearInterval(keyInterval);
-
-}
-
-else{
-
-if(keyActive){
-
-startKeyCountdown();
-
-}
-
-}
-
-});
-
 /* RESTORE SAVED KEY */
 
 window.onload=()=>{
@@ -793,17 +793,11 @@ savedKey;
 /* TRADING BOT */
 
 let ws;
-
 let prices=[];
-
 let wins=0;
-
 let losses=0;
-
 let total=0;
-
 let lastSignal="WAIT";
-
 let lock=false;
 
 /* RSI */
@@ -813,7 +807,6 @@ function RSI(data,period=14){
 if(data.length<period+1)return 50;
 
 let gains=0;
-
 let losses=0;
 
 for(let i=data.length-period;i<data.length;i++){
@@ -867,436 +860,6 @@ let fast=EMA(data,12);
 let slow=EMA(data,26);
 
 return fast-slow;
-
-}
-
-/* MOMENTUM */
-
-function momentum(data){
-
-if(data.length<10)return 0;
-
-return data[data.length-1]-data[data.length-8];
-
-}
-
-/* VOLATILITY */
-
-function volatility(data){
-
-if(data.length<15)return 0;
-
-let recent=data.slice(-15);
-
-let max=Math.max(...recent);
-
-let min=Math.min(...recent);
-
-return max-min;
-
-}
-
-/* TREND STRENGTH */
-
-function trendStrength(price,fastEMA,slowEMA,rsi,macd,mom){
-
-let score=0;
-
-if(fastEMA>slowEMA){
-
-score+=3;
-
-}else{
-
-score-=3;
-
-}
-
-if(rsi<30){
-
-score+=2;
-
-}
-
-if(rsi>70){
-
-score-=2;
-
-}
-
-if(macd>0){
-
-score+=2;
-
-}else{
-
-score-=2;
-
-}
-
-if(mom>0){
-
-score+=1;
-
-}else{
-
-score-=1;
-
-}
-
-return score;
-
-}
-
-/* UI CIRCLE */
-
-function updateCircle(signal){
-
-let c=document.getElementById("circle");
-
-c.className="circle hold";
-
-if(signal==="BUY"){
-
-c.className="circle buy";
-
-}
-
-if(signal==="SELL"){
-
-c.className="circle sell";
-
-}
-
-c.innerHTML=`
-
-<div>${signal}</div>
-
-<div style="font-size:14px">2 MIN</div>
-
-`;
-
-}
-
-/* START */
-
-function start(){
-
-prices=[];
-
-if(ws)ws.close();
-
-ws=new WebSocket(
-"wss://ws.derivws.com/websockets/v3?app_id=1089"
-);
-
-ws.onopen=()=>{
-
-ws.send(JSON.stringify({
-
-ticks:document.getElementById("pair").value,
-
-subscribe:1
-
-}));
-
-};
-
-ws.onmessage=(msg)=>{
-
-if(!keyActive)return;
-
-let data=JSON.parse(msg.data);
-
-if(!data.tick)return;
-
-let price=parseFloat(data.tick.quote);
-
-if(isNaN(price))return;
-
-prices.push(price);
-
-if(prices.length>200){
-
-prices.shift();
-
-}
-
-document.getElementById("price").innerText=price;
-
-if(prices.length<35)return;
-
-let rsi=RSI(prices);
-
-let emaFast=EMA(prices,8);
-
-let emaSlow=EMA(prices,25);
-
-let macd=MACD(prices);
-
-let mom=momentum(prices);
-
-let vol=volatility(prices);
-
-document.getElementById("rsi").innerText=
-rsi.toFixed(2);
-
-document.getElementById("emaFast").innerText=
-emaFast.toFixed(5);
-
-document.getElementById("emaSlow").innerText=
-emaSlow.toFixed(5);
-
-document.getElementById("macd").innerText=
-macd.toFixed(5);
-
-let trend="SIDEWAYS";
-
-if(emaFast>emaSlow){
-
-trend="UPTREND";
-
-}
-
-if(emaFast<emaSlow){
-
-trend="DOWNTREND";
-
-}
-
-document.getElementById("trend").innerText=
-trend;
-
-let score=trendStrength(
-
-price,
-
-emaFast,
-
-emaSlow,
-
-rsi,
-
-macd,
-
-mom
-
-);
-
-document.getElementById("strength").innerText=
-score;
-
-let signal="WAIT";
-
-if(vol < 0.00015){
-
-signal="WAIT";
-
-}
-
-else if(
-
-emaFast > emaSlow &&
-
-macd > 0 &&
-
-mom > 0
-
-){
-
-signal="BUY";
-
-}
-
-else if(
-
-emaFast < emaSlow &&
-
-macd < 0 &&
-
-mom < 0
-
-){
-
-signal="SELL";
-
-}
-
-if(lock)return;
-
-if(signal!=="WAIT" && signal!==lastSignal){
-
-lastSignal=signal;
-
-lock=true;
-
-total++;
-
-document.getElementById("total").innerText=
-total;
-
-document.getElementById("sig").innerText=
-signal;
-
-updateCircle(signal);
-
-let duration=120;
-
-let trade={
-
-signal:signal,
-
-entry:price,
-
-start:Date.now(),
-
-end:Date.now()+(duration*1000),
-
-closed:false
-
-};
-
-startCountdown(trade);
-
-}
-
-};
-
-}
-
-/* COUNTDOWN */
-
-function startCountdown(trade){
-
-let timer=setInterval(()=>{
-
-if(!keyActive){
-
-clearInterval(timer);
-
-return;
-
-}
-
-let left=
-Math.floor((trade.end-Date.now())/1000);
-
-if(left<=0){
-
-clearInterval(timer);
-
-document.getElementById("countdown").innerText=
-"0s";
-
-evaluateTrade(trade);
-
-lastSignal="WAIT";
-
-lock=false;
-
-document.getElementById("sig").innerText=
-"SEARCHING...";
-
-updateCircle("WAIT");
-
-return;
-
-}
-
-document.getElementById("countdown").innerText=
-left+"s";
-
-},1000);
-
-}
-
-/* EVALUATE */
-
-function evaluateTrade(trade){
-
-let current=prices[prices.length-1];
-
-let win=false;
-
-if(
-
-(trade.signal==="BUY" && current>trade.entry)
-
-||
-
-(trade.signal==="SELL" && current<trade.entry)
-
-){
-
-win=true;
-
-}
-
-if(win){
-
-wins++;
-
-document.getElementById("wins").innerText=
-wins;
-
-document.getElementById("result").innerHTML=
-
-"<span class='win'>GAIN ✅</span>";
-
-}else{
-
-losses++;
-
-document.getElementById("losses").innerText=
-losses;
-
-document.getElementById("result").innerHTML=
-
-"<span class='loss'>LOSS ❌</span>";
-
-}
-
-addHistory(trade,win,current);
-
-}
-
-/* HISTORY */
-
-function addHistory(trade,win,current){
-
-let history=document.getElementById("history");
-
-let item=document.createElement("div");
-
-item.className="historyItem";
-
-let badge=trade.signal==="BUY"
-
-? "<span class='badge buyBadge'>BUY</span>"
-
-: "<span class='badge sellBadge'>SELL</span>";
-
-item.innerHTML=`
-
-${badge}<br>
-
-Entry: ${trade.entry}<br>
-
-Close: ${current}<br>
-
-Result:
-
-${win
-
-? "<span class='win'>GAIN</span>"
-
-: "<span class='loss'>LOSS</span>"
-
-}
-
-`;
-
-history.prepend(item);
 
 }
 
