@@ -3,128 +3,150 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Deposit Coins - Dark Magic Ai Bot</title>
+<title>Deposit Coins</title>
 
-<link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-body {
-    background: black;
-    color: white;
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 10px;
+body{
+margin:0;
+font-family:'Poppins',sans-serif;
+background:linear-gradient(135deg,#050505,#12001f,#000);
+color:#fff;
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
 }
 
-h1 {
-    font-family: 'UnifrakturCook', cursive;
-    font-size: 35px;
-    color: red;
-    margin-bottom: 5px;
+.wrapper{
+width:92%;
+max-width:420px;
+background:rgba(255,255,255,0.06);
+backdrop-filter:blur(18px);
+border:1px solid rgba(255,255,255,0.1);
+border-radius:22px;
+padding:20px;
+box-shadow:0 0 40px rgba(0,0,0,0.6);
 }
 
-input[type="number"] {
-    width: 90%;
-    padding: 12px;
-    font-size: 18px;
-    margin-top: 10px;
-    border-radius: 8px;
-    border: none;
+h1{
+text-align:center;
+font-size:22px;
+margin-bottom:5px;
+background:linear-gradient(90deg,#ff00cc,#3333ff,#00ffcc);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
 }
 
-button {
-    width: 92%;
-    padding: 14px;
-    background: #e60000;
-    font-family: 'Poppins', sans-serif;
-    font-size: 18px;
-    color: #ffffff;
-    font-weight: 600;
-    border-radius: 10px;
-    border: none;
-    margin-top: 12px;
-    cursor: pointer;
-    transition: 0.3s;
-    box-shadow: 0 0 18px rgba(255, 0, 0, 0.7);
+.sub{
+text-align:center;
+font-size:12px;
+opacity:0.7;
+margin-bottom:20px;
 }
 
-button:hover {
-    box-shadow: 0 0 25px rgba(255, 0, 0, 1);
+input{
+width:100%;
+padding:14px;
+border-radius:12px;
+border:none;
+outline:none;
+margin-top:10px;
+font-size:16px;
+background:rgba(0,0,0,0.4);
+color:#fff;
+border:1px solid rgba(255,255,255,0.1);
 }
 
-#toast {
-    visibility: hidden;
-    min-width: 240px;
-    background-color: red;
-    color: black;
-    text-align: center;
-    border-radius: 10px;
-    padding: 12px;
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 18px;
-    z-index: 99999;
-    opacity: 0;
-    transition: opacity 0.3s, bottom 0.3s;
+.rateBox{
+margin-top:10px;
+font-size:13px;
+text-align:center;
+color:#00ffd5;
 }
 
-#toast.show {
-    visibility: visible;
-    opacity: 1;
-    bottom: 50px;
+button{
+width:100%;
+padding:14px;
+margin-top:15px;
+border:none;
+border-radius:14px;
+background:linear-gradient(90deg,#ff0066,#6600ff);
+color:#fff;
+font-size:16px;
+font-weight:600;
+cursor:pointer;
+transition:0.2s;
 }
 
-#depositStatus {
-    margin-top: 15px;
-    font-size: 18px;
-    color: yellow;
+button:active{
+transform:scale(0.97);
 }
 
-#coinRate {
-    font-size: 16px;
-    color: cyan;
-    margin-top: 5px;
+.card{
+margin-top:20px;
+background:rgba(0,0,0,0.4);
+border-radius:14px;
+padding:12px;
+border:1px solid rgba(255,255,255,0.08);
 }
 
-#historyBox {
-    margin-top: 25px;
-    text-align: left;
+.history-item{
+padding:10px;
+border-bottom:1px solid rgba(255,255,255,0.08);
+font-size:12px;
+display:flex;
+justify-content:space-between;
 }
 
-.history-item {
-    background: #111;
-    border-radius: 10px;
-    padding: 12px;
-    margin: 10px 0;
-    display: flex;
-    justify-content: space-between;
+.small{
+font-size:11px;
+opacity:0.7;
 }
 
-.history-title { color: lime; }
-.history-sub { font-size: 12px; color: #aaa; }
-.history-naira { color: cyan; font-size: 13px; }
+.toast{
+position:fixed;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+background:#ff0055;
+color:#fff;
+padding:10px 18px;
+border-radius:12px;
+font-size:13px;
+opacity:0;
+transition:0.3s;
+}
+
+.toast.show{
+opacity:1;
+bottom:40px;
+}
 </style>
 </head>
 
 <body>
 
-<h1>Deposit Coins</h1>
+<div class="wrapper">
+
+<h1>Deposit Center</h1>
+<div class="sub">Secure coin purchase system</div>
 
 <input type="number" id="depositAmount" placeholder="Enter amount" />
-<div id="coinRate">Loading rate...</div>
-<button id="submitDepositBtn">💰 Buy Coins</button>
 
-<div id="depositStatus"></div>
+<div class="rateBox" id="coinRate">Loading rate...</div>
 
-<div id="historyBox">
-    <h3>📜 Transactions</h3>
-    <div id="historyList"></div>
+<button id="payBtn">Buy Coins</button>
+
+<div class="card">
+<h3 style="margin:0 0 10px 0;">Transactions</h3>
+<div id="historyList"></div>
 </div>
 
-<div id="toast"></div>
+</div>
+
+<div id="toast" class="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -133,198 +155,178 @@ button:hover {
 
 <script>
 const firebaseConfig = {
-    apiKey: "AIzaSyDvFDByPPo9zgwKLdPaREz1OVMQCXmPfrs",
-    authDomain: "bets-d795d.firebaseapp.com",
-    projectId: "bets-d795d",
-    storageBucket: "bets-d795d.appspot.com",
-    messagingSenderId: "384386108287",
-    appId: "1:384386108287:android:d238a5ec8068d9bb9be84a",
-    databaseURL: "https://bets-d795d-default-rtdb.firebaseio.com"
+apiKey: "AIzaSyDvFDByPPo9zgwKLdPaREz1OVMQCXmPfrs",
+authDomain: "bets-d795d.firebaseapp.com",
+projectId: "bets-d795d",
+storageBucket: "bets-d795d.appspot.com",
+messagingSenderId: "384386108287",
+appId: "1:384386108287:android:d238a5ec8068d9bb9be84a",
+databaseURL: "https://bets-d795d-default-rtdb.firebaseio.com"
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const db = firebase.database();
 
-/* UI */
-const depositInput = document.getElementById("depositAmount");
-const coinRateText = document.getElementById("coinRate");
-const depositStatus = document.getElementById("depositStatus");
-const historyList = document.getElementById("historyList");
-const submitBtn = document.getElementById("submitDepositBtn");
+let flutterwaveKey="";
+let currency="NGN";
+let minAmount=3000;
+let rate=300; // 3000 = 10 coins
+
+const rateText=document.getElementById("coinRate");
+const historyList=document.getElementById("historyList");
 
 function toast(msg){
-    const t=document.getElementById("toast");
-    t.innerHTML=msg;
-    t.className="show";
-    setTimeout(()=>t.className="",3000);
+const t=document.getElementById("toast");
+t.innerText=msg;
+t.classList.add("show");
+setTimeout(()=>t.classList.remove("show"),3000);
 }
 
-/* SETTINGS */
-let flutterwaveKey = null;
-db.ref("settings/flutterwaveKeys/public").once("value").then(snap=>{
-    flutterwaveKey = snap.val();
+/* detect country */
+async function detect(){
+try{
+let r=await fetch("https://ipapi.co/json/");
+let d=await r.json();
+
+if(d.country_code==="NG"){
+currency="NGN";
+minAmount=3000;
+rate=300;
+rateText.innerText="₦3000 = 10 Coins";
+}else{
+currency="USD";
+minAmount=3;
+rate=0.3;
+rateText.innerText="$3 = 10 Coins";
+}
+}catch(e){
+currency="NGN";
+minAmount=3000;
+rate=300;
+rateText.innerText="₦3000 = 10 Coins";
+}
+}
+
+/* flutter key */
+db.ref("settings/flutterwaveKeys/public").once("value").then(s=>{
+flutterwaveKey=s.val();
 });
 
-/* COUNTRY CONFIG */
-let country = "NG";
-let currency = "NGN";
-let minAmount = 3000;
-let ratePerCoin = 300; // NGN: 3000 = 10 coins
-
-async function detectCountry(){
-    try{
-        let res = await fetch("https://ipapi.co/json/");
-        let data = await res.json();
-
-        country = data.country_code || "NG";
-
-        if(country === "NG"){
-            currency = "NGN";
-            minAmount = 3000;
-            ratePerCoin = 300; // 10 coins = 3000
-            coinRateText.innerText = "₦3000 = 10 coins";
-        } else {
-            currency = "USD";
-            minAmount = 3;
-            ratePerCoin = 0.3; // 10 coins = $3
-            coinRateText.innerText = "$3 = 10 coins";
-        }
-
-    } catch(e){
-        currency="NGN";
-        minAmount=3000;
-        ratePerCoin=300;
-        coinRateText.innerText="₦3000 = 10 coins";
-    }
-}
-
-/* AUTH */
+/* auth */
 firebase.auth().onAuthStateChanged(user=>{
-    if(!user){
-        window.location.href="login.html";
-        return;
-    }
-
-    loadHistory(user.uid);
+if(!user){
+window.location.href="login.html";
+return;
+}
+loadHistory(user.uid);
 });
 
-/* HISTORY */
+/* history */
 function loadHistory(uid){
-    db.ref("users/"+uid+"/transactions").once("value").then(snap=>{
-        historyList.innerHTML="";
-        let arr=[];
+db.ref("users/"+uid+"/transactions").once("value").then(snap=>{
+historyList.innerHTML="";
+let arr=[];
+snap.forEach(s=>arr.push(s.val()));
+arr.reverse();
 
-        snap.forEach(c=>{
-            let v=c.val();
-            arr.push(v);
-        });
-
-        arr.reverse();
-
-        arr.forEach(tx=>{
-            if(tx.type==="deposit"){
-                let d=new Date(tx.time).toLocaleString();
-                historyList.innerHTML+=`
-                <div class="history-item">
-                    <div>
-                        <div class="history-title">+${tx.coins} Coins</div>
-                        <div class="history-sub">${tx.currency} ${tx.amount}</div>
-                        <div class="history-sub">${d}</div>
-                    </div>
-                </div>`;
-            }
-        });
-    });
+arr.forEach(tx=>{
+if(tx.type==="deposit"){
+historyList.innerHTML+=`
+<div class="history-item">
+<div>
+<div>+${tx.coins} Coins</div>
+<div class="small">${tx.currency} ${tx.amount}</div>
+</div>
+<div class="small">${new Date(tx.time).toLocaleString()}</div>
+</div>`;
+}
+});
+});
 }
 
-/* VALIDATE */
+/* validate */
 function validate(amount){
-    if(amount < minAmount){
-        return {ok:false,msg:"Minimum is "+minAmount+" "+currency};
-    }
-    let coins = amount / ratePerCoin;
-    return {ok:true,coins};
+if(amount<minAmount){
+return {ok:false,msg:"Minimum is "+minAmount+" "+currency};
+}
+return {ok:true,coins:amount/rate};
 }
 
-/* PAYMENT */
-function pay(user, amount, coins){
+/* payment */
+function pay(user,amount,coins){
 
-    FlutterwaveCheckout({
-        public_key: flutterwaveKey,
-        tx_ref: "TX-"+Date.now(),
-        amount: amount,
-        currency: currency,
-        customer:{
-            email:user.email
-        },
+FlutterwaveCheckout({
+public_key:flutterwaveKey,
+tx_ref:"TX-"+Date.now(),
+amount:amount,
+currency:currency,
+customer:{
+email:user.email
+},
 
-        callback:function(res){
+callback:function(res){
 
-            let txId=res.transaction_id;
-            if(!txId){
-                return toast("Payment failed");
-            }
+let txid=res.transaction_id;
 
-            let ref=db.ref("users/"+user.uid);
-
-            db.ref("processed/"+txId).once("value").then(snap=>{
-                if(!snap.exists()){
-
-                    db.ref("processed/"+txId).set(true);
-
-                    ref.child("balance").transaction(b=>{
-                        return (b||0)+coins;
-                    });
-
-                    ref.child("transactions").push({
-                        type:"deposit",
-                        coins:coins,
-                        amount:amount,
-                        currency:currency,
-                        ref:txId,
-                        time:Date.now()
-                    });
-
-                    toast("Deposit successful");
-                    depositStatus.innerText="+"+coins+" coins added";
-
-                }
-
-                setTimeout(()=>{
-                    window.location.href="maining.html";
-                },1500);
-
-            });
-
-        },
-
-        onclose:function(){
-            toast("Payment closed");
-        }
-    });
+if(!txid){
+return toast("Payment failed");
 }
 
-/* CLICK */
-submitBtn.onclick=()=>{
+let userRef=db.ref("users/"+user.uid);
 
-    let user=firebase.auth().currentUser;
-    if(!user) return toast("Login again");
+db.ref("processed/"+txid).once("value").then(snap=>{
 
-    let amount=Number(depositInput.value);
+if(!snap.exists()){
 
-    let v=validate(amount);
-    if(!v.ok) return toast(v.msg);
+db.ref("processed/"+txid).set(true);
 
-    depositStatus.innerText="You get "+v.coins+" coins";
+userRef.child("balance").transaction(b=>{
+return (b||0)+coins;
+});
 
-    if(!flutterwaveKey) return toast("Payment key missing");
+userRef.child("transactions").push({
+type:"deposit",
+coins:coins,
+amount:amount,
+currency:currency,
+ref:txid,
+time:Date.now()
+});
 
-    pay(user,amount,v.coins);
+toast("Success!");
+
+setTimeout(()=>{
+window.location.href="main.html";
+},1500);
+
+}
+});
+
+},
+
+onclose:function(){
+toast("Payment cancelled");
+}
+});
+}
+
+/* click */
+document.getElementById("payBtn").onclick=()=>{
+
+let user=firebase.auth().currentUser;
+if(!user) return toast("Login required");
+
+let amount=Number(document.getElementById("depositAmount").value);
+
+let v=validate(amount);
+if(!v.ok) return toast(v.msg);
+
+if(!flutterwaveKey) return toast("Payment key not loaded");
+
+pay(user,amount,v.coins);
 };
 
-/* INIT */
-detectCountry();
+detect();
 </script>
 
 </body>
