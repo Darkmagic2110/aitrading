@@ -3,77 +3,156 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>KEY GENERATOR - DARK MAGIC AI</title>
+<title>Generate Key - DARK MAGIC AI</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
 <style>
+
 body{
 margin:0;
+padding:18px;
 font-family:'Outfit',sans-serif;
 background:radial-gradient(circle at top,#1a0f2e,#000);
 color:#fff;
-padding:18px;
 }
+
+/* CONTAINER */
 
 .container{
 max-width:460px;
-margin:60px auto;
-background:rgba(20,20,20,.85);
+margin:auto;
+background:rgba(20,20,20,.9);
 padding:20px;
-border-radius:20px;
-border:1px solid rgba(255,255,255,.1);
+border-radius:24px;
+border:1px solid rgba(255,255,255,.08);
 backdrop-filter:blur(10px);
 }
 
+/* TITLE */
+
 h1{
 text-align:center;
-font-size:24px;
+font-size:28px;
+font-weight:800;
+margin-bottom:10px;
+background:linear-gradient(90deg,#fff,#aaa);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
 }
 
-input,select,button{
+.sub{
+text-align:center;
+font-size:13px;
+color:#aaa;
+margin-bottom:20px;
+}
+
+/* BALANCE */
+
+.balanceBox{
+background:rgba(255,255,255,.04);
+padding:14px;
+border-radius:16px;
+text-align:center;
+margin-bottom:16px;
+border:1px solid rgba(255,255,255,.06);
+}
+
+.balanceBox h2{
+margin:8px 0 0;
+color:#ffd700;
+}
+
+/* INPUT */
+
+input{
 width:100%;
 padding:14px;
 margin-top:12px;
-border-radius:12px;
 border:none;
 outline:none;
+border-radius:16px;
+background:rgba(255,255,255,.05);
+color:#fff;
+font-family:'Outfit',sans-serif;
+box-sizing:border-box;
+border:1px solid rgba(255,255,255,.08);
+}
+
+/* BUTTON */
+
+button{
+width:100%;
+padding:15px;
+margin-top:16px;
+border:none;
+border-radius:16px;
+background:linear-gradient(135deg,#ff006a,#7b61ff);
+color:#fff;
+font-size:15px;
+font-weight:700;
+cursor:pointer;
 font-family:'Outfit',sans-serif;
 }
 
-input,select{
-background:rgba(255,255,255,.05);
-color:#fff;
-border:1px solid rgba(255,255,255,.1);
+button:active{
+transform:scale(.98);
 }
 
-button{
-background:linear-gradient(135deg,#ff006a,#7b61ff);
-color:#fff;
-font-weight:700;
-cursor:pointer;
-}
+/* INFO */
 
-#info{
-margin-top:10px;
+.infoBox{
+margin-top:14px;
+background:rgba(255,255,255,.03);
+padding:14px;
+border-radius:16px;
 font-size:13px;
-color:#aaa;
+border:1px solid rgba(255,255,255,.06);
 }
 
-#keyBox{
-margin-top:15px;
-padding:12px;
-background:rgba(255,255,255,.05);
-border-radius:12px;
-border:1px solid rgba(255,255,255,.1);
+/* KEYS */
+
+.keyList{
+margin-top:18px;
+}
+
+.keyCard{
+background:rgba(255,255,255,.03);
+padding:14px;
+border-radius:16px;
+margin-top:12px;
+border:1px solid rgba(255,255,255,.06);
 word-break:break-all;
 }
 
-.small{
-font-size:12px;
-color:#bbb;
-margin-top:5px;
+.keyText{
+font-size:15px;
+font-weight:700;
+color:#00ff84;
 }
+
+.active{
+color:#00ff84;
+font-weight:700;
+}
+
+.expired{
+color:#ff3355;
+font-weight:700;
+}
+
+.copyBtn{
+margin-top:10px;
+padding:10px;
+border:none;
+border-radius:12px;
+background:#222;
+color:#fff;
+cursor:pointer;
+font-family:'Outfit',sans-serif;
+}
+
 </style>
 </head>
 
@@ -81,98 +160,381 @@ margin-top:5px;
 
 <div class="container">
 
-<h1>🔑 KEY GENERATOR</h1>
+<h1>🔑 GENERATE KEY</h1>
 
-<input id="coinInput" type="number" placeholder="Enter coins to spend (min 10)">
+<p class="sub">
+10 Coins = 5 Minutes Access
+</p>
 
-<select id="duration">
-<option value="5">10 Coins = 5 Minutes</option>
-<option value="10">20 Coins = 10 Minutes</option>
-<option value="30">60 Coins = 30 Minutes</option>
-</select>
+<div class="balanceBox">
+DM COINS
+<h2 id="balance">0</h2>
+</div>
 
-<button onclick="generateKey()">GENERATE KEY</button>
+<input
+type="number"
+id="coinAmount"
+placeholder="Enter Coins To Use"
+/>
 
-<div id="info">Key will be linked to your email and deducted from balance</div>
+<div class="infoBox">
 
-<div id="keyBox" style="display:none;"></div>
+<p>
+⏳ Expiry Time:
+<span id="expiryPreview">
+0 Minutes
+</span>
+</p>
+
+<p>
+💰 Minimum Coins:
+10
+</p>
 
 </div>
 
+<button onclick="generateKey()">
+GENERATE ACCESS KEY
+</button>
+
+<div class="keyList">
+
+<h3>📜 Your Generated Keys</h3>
+
+<div id="keysContainer"></div>
+
+</div>
+
+</div>
+
+<!-- FIREBASE -->
+
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
 
-const firebaseConfig={
-apiKey:"AIzaSyDvFDByPPo9zgwKLdPaREz1OVMQCXmPfrs",
-authDomain:"bets-d795d.firebaseapp.com",
-databaseURL:"https://bets-d795d-default-rtdb.firebaseio.com"
+/* FIREBASE CONFIG */
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyDvFDByPPo9zgwKLdPaREz1OVMQCXmPfrs",
+
+authDomain: "bets-d795d.firebaseapp.com",
+
+projectId: "bets-d795d",
+
+storageBucket: "bets-d795d.appspot.com",
+
+messagingSenderId: "384386108287",
+
+appId: "1:384386108287:android:d238a5ec8068d9bb9be84a",
+
+databaseURL: "https://bets-d795d-default-rtdb.firebaseio.com"
+
 };
 
 firebase.initializeApp(firebaseConfig);
 
 const db=firebase.database();
 
-let user=null;
+let currentUser=null;
+
+let currentBalance=0;
 
 /* AUTH */
-firebase.auth().onAuthStateChanged(u=>{
-if(!u){
-location.href="login.html";
+
+firebase.auth().onAuthStateChanged(user=>{
+
+if(!user){
+
+window.location.href="login.html";
+
 return;
+
 }
-user=u;
+
+currentUser=user;
+
+loadBalance();
+
+loadUserKeys();
+
+});
+
+/* LOAD BALANCE */
+
+function loadBalance(){
+
+db.ref("users/"+currentUser.uid+"/balance")
+
+.on("value",snap=>{
+
+currentBalance=snap.val() || 0;
+
+document.getElementById("balance").innerText=
+Math.floor(currentBalance);
+
+});
+
+}
+
+/* LIVE EXPIRY PREVIEW */
+
+document.getElementById("coinAmount")
+
+.addEventListener("input",()=>{
+
+const coins=parseInt(
+document.getElementById("coinAmount").value
+) || 0;
+
+/*
+10 COINS = 5 MINS
+
+1 coin = 30 seconds
+*/
+
+const minutes=(coins*30)/60;
+
+document.getElementById("expiryPreview").innerText=
+
+minutes+" Minutes";
+
 });
 
 /* RANDOM KEY */
-function makeKey(){
-return "DM-" + Math.random().toString(36).substr(2,8).toUpperCase();
+
+function randomKey(){
+
+const chars=
+"ABCDEFGHJKLMNPQRSTUVWXYZ123456789";
+
+let key="DM-";
+
+for(let i=0;i<16;i++){
+
+key+=chars.charAt(
+Math.floor(Math.random()*chars.length)
+);
+
 }
 
-/* GENERATE */
+return key;
+
+}
+
+/* GENERATE KEY */
+
 function generateKey(){
 
-let coins=parseInt(document.getElementById("coinInput").value);
-let mins=parseInt(document.getElementById("duration").value);
+const coins=parseInt(
+document.getElementById("coinAmount").value
+);
 
-if(!coins || coins < 10){
-alert("Minimum 10 coins required");
+if(isNaN(coins) || coins < 10){
+
+alert("Minimum 10 Coins Required");
+
 return;
+
 }
 
-/* balance check */
-db.ref("users/"+user.uid+"/balance").once("value",snap=>{
-let bal=snap.val()||0;
+if(coins > currentBalance){
 
-if(bal < coins){
-alert("Insufficient balance");
+alert("Insufficient Balance");
+
 return;
+
 }
 
-/* deduct coins */
-let newBal = bal - coins;
+/*
+10 coins = 5 mins
 
-db.ref("users/"+user.uid+"/balance").set(newBal);
+1 coin = 30 seconds
+*/
 
-/* create key */
-let key = makeKey();
+const duration=coins*30;
 
-db.ref("keys/"+key).set({
-email:user.email,
-expires:Date.now() + mins*60000,
+const key=randomKey();
+
+const expireTime=
+Date.now()+(duration*1000);
+
+/* DEDUCT BALANCE */
+
+db.ref("users/"+currentUser.uid+"/balance")
+
+.set(currentBalance - coins)
+
+/* SAVE KEY */
+
+.then(()=>{
+
+const keyData={
+
+key:key,
+
+uid:currentUser.uid,
+
+email:currentUser.email,
+
+coins:coins,
+
+duration:duration,
+
 createdAt:Date.now(),
-coins:coins
+
+expireTime:expireTime,
+
+status:"active"
+
+};
+
+return db.ref("keys/"+key).set(keyData);
+
+})
+
+.then(()=>{
+
+return db.ref(
+"userKeys/"+currentUser.uid+"/"+key
+).set(true);
+
+})
+
+.then(()=>{
+
+alert("Key Generated Successfully");
+
+document.getElementById("coinAmount").value="";
+
+document.getElementById("expiryPreview").innerText=
+"0 Minutes";
+
+loadUserKeys();
+
 });
 
-/* show key */
-document.getElementById("keyBox").style.display="block";
-document.getElementById("keyBox").innerHTML=`
-<b>YOUR KEY:</b><br>${key}
-<br><div class="small">Valid for ${mins} minutes</div>
-`;
+}
+
+/* LOAD USER KEYS */
+
+function loadUserKeys(){
+
+db.ref("userKeys/"+currentUser.uid)
+
+.on("value",snap=>{
+
+const container=
+document.getElementById("keysContainer");
+
+container.innerHTML="";
+
+if(!snap.exists()){
+
+container.innerHTML=
+"<p>No Generated Keys</p>";
+
+return;
+
+}
+
+const data=snap.val();
+
+Object.keys(data).reverse().forEach(key=>{
+
+loadSingleKey(key);
+
 });
+
+});
+
+}
+
+/* LOAD SINGLE KEY */
+
+function loadSingleKey(key){
+
+db.ref("keys/"+key).once("value")
+
+.then(snap=>{
+
+if(!snap.exists())return;
+
+const data=snap.val();
+
+const now=Date.now();
+
+const expired=now >= data.expireTime;
+
+const div=document.createElement("div");
+
+div.className="keyCard";
+
+const status=expired
+
+? "<span class='expired'>EXPIRED</span>"
+
+: "<span class='active'>ACTIVE</span>";
+
+const mins=Math.floor(data.duration/60);
+
+div.innerHTML=`
+
+<div class="keyText">
+${key}
+</div>
+
+<br>
+
+Status:
+${status}
+
+<br><br>
+
+⏳ Duration:
+${mins} Minutes
+
+<br><br>
+
+💰 Coins Used:
+${data.coins}
+
+<br><br>
+
+📧 Email:
+${data.email}
+
+<br><br>
+
+<button class="copyBtn"
+onclick="copyKey('${key}')">
+
+COPY KEY
+
+</button>
+
+`;
+
+document.getElementById("keysContainer")
+
+appendChild(div);
+
+});
+
+}
+
+/* COPY KEY */
+
+function copyKey(key){
+
+navigator.clipboard.writeText(key);
+
+alert("Key Copied");
 
 }
 
