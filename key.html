@@ -153,6 +153,12 @@ cursor:pointer;
 font-family:'Outfit',sans-serif;
 }
 
+.empty{
+text-align:center;
+color:#999;
+margin-top:20px;
+}
+
 </style>
 </head>
 
@@ -188,7 +194,7 @@ placeholder="Enter Coins To Use"
 
 <p>
 💰 Minimum Coins:
-10
+10 Coins
 </p>
 
 </div>
@@ -294,7 +300,6 @@ document.getElementById("coinAmount").value
 
 /*
 10 COINS = 5 MINS
-
 1 coin = 30 seconds
 */
 
@@ -353,7 +358,6 @@ return;
 
 /*
 10 coins = 5 mins
-
 1 coin = 30 seconds
 */
 
@@ -410,12 +414,24 @@ return db.ref(
 
 alert("Key Generated Successfully");
 
+/* RESET INPUT */
+
 document.getElementById("coinAmount").value="";
 
 document.getElementById("expiryPreview").innerText=
 "0 Minutes";
 
+/* REFRESH KEYS */
+
+document.getElementById("keysContainer").innerHTML="";
+
 loadUserKeys();
+
+})
+
+.catch(error=>{
+
+alert(error.message);
 
 });
 
@@ -437,7 +453,7 @@ container.innerHTML="";
 if(!snap.exists()){
 
 container.innerHTML=
-"<p>No Generated Keys</p>";
+"<div class='empty'>No Generated Keys</div>";
 
 return;
 
@@ -445,7 +461,9 @@ return;
 
 const data=snap.val();
 
-Object.keys(data).reverse().forEach(key=>{
+const keys=Object.keys(data).reverse();
+
+keys.forEach(key=>{
 
 loadSingleKey(key);
 
@@ -521,8 +539,7 @@ COPY KEY
 `;
 
 document.getElementById("keysContainer")
-
-appendChild(div);
+.appendChild(div);
 
 });
 
@@ -532,9 +549,13 @@ appendChild(div);
 
 function copyKey(key){
 
-navigator.clipboard.writeText(key);
+navigator.clipboard.writeText(key)
+
+.then(()=>{
 
 alert("Key Copied");
+
+});
 
 }
 
