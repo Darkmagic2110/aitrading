@@ -3,64 +3,76 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>KEY GENERATOR</title>
+<title>KEY GENERATOR - DARK MAGIC AI</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 
 <style>
 body{
 margin:0;
-font-family:Arial;
-background:#0b0b1a;
+font-family:'Outfit',sans-serif;
+background:radial-gradient(circle at top,#1a0f2e,#000);
 color:#fff;
-padding:20px;
+padding:18px;
 }
 
 .container{
-max-width:450px;
-margin:auto;
-background:#15152b;
+max-width:460px;
+margin:60px auto;
+background:rgba(20,20,20,.85);
 padding:20px;
-border-radius:15px;
-border:1px solid #333;
+border-radius:20px;
+border:1px solid rgba(255,255,255,.1);
+backdrop-filter:blur(10px);
 }
 
-h2{text-align:center}
+h1{
+text-align:center;
+font-size:24px;
+}
 
-input,button{
+input,select,button{
 width:100%;
 padding:14px;
-margin-top:10px;
-border-radius:10px;
+margin-top:12px;
+border-radius:12px;
 border:none;
 outline:none;
-font-size:16px;
+font-family:'Outfit',sans-serif;
 }
 
-input{
-background:#222;
+input,select{
+background:rgba(255,255,255,.05);
 color:#fff;
+border:1px solid rgba(255,255,255,.1);
 }
 
 button{
 background:linear-gradient(135deg,#ff006a,#7b61ff);
 color:#fff;
-font-weight:bold;
+font-weight:700;
 cursor:pointer;
 }
 
-.box{
-margin-top:15px;
-padding:10px;
-background:#222;
-border-radius:10px;
-font-size:14px;
+#info{
+margin-top:10px;
+font-size:13px;
+color:#aaa;
 }
 
-.key{
-font-size:18px;
-font-weight:bold;
-color:#00ff84;
-text-align:center;
-margin-top:10px;
+#keyBox{
+margin-top:15px;
+padding:12px;
+background:rgba(255,255,255,.05);
+border-radius:12px;
+border:1px solid rgba(255,255,255,.1);
+word-break:break-all;
+}
+
+.small{
+font-size:12px;
+color:#bbb;
+margin-top:5px;
 }
 </style>
 </head>
@@ -68,21 +80,22 @@ margin-top:10px;
 <body>
 
 <div class="container">
-<h2>🔑 KEY GENERATOR</h2>
 
-<p>Enter coins to use (10 coins = 5 minutes)</p>
+<h1>🔑 KEY GENERATOR</h1>
 
-<input type="number" id="coinInput" placeholder="Enter coins e.g 10">
+<input id="coinInput" type="number" placeholder="Enter coins to spend (min 10)">
 
-<button onclick="generateKey()">Generate Key</button>
+<select id="duration">
+<option value="5">10 Coins = 5 Minutes</option>
+<option value="10">20 Coins = 10 Minutes</option>
+<option value="30">60 Coins = 30 Minutes</option>
+</select>
 
-<div class="box">
-<p>Balance: <span id="balance">0</span></p>
-<p>Duration: <span id="duration">--</span></p>
-<p>Expiry: <span id="expiry">--</span></p>
-</div>
+<button onclick="generateKey()">GENERATE KEY</button>
 
-<div class="key" id="keyBox">KEY: --</div>
+<div id="info">Key will be linked to your email and deducted from balance</div>
+
+<div id="keyBox" style="display:none;"></div>
 
 </div>
 
@@ -95,105 +108,71 @@ margin-top:10px;
 const firebaseConfig={
 apiKey:"AIzaSyDvFDByPPo9zgwKLdPaREz1OVMQCXmPfrs",
 authDomain:"bets-d795d.firebaseapp.com",
-databaseURL:"https://bets-d795d-default-rtdb.firebaseio.com",
-projectId:"bets-d795d",
-storageBucket:"bets-d795d.appspot.com",
-messagingSenderId:"384386108287",
-appId:"1:384386108287:android:d238a5ec8068d9bb9be84a"
+databaseURL:"https://bets-d795d-default-rtdb.firebaseio.com"
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const db=firebase.database();
 
-let userId=null;
+let user=null;
 
 /* AUTH */
-firebase.auth().onAuthStateChanged(user=>{
-if(!user){
-window.location.href="login.html";
+firebase.auth().onAuthStateChanged(u=>{
+if(!u){
+location.href="login.html";
 return;
 }
-userId=user.uid;
-loadBalance();
+user=u;
 });
 
-/* LOAD BALANCE */
-function loadBalance(){
-db.ref("users/"+userId+"/balance").on("value",snap=>{
-document.getElementById("balance").innerText=Math.floor(snap.val()||0);
-});
+/* RANDOM KEY */
+function makeKey(){
+return "DM-" + Math.random().toString(36).substr(2,8).toUpperCase();
 }
 
-/* GENERATE KEY */
+/* GENERATE */
 function generateKey(){
 
 let coins=parseInt(document.getElementById("coinInput").value);
+let mins=parseInt(document.getElementById("duration").value);
 
-if(!coins || coins<1){
-alert("Enter valid coins");
+if(!coins || coins < 10){
+alert("Minimum 10 coins required");
 return;
 }
 
-db.ref("users/"+userId+"/balance").once("value",snap=>{
-
+/* balance check */
+db.ref("users/"+user.uid+"/balance").once("value",snap=>{
 let bal=snap.val()||0;
 
-if(bal<coins){
+if(bal < coins){
 alert("Insufficient balance");
 return;
 }
 
-/* DEDUCT COINS */
-let newBal=bal-coins;
-db.ref("users/"+userId+"/balance").set(newBal);
+/* deduct coins */
+let newBal = bal - coins;
 
-/* TIME CALC */
-let seconds=coins*30; // 10 coins = 300 sec = 5 mins
+db.ref("users/"+user.uid+"/balance").set(newBal);
 
-let expiry=Date.now()+seconds*1000;
+/* create key */
+let key = makeKey();
 
-/* KEY */
-let key="DM-"+Math.random().toString(36).substring(2,8).toUpperCase();
-
-/* SAVE */
 db.ref("keys/"+key).set({
-uid:userId,
-coins:coins,
-expiry:expiry,
-active:true
+email:user.email,
+expires:Date.now() + mins*60000,
+createdAt:Date.now(),
+coins:coins
 });
 
-document.getElementById("keyBox").innerText="KEY: "+key;
-
-startCountdown(expiry);
+/* show key */
+document.getElementById("keyBox").style.display="block";
+document.getElementById("keyBox").innerHTML=`
+<b>YOUR KEY:</b><br>${key}
+<br><div class="small">Valid for ${mins} minutes</div>
+`;
 });
-
-}
-
-/* COUNTDOWN */
-function startCountdown(expiry){
-
-let x=setInterval(()=>{
-
-let now=Date.now();
-let diff=expiry-now;
-
-if(diff<=0){
-clearInterval(x);
-document.getElementById("expiry").innerText="EXPIRED";
-return;
-}
-
-let h=Math.floor(diff/3600000);
-let m=Math.floor((diff%3600000)/60000);
-let s=Math.floor((diff%60000)/1000);
-
-document.getElementById("expiry").innerText=
-String(h).padStart(2,'0')+":"+
-String(m).padStart(2,'0')+":"+
-String(s).padStart(2,'0');
-
-},1000);
 
 }
 
