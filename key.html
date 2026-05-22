@@ -155,7 +155,7 @@ margin-top:20px;
 <h1>🔑 GENERATE KEY</h1>
 
 <p class="sub">
-10 Coins = 5 Minutes Access
+10 Coins = 5 Minutes 30 Seconds Access
 </p>
 
 <div class="balanceBox">
@@ -174,7 +174,7 @@ placeholder="Enter Coins To Use"
 <p>
 ⏳ Expiry Time:
 <span id="expiryPreview">
-0 Minutes
+0m 0s
 </span>
 </p>
 
@@ -285,15 +285,19 @@ document.getElementById("coinAmount").value
 ) || 0;
 
 /*
-10 COINS = 5 MINS
-1 coin = 30 seconds
+10 COINS = 5 MIN 30 SEC
+1 coin = 33 seconds
 */
 
-const minutes=(coins*30)/60;
+const totalSeconds=coins*33;
+
+const mins=Math.floor(totalSeconds/60);
+
+const secs=totalSeconds%60;
 
 document.getElementById("expiryPreview").innerText=
 
-minutes+" Minutes";
+mins+"m "+secs+"s";
 
 });
 
@@ -343,11 +347,11 @@ return;
 }
 
 /*
-10 coins = 5 mins
-1 coin = 30 seconds
+10 coins = 5 mins 30 secs
+1 coin = 33 seconds
 */
 
-const duration=coins*30;
+const duration=coins*33;
 
 const key=randomKey();
 
@@ -398,7 +402,7 @@ alert("Key Generated Successfully");
 document.getElementById("coinAmount").value="";
 
 document.getElementById("expiryPreview").innerText=
-"0 Minutes";
+"0m 0s";
 
 document.getElementById("keysContainer").innerHTML="";
 
@@ -438,11 +442,77 @@ return;
 
 const data=snap.val();
 
-const keys=Object.keys(data).reverse();
+const keys=Object.keys(data);
 
-keys.forEach(key=>{
+Promise.all(
 
-loadSingleKey(key);
+keys.map(key=>{
+
+return db.ref("keys/"+key).once("value");
+
+})
+
+)
+
+.then(results=>{
+
+let activeKeys=[];
+
+let expiredKeys=[];
+
+results.forEach(result=>{
+
+if(!result.exists())return;
+
+const keyData=result.val();
+
+const remaining=
+Number(keyData.remainingTime);
+
+const expired=
+
+isNaN(remaining)
+||
+remaining<=0;
+
+if(expired){
+
+expiredKeys.push(keyData);
+
+}else{
+
+activeKeys.push(keyData);
+
+}
+
+});
+
+/* ACTIVE FIRST */
+
+activeKeys.sort((a,b)=>{
+
+return b.createdAt-a.createdAt;
+
+});
+
+/* EXPIRED BELOW */
+
+expiredKeys.sort((a,b)=>{
+
+return b.createdAt-a.createdAt;
+
+});
+
+const finalKeys=[
+...activeKeys,
+...expiredKeys
+];
+
+finalKeys.forEach(keyData=>{
+
+renderKey(keyData);
+
+});
 
 });
 
@@ -450,17 +520,27 @@ loadSingleKey(key);
 
 }
 
-/* LOAD SINGLE KEY */
+/* RENDER KEY */
 
-function loadSingleKey(key){
+function renderKey(data){
 
-db.ref("keys/"+key).on("value",snap=>{
+const container=
+document.getElementById("keysContainer");
 
-if(!snap.exists())return;
+const remaining=
+Number(data.remainingTime);
 
-const data=snap.val();
+const expired=
 
-const expired=data.remainingTime <= 0;
+isNaN(remaining)
+||
+remaining<=0;
+
+if(expired){
+
+data.status="expired";
+
+}
 
 const div=document.createElement("div");
 
@@ -472,14 +552,22 @@ const status=expired
 
 : "<span class='active'>ACTIVE</span>";
 
-const mins=Math.floor(data.remainingTime/60);
+let mins=0;
 
-const secs=data.remainingTime%60;
+let secs=0;
+
+if(!expired){
+
+mins=Math.floor(remaining/60);
+
+secs=remaining%60;
+
+}
 
 div.innerHTML=`
 
 <div class="keyText">
-${key}
+${data.key}
 </div>
 
 <br>
@@ -490,7 +578,7 @@ ${status}
 <br><br>
 
 ⏳ Time Left:
-${mins}m ${secs}s
+${expired ? "0m 0s" : mins+"m "+secs+"s"}
 
 <br><br>
 
@@ -505,7 +593,7 @@ ${data.email}
 <br><br>
 
 <button class="copyBtn"
-onclick="copyKey('${key}')">
+onclick="copyKey('${data.key}')">
 
 COPY KEY
 
@@ -513,23 +601,7 @@ COPY KEY
 
 `;
 
-const container=
-document.getElementById("keysContainer");
-
-const oldCard=
-document.getElementById(key);
-
-if(oldCard){
-
-oldCard.remove();
-
-}
-
-div.id=key;
-
 container.appendChild(div);
-
-});
 
 }
 
