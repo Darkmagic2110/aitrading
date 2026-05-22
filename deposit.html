@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>DARK MAGIC AI</title>
+<title>Deposit - DARK MAGIC AI</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 
@@ -11,176 +11,43 @@
 
 body{
 margin:0;
+padding:20px;
 font-family:'Outfit',sans-serif;
 background:radial-gradient(circle at top,#1a0f2e,#000);
 color:#fff;
-padding:18px;
-overflow-y:auto;
 }
-
-/* BALANCE PANEL */
-
-#balanceContainer{
-position:fixed;
-top:12px;
-right:12px;
-background:rgba(20,20,20,.95);
-padding:8px 14px;
-border-radius:20px;
-display:flex;
-align-items:center;
-gap:8px;
-z-index:9999;
-border:1px solid rgba(255,215,0,.25);
-box-shadow:0 0 18px rgba(255,215,0,.25);
-backdrop-filter:blur(10px);
-}
-
-#coinEmoji{
-font-size:20px;
-}
-
-#balanceAmount{
-font-size:15px;
-font-weight:700;
-color:#ffd700;
-}
-
-#dmText{
-font-size:13px;
-color:#fff;
-opacity:.9;
-}
-
-#addBalanceBtn{
-width:28px;
-height:28px;
-border-radius:50%;
-border:none;
-background:linear-gradient(135deg,#ffd700,#ff9900);
-color:#000;
-font-size:18px;
-font-weight:800;
-cursor:pointer;
-transition:.2s;
-}
-
-#addBalanceBtn:active{
-transform:scale(.95);
-}
-
-/* MENU */
-
-#menuBtn{
-position:fixed;
-top:70px;
-right:12px;
-width:52px;
-height:52px;
-border-radius:16px;
-background:rgba(20,20,20,.95);
-display:flex;
-justify-content:center;
-align-items:center;
-font-size:28px;
-cursor:pointer;
-z-index:999999;
-border:1px solid rgba(255,255,255,.08);
-box-shadow:0 0 18px rgba(0,0,0,.4);
-}
-
-#sidebar{
-position:fixed;
-top:0;
-right:-280px;
-width:260px;
-height:100%;
-background:#111;
-z-index:9999999;
-transition:.35s;
-padding:20px;
-box-sizing:border-box;
-border-left:1px solid rgba(255,255,255,.08);
-}
-
-#sidebar.active{
-right:0;
-}
-
-#closeSidebar{
-position:absolute;
-top:18px;
-right:18px;
-font-size:28px;
-cursor:pointer;
-width:40px;
-height:40px;
-display:flex;
-justify-content:center;
-align-items:center;
-border-radius:12px;
-background:rgba(255,255,255,.08);
-}
-
-#sidebar h2{
-margin-top:70px;
-font-size:24px;
-}
-
-.sideBtn{
-width:100%;
-padding:14px;
-margin-top:14px;
-border:none;
-border-radius:14px;
-background:linear-gradient(135deg,#7b61ff,#ff006a);
-color:#fff;
-font-weight:700;
-cursor:pointer;
-font-family:'Outfit',sans-serif;
-}
-
-/* MAIN */
 
 .container{
-max-width:460px;
-margin:auto;
-margin-top:60px;
-background:rgba(20,20,20,.85);
-border-radius:24px;
+max-width:450px;
+margin:50px auto;
+background:rgba(20,20,20,.88);
 padding:20px;
+border-radius:24px;
 border:1px solid rgba(255,255,255,.08);
 backdrop-filter:blur(10px);
 }
 
 h1{
 text-align:center;
-font-size:26px;
+font-size:28px;
 font-weight:800;
-background:linear-gradient(90deg,#fff,#aaa);
+margin-bottom:20px;
+background:linear-gradient(90deg,#fff,#999);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
 
-.sub{
-text-align:center;
-font-size:13px;
-color:#aaa;
-margin-top:8px;
-}
-
-select,button,input{
+input,button{
 width:100%;
-margin-top:12px;
 padding:14px;
-border-radius:16px;
+margin-top:14px;
 border:none;
 outline:none;
+border-radius:14px;
 font-family:'Outfit',sans-serif;
-box-sizing:border-box;
 }
 
-select,input{
+input{
 background:rgba(255,255,255,.05);
 color:#fff;
 border:1px solid rgba(255,255,255,.1);
@@ -190,117 +57,29 @@ button{
 background:linear-gradient(135deg,#ff006a,#7b61ff);
 color:#fff;
 font-weight:700;
-cursor:pointer;
 font-size:15px;
-transition:.2s;
+cursor:pointer;
 }
 
-button:active{
-transform:scale(.98);
-}
-
-#keyTimer{
-margin-top:10px;
-text-align:center;
-font-size:14px;
-font-weight:700;
-color:#00ff84;
-}
-
-/* SIGNAL CIRCLE */
-
-.circle{
-width:220px;
-height:220px;
-margin:20px auto;
-border-radius:50%;
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-font-size:38px;
-font-weight:800;
-border:4px solid #444;
-text-align:center;
-transition:.4s;
-}
-
-.buy{
-color:#00ff84;
-border-color:#00ff84;
-box-shadow:0 0 50px #00ff84;
-}
-
-.sell{
-color:#ff3355;
-border-color:#ff3355;
-box-shadow:0 0 50px #ff3355;
-}
-
-.hold{
-color:#ffcc00;
-border-color:#ffcc00;
-box-shadow:0 0 35px #ffcc00;
-}
-
-.box,.signalBox,.history{
-margin-top:14px;
-background:rgba(255,255,255,.03);
-padding:14px;
-border-radius:16px;
-border:1px solid rgba(255,255,255,.06);
+#status{
+margin-top:15px;
 font-size:13px;
-}
-
-.stats{
-display:grid;
-grid-template-columns:1fr 1fr 1fr;
-gap:10px;
-margin-top:14px;
+color:#aaa;
+text-align:center;
 }
 
 .card{
-background:rgba(255,255,255,.03);
-padding:12px;
+margin-top:18px;
+padding:14px;
 border-radius:16px;
-text-align:center;
-border:1px solid rgba(255,255,255,.06);
+background:rgba(255,255,255,.03);
+border:1px solid rgba(255,255,255,.08);
 }
 
-.card h2{
-margin:6px 0 0;
-font-size:24px;
-}
-
-.win{
-color:#00ff84;
-}
-
-.loss{
-color:#ff3355;
-}
-
-.historyItem{
-padding:10px;
-border-bottom:1px solid rgba(255,255,255,.06);
+.small{
 font-size:12px;
-}
-
-.badge{
-padding:4px 8px;
-border-radius:8px;
-font-size:11px;
-font-weight:700;
-}
-
-.buyBadge{
-background:#003d22;
-color:#00ff84;
-}
-
-.sellBadge{
-background:#3d0012;
-color:#ff3355;
+color:#aaa;
+margin-top:6px;
 }
 
 </style>
@@ -308,995 +87,117 @@ color:#ff3355;
 
 <body>
 
-<!-- BALANCE -->
-
-<div id="balanceContainer">
-<span id="coinEmoji">🪙</span>
-<span id="balanceAmount">0</span>
-<span id="dmText">DM COINS</span>
-<button id="addBalanceBtn">+</button>
-</div>
-
-<!-- MENU -->
-
-<div id="menuBtn">☰</div>
-
-<div id="sidebar">
-
-<div id="closeSidebar">✕</div>
-
-<h2>⚡ MENU</h2>
-
-<button class="sideBtn"
-onclick="window.location.href='deposit.html'">
-Deposit
-</button>
-
-<button class="sideBtn"
-onclick="openSupport()">
-Customer Support
-</button>
-
-<button class="sideBtn"
-onclick="window.location.href='key.html'">
-Get Key
-</button>
-
-<button class="sideBtn"
-onclick="window.location.href='help.html'">
-Help
-</button>
-
-</div>
-
-<!-- MAIN -->
-
 <div class="container">
 
-<h1>⚡ DARK MAGIC AI</h1>
+<h1>💳 Deposit Coins</h1>
 
-<p class="sub">
-Continuous Trend Signal Engine 📊
-</p>
+<input type="number" id="amount" placeholder="Enter amount">
 
-<select id="pair">
-<option value="frxEURUSD">EUR/USD</option>
-<option value="frxGBPUSD">GBP/USD</option>
-<option value="frxUSDJPY">USD/JPY</option>
-<option value="frxAUDUSD">AUD/USD</option>
-<option value="frxEURJPY">EUR/JPY</option>
-<option value="frxUSDCHF">USD/CHF</option>
-</select>
+<button onclick="payNow()">DEPOSIT NOW</button>
 
-<input
-type="text"
-id="keyInput"
-placeholder="Enter Your Access Key"
-/>
-
-<div id="keyTimer">
-Key Time Left: --:--:--
-</div>
-
-<button onclick="validateAndStart()">
-▶ START BOT
-</button>
-
-<div id="circle" class="circle hold">
-<div>WAIT</div>
-<div style="font-size:14px">EXP: --</div>
-</div>
-
-<div class="box">
-
-<p>💰 Price: <span id="price">--</span></p>
-
-<p>📊 RSI: <span id="rsi">--</span></p>
-
-<p>📈 EMA FAST: <span id="emaFast">--</span></p>
-
-<p>📉 EMA SLOW: <span id="emaSlow">--</span></p>
-
-<p>⚡ MACD: <span id="macd">--</span></p>
-
-<p>🔥 Strength: <span id="strength">--</span></p>
-
-<p>📈 Trend: <span id="trend">--</span></p>
-
-</div>
-
-<div class="signalBox">
-
-<p>📡 Signal: <span id="sig">WAIT</span></p>
-
-<p>⏳ Countdown: <span id="countdown">--</span></p>
-
-<p>🎯 Result: <span id="result">--</span></p>
-
-</div>
-
-<div class="stats">
+<div id="status">Secure payment system</div>
 
 <div class="card">
-Signals
-<h2 id="total">0</h2>
+1 Coin = ₦1
+<div class="small">
+Minimum deposit recommended: ₦100
 </div>
-
-<div class="card">
-Wins
-<h2 id="wins" class="win">0</h2>
-</div>
-
-<div class="card">
-Loss
-<h2 id="losses" class="loss">0</h2>
 </div>
 
 </div>
-
-<div class="history">
-
-<h3>📜 Signal History</h3>
-
-<div id="history"></div>
-
-</div>
-
-</div>
-
-<!-- FIREBASE -->
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://js.paystack.co/v1/inline.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
 
-/* FIREBASE CONFIG */
-
-const firebaseConfig = {
-
-apiKey: "AIzaSyDvFDByPPo9zgwKLdPaREz1OVMQCXmPfrs",
-
-authDomain: "bets-d795d.firebaseapp.com",
-
-projectId: "bets-d795d",
-
-storageBucket: "bets-d795d.appspot.com",
-
-messagingSenderId: "384386108287",
-
-appId: "1:384386108287:android:d238a5ec8068d9bb9be84a",
-
-databaseURL: "https://bets-d795d-default-rtdb.firebaseio.com"
-
+const firebaseConfig={
+apiKey:"AIzaSyDvFDByPPo9zgwKLdPaREz1OVMQCXmPfrs",
+authDomain:"bets-d795d.firebaseapp.com",
+databaseURL:"https://bets-d795d-default-rtdb.firebaseio.com"
 };
 
 firebase.initializeApp(firebaseConfig);
 
-const db = firebase.database();
+const db=firebase.database();
 
-/* BALANCE */
-
-const balanceDisplay=document.getElementById("balanceAmount");
-
-document.getElementById("addBalanceBtn").onclick=()=>{
-
-window.location.href="deposit.html";
-
-};
-
-/* MENU */
-
-const menuBtn=document.getElementById("menuBtn");
-
-const sidebar=document.getElementById("sidebar");
-
-const closeSidebar=document.getElementById("closeSidebar");
-
-menuBtn.onclick=()=>{
-
-sidebar.classList.add("active");
-
-};
-
-closeSidebar.onclick=()=>{
-
-sidebar.classList.remove("active");
-
-};
-
-/* RANDOM TELEGRAM SUPPORT */
-
-function openSupport(){
-
-const links=[
-
-"https://t.me/dark_maggik",
-
-"https://t.me/dark_magiks"
-
-];
-
-const randomLink=
-links[Math.floor(Math.random()*links.length)];
-
-window.location.href=randomLink;
-
-}
-
-/* AUTH */
+let currentUser=null;
 
 firebase.auth().onAuthStateChanged(user=>{
 
 if(!user){
-
 window.location.href="login.html";
-
 return;
-
 }
 
-listenBalance(user.uid);
+currentUser=user;
 
 });
 
-/* LIVE BALANCE */
+/* PAYMENT */
 
-function listenBalance(uid){
+function payNow(){
 
-db.ref("users/"+uid+"/balance").on("value",snap=>{
+let amount=parseInt(document.getElementById("amount").value);
 
-balanceDisplay.innerText=
-
-snap.val()!=null
-
-? Math.floor(snap.val())
-
-: 0;
-
-});
-
-}
-
-/* KEY SYSTEM */
-
-let keyActive=false;
-
-let keyInterval=null;
-
-let activeKey="";
-
-let remainingKeySeconds=0;
-
-/* VALIDATE KEY */
-
-function validateAndStart(){
-
-const user=firebase.auth().currentUser;
-
-if(!user){
-
-alert("Login Required");
-
+if(!amount || amount < 1){
+alert("Enter valid amount");
 return;
-
 }
 
-const enteredKey=
-document.getElementById("keyInput").value.trim();
-
-if(enteredKey===""){
-
-alert("Enter Access Key");
-
+if(!currentUser){
+alert("User not logged in");
 return;
-
 }
 
-db.ref("keys/"+enteredKey).once("value")
+let handler=PaystackPop.setup({
 
-.then(snap=>{
+key:"YOUR_PAYSTACK_PUBLIC_KEY",
 
-if(!snap.exists()){
+email:currentUser.email,
 
-alert("Invalid Key");
+amount:amount*100,
 
-return;
+currency:"NGN",
 
-}
+ref:"DM"+Date.now(),
 
-const keyData=snap.val();
+callback:function(response){
 
-if(keyData.email !== user.email){
+addBalance(amount);
 
-alert("This Key Is Not Linked To Your Email");
+},
 
-return;
+onClose:function(){
 
-}
-
-if(keyData.remainingSeconds == null){
-
-keyData.remainingSeconds=
-keyData.duration;
-
-db.ref("keys/"+enteredKey).update({
-
-remainingSeconds:keyData.duration
-
-});
-
-}
-
-if(keyData.remainingSeconds <= 0){
-
-alert("Key Expired");
-
-return;
-
-}
-
-activeKey=enteredKey;
-
-remainingKeySeconds=
-keyData.remainingSeconds;
-
-keyActive=true;
-
-localStorage.setItem(
-"activeKey",
-enteredKey
-);
-
-document.getElementById("keyInput").value=
-enteredKey;
-
-startKeyCountdown();
-
-start();
-
-});
-
-}
-
-/* KEY COUNTDOWN */
-
-function startKeyCountdown(){
-
-clearInterval(keyInterval);
-
-keyInterval=setInterval(()=>{
-
-if(!keyActive)return;
-
-remainingKeySeconds--;
-
-db.ref("keys/"+activeKey).update({
-
-remainingSeconds:remainingKeySeconds
-
-});
-
-if(remainingKeySeconds <= 0){
-
-clearInterval(keyInterval);
-
-document.getElementById("keyTimer").innerText=
-"Key Expired";
-
-db.ref("keys/"+activeKey).update({
-
-status:"expired",
-
-remainingSeconds:0
-
-});
-
-stopBot();
-
-alert("Your Key Has Expired");
-
-return;
-
-}
-
-let hrs=Math.floor(
-remainingKeySeconds/3600
-);
-
-let mins=Math.floor(
-(remainingKeySeconds%3600)/60
-);
-
-let secs=remainingKeySeconds%60;
-
-document.getElementById("keyTimer").innerText=
-
-`Key Time Left: ${
-
-String(hrs).padStart(2,"0")
-
-}:${
-
-String(mins).padStart(2,"0")
-
-}:${
-
-String(secs).padStart(2,"0")
-
-}`;
-
-},1000);
-
-}
-
-/* STOP BOT */
-
-function stopBot(){
-
-keyActive=false;
-
-clearInterval(keyInterval);
-
-if(ws){
-
-ws.close();
-
-}
-
-document.getElementById("sig").innerText=
-"BOT STOPPED";
-
-updateCircle("WAIT");
-
-}
-
-/* PAUSE TIMER WHEN USER LEAVES */
-
-document.addEventListener("visibilitychange",()=>{
-
-if(document.hidden){
-
-clearInterval(keyInterval);
-
-}
-
-else{
-
-if(keyActive){
-
-startKeyCountdown();
-
-}
+document.getElementById("status").innerText="Payment cancelled";
 
 }
 
 });
 
-/* RESTORE SAVED KEY */
-
-window.onload=()=>{
-
-const savedKey=
-localStorage.getItem("activeKey");
-
-if(savedKey){
-
-document.getElementById("keyInput").value=
-savedKey;
+handler.openIframe();
 
 }
 
-};
+/* ADD BALANCE */
 
-/* TRADING BOT */
+function addBalance(amount){
 
-let ws;
+db.ref("users/"+currentUser.uid+"/balance").once("value").then(snap=>{
 
-let prices=[];
+let currentBalance=snap.val()||0;
 
-let wins=0;
+let newBalance=currentBalance+amount;
 
-let losses=0;
+db.ref("users/"+currentUser.uid+"/balance").set(newBalance);
 
-let total=0;
+document.getElementById("status").innerText=
+"Deposit successful. "+amount+" coins added.";
 
-let lastSignal="WAIT";
-
-let lock=false;
-
-/* RSI */
-
-function RSI(data,period=14){
-
-if(data.length<period+1)return 50;
-
-let gains=0;
-
-let losses=0;
-
-for(let i=data.length-period;i<data.length;i++){
-
-let diff=data[i]-data[i-1];
-
-if(diff>0){
-
-gains+=diff;
-
-}else{
-
-losses+=Math.abs(diff);
-
-}
-
-}
-
-if(losses===0)return 100;
-
-let rs=(gains/period)/(losses/period);
-
-return 100-(100/(1+rs));
-
-}
-
-/* EMA */
-
-function EMA(data,period){
-
-let k=2/(period+1);
-
-let ema=data[0];
-
-for(let i=1;i<data.length;i++){
-
-ema=data[i]*k+ema*(1-k);
-
-}
-
-return ema;
-
-}
-
-/* MACD */
-
-function MACD(data){
-
-let fast=EMA(data,12);
-
-let slow=EMA(data,26);
-
-return fast-slow;
-
-}
-
-/* MOMENTUM */
-
-function momentum(data){
-
-if(data.length<10)return 0;
-
-return data[data.length-1]-data[data.length-8];
-
-}
-
-/* VOLATILITY */
-
-function volatility(data){
-
-if(data.length<15)return 0;
-
-let recent=data.slice(-15);
-
-let max=Math.max(...recent);
-
-let min=Math.min(...recent);
-
-return max-min;
-
-}
-
-/* TREND STRENGTH */
-
-function trendStrength(price,fastEMA,slowEMA,rsi,macd,mom){
-
-let score=0;
-
-if(fastEMA>slowEMA){
-
-score+=3;
-
-}else{
-
-score-=3;
-
-}
-
-if(rsi<30){
-
-score+=2;
-
-}
-
-if(rsi>70){
-
-score-=2;
-
-}
-
-if(macd>0){
-
-score+=2;
-
-}else{
-
-score-=2;
-
-}
-
-if(mom>0){
-
-score+=1;
-
-}else{
-
-score-=1;
-
-}
-
-return score;
-
-}
-
-/* UI CIRCLE */
-
-function updateCircle(signal){
-
-let c=document.getElementById("circle");
-
-c.className="circle hold";
-
-if(signal==="BUY"){
-
-c.className="circle buy";
-
-}
-
-if(signal==="SELL"){
-
-c.className="circle sell";
-
-}
-
-c.innerHTML=`
-
-<div>${signal}</div>
-
-<div style="font-size:14px">2 MIN</div>
-
-`;
-
-}
-
-/* START */
-
-function start(){
-
-prices=[];
-
-if(ws)ws.close();
-
-ws=new WebSocket(
-"wss://ws.derivws.com/websockets/v3?app_id=1089"
-);
-
-ws.onopen=()=>{
-
-ws.send(JSON.stringify({
-
-ticks:document.getElementById("pair").value,
-
-subscribe:1
-
-}));
-
-};
-
-ws.onmessage=(msg)=>{
-
-if(!keyActive)return;
-
-let data=JSON.parse(msg.data);
-
-if(!data.tick)return;
-
-let price=parseFloat(data.tick.quote);
-
-if(isNaN(price))return;
-
-prices.push(price);
-
-if(prices.length>200){
-
-prices.shift();
-
-}
-
-document.getElementById("price").innerText=price;
-
-if(prices.length<35)return;
-
-let rsi=RSI(prices);
-
-let emaFast=EMA(prices,8);
-
-let emaSlow=EMA(prices,25);
-
-let macd=MACD(prices);
-
-let mom=momentum(prices);
-
-let vol=volatility(prices);
-
-document.getElementById("rsi").innerText=
-rsi.toFixed(2);
-
-document.getElementById("emaFast").innerText=
-emaFast.toFixed(5);
-
-document.getElementById("emaSlow").innerText=
-emaSlow.toFixed(5);
-
-document.getElementById("macd").innerText=
-macd.toFixed(5);
-
-let trend="SIDEWAYS";
-
-if(emaFast>emaSlow){
-
-trend="UPTREND";
-
-}
-
-if(emaFast<emaSlow){
-
-trend="DOWNTREND";
-
-}
-
-document.getElementById("trend").innerText=
-trend;
-
-let score=trendStrength(
-
-price,
-
-emaFast,
-
-emaSlow,
-
-rsi,
-
-macd,
-
-mom
-
-);
-
-document.getElementById("strength").innerText=
-score;
-
-let signal="WAIT";
-
-if(vol < 0.00015){
-
-signal="WAIT";
-
-}
-
-else if(
-
-emaFast > emaSlow &&
-
-macd > 0 &&
-
-mom > 0
-
-){
-
-signal="BUY";
-
-}
-
-else if(
-
-emaFast < emaSlow &&
-
-macd < 0 &&
-
-mom < 0
-
-){
-
-signal="SELL";
-
-}
-
-if(lock)return;
-
-if(signal!=="WAIT" && signal!==lastSignal){
-
-lastSignal=signal;
-
-lock=true;
-
-total++;
-
-document.getElementById("total").innerText=
-total;
-
-document.getElementById("sig").innerText=
-signal;
-
-updateCircle(signal);
-
-let duration=120;
-
-let trade={
-
-signal:signal,
-
-entry:price,
-
-start:Date.now(),
-
-end:Date.now()+(duration*1000),
-
-closed:false
-
-};
-
-startCountdown(trade);
-
-}
-
-};
-
-}
-
-/* COUNTDOWN */
-
-function startCountdown(trade){
-
-let timer=setInterval(()=>{
-
-if(!keyActive){
-
-clearInterval(timer);
-
-return;
-
-}
-
-let left=
-Math.floor((trade.end-Date.now())/1000);
-
-if(left<=0){
-
-clearInterval(timer);
-
-document.getElementById("countdown").innerText=
-"0s";
-
-evaluateTrade(trade);
-
-lastSignal="WAIT";
-
-lock=false;
-
-document.getElementById("sig").innerText=
-"SEARCHING...";
-
-updateCircle("WAIT");
-
-return;
-
-}
-
-document.getElementById("countdown").innerText=
-left+"s";
-
-},1000);
-
-}
-
-/* EVALUATE */
-
-function evaluateTrade(trade){
-
-let current=prices[prices.length-1];
-
-let win=false;
-
-if(
-
-(trade.signal==="BUY" && current>trade.entry)
-
-||
-
-(trade.signal==="SELL" && current<trade.entry)
-
-){
-
-win=true;
-
-}
-
-if(win){
-
-wins++;
-
-document.getElementById("wins").innerText=
-wins;
-
-document.getElementById("result").innerHTML=
-
-"<span class='win'>GAIN ✅</span>";
-
-}else{
-
-losses++;
-
-document.getElementById("losses").innerText=
-losses;
-
-document.getElementById("result").innerHTML=
-
-"<span class='loss'>LOSS ❌</span>";
-
-}
-
-addHistory(trade,win,current);
-
-}
-
-/* HISTORY */
-
-function addHistory(trade,win,current){
-
-let history=document.getElementById("history");
-
-let item=document.createElement("div");
-
-item.className="historyItem";
-
-let badge=trade.signal==="BUY"
-
-? "<span class='badge buyBadge'>BUY</span>"
-
-: "<span class='badge sellBadge'>SELL</span>";
-
-item.innerHTML=`
-
-${badge}<br>
-
-Entry: ${trade.entry}<br>
-
-Close: ${current}<br>
-
-Result:
-
-${win
-
-? "<span class='win'>GAIN</span>"
-
-: "<span class='loss'>LOSS</span>"
-
-}
-
-`;
-
-history.prepend(item);
+});
 
 }
 
