@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>DARK MAGIC AI</title>
+<title>DARK MAGIC AI PRO</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 
@@ -235,8 +235,8 @@ color:#ff3355;
 
 <div class="container">
 
-<h1>⚡ DARK MAGIC AI</h1>
-<p class="sub">Continuous Trend Signal Engine 📊</p>
+<h1>⚡ DARK MAGIC AI PRO</h1>
+<p class="sub">Advanced AI Trend + Reversal Signal Engine 📊</p>
 
 <select id="pair">
 <option value="frxEURUSD">EUR/USD</option>
@@ -262,6 +262,7 @@ color:#ff3355;
 <p>⚡ MACD: <span id="macd">--</span></p>
 <p>🔥 Strength: <span id="strength">--</span></p>
 <p>📈 Trend: <span id="trend">--</span></p>
+<p>🧠 AI MODE: <span id="mode">--</span></p>
 </div>
 
 <div class="signalBox">
@@ -460,6 +461,26 @@ return max-min;
 
 }
 
+/* SUPPORT */
+
+function support(data){
+
+let recent=data.slice(-20);
+
+return Math.min(...recent);
+
+}
+
+/* RESISTANCE */
+
+function resistance(data){
+
+let recent=data.slice(-20);
+
+return Math.max(...recent);
+
+}
+
 /* TREND STRENGTH */
 
 function trendStrength(price,fastEMA,slowEMA,rsi,macd,mom){
@@ -550,13 +571,13 @@ if(isNaN(price))return;
 
 prices.push(price);
 
-if(prices.length>200){
+if(prices.length>250){
 prices.shift();
 }
 
 document.getElementById("price").innerText=price;
 
-if(prices.length<35)return;
+if(prices.length<40)return;
 
 let rsi=RSI(prices);
 
@@ -569,6 +590,10 @@ let macd=MACD(prices);
 let mom=momentum(prices);
 
 let vol=volatility(prices);
+
+let sup=support(prices);
+
+let res=resistance(prices);
 
 document.getElementById("rsi").innerText=rsi.toFixed(2);
 
@@ -603,31 +628,66 @@ document.getElementById("strength").innerText=score;
 
 let signal="WAIT";
 
+let aiMode="WAITING";
+
 if(vol < 0.00015){
 
 signal="WAIT";
+aiMode="LOW VOLATILITY";
 
 }
+
+/* ORIGINAL TREND SIGNAL */
 
 else if(
 emaFast > emaSlow &&
 macd > 0 &&
-mom > 0
+mom > 0 &&
+rsi < 70
 ){
 
 signal="BUY";
+aiMode="TREND BUY";
 
 }
 
 else if(
 emaFast < emaSlow &&
 macd < 0 &&
-mom < 0
+mom < 0 &&
+rsi > 30
 ){
 
 signal="SELL";
+aiMode="TREND SELL";
 
 }
+
+/* NEW REVERSAL METHOD */
+
+if(
+price <= sup &&
+rsi < 25 &&
+macd > -0.0001
+){
+
+signal="BUY";
+aiMode="REVERSAL BUY";
+
+}
+
+if(
+price >= res &&
+rsi > 75 &&
+macd < 0.0001
+){
+
+signal="SELL";
+aiMode="REVERSAL SELL";
+
+}
+
+document.getElementById("mode").innerText=aiMode;
 
 if(lock)return;
 
